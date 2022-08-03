@@ -1,0 +1,47 @@
+﻿[
+  {
+    "Keyword": "add",
+    "Description": "Adds new shortcut.",
+    "Example": "dir add [keyword] [path]"
+  },
+  {
+    "Keyword": "remove",
+    "Description": "Removes shortcut.",
+    "Example": "dir remove [keyword]"
+  },
+  {
+    "Keyword": "change",
+    "Description": "Changes shortcut path.",
+    "Example": "dir change [keyword] [path]"
+  },
+  {
+    "Keyword": "path",
+    "Description": "Shows shortcut path.",
+    "Example": "dir path [keyword]"
+  },
+  {
+    "Keyword": "config",
+    "Description": "Opens config file.",
+    "Example": "dir config"
+  },
+  {
+    "Keyword": "helpers",
+    "Description": "Opens helpers file.",
+    "Example": "dir helpers"
+  },
+  {
+    "Keyword": "reload",
+    "Description": "Reloads plugin.",
+    "Example": "dir reload"
+  },
+  {
+    "Keyword": "help",
+    "Description": "Shows this help.",
+    "Example": "dir help"
+  },
+  {
+    "Keyword": "list",
+    "Description": "Shows list of shortcuts.",
+    "Example": "dir list"
+  }
+]

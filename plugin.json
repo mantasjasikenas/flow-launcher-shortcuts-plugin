@@ -1,0 +1,12 @@
+{
+  "ID": "661D020D-4E0B-414B-B12B-58F795A20D79",
+  "ActionKeyword": "dir",
+  "Name": "ShortcutPlugin",
+  "Description": "Open specified directory in file explorer",
+  "Author": "Mantelis",
+  "Version": "1.0.0",
+  "Language": "csharp",
+  "Website": "https://github.com/Mantelis/Flow.Launcher.Plugin.ShortcutPlugin",
+  "IcoPath": "images\\icon.png",
+  "ExecuteFileName": "Flow.Launcher.Plugin.ShortcutPlugin.dll"
+}
