@@ -2,9 +2,9 @@
 {
     public class Command
     {
-        public string Keyword { get; private set; }
-        public string Id { get; private set; }
-        public string Path { get; private set; }
+        public string Keyword { get; }
+        public string Id { get; }
+        public string Path { get; }
 
         public Command(string keyword, string id, string path)
         {
@@ -12,7 +12,5 @@
             Id = id;
             Path = path;
         }
-        
-        
     }
 }

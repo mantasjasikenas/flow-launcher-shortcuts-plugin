@@ -25,14 +25,14 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             }
         }
 
-        public static Command Split(string text)
+        public static Command Split(string query)
         {
             Command command = null;
             try
             {
-                var keyword = Regex.Match(text, @"^\w+").ToString();
-                var id = Regex.Matches(text, @"\w+")[1].ToString();
-                var path = Regex.Match(text, @"(?<=\w+ \w+ ).+(?<=\n|$)").ToString();
+                var keyword = Regex.Match(query, @"^\w+").ToString();
+                var id = Regex.Matches(query, @"\w+")[1].ToString();
+                var path = Regex.Match(query, @"(?<=\w+ \w+ ).+(?<=\n|$)").ToString();
 
                 command = new Command(keyword, id, path);
             }

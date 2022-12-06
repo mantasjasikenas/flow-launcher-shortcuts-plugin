@@ -21,11 +21,24 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             return _shortcutsStorage.Shortcuts;
         }
 
+        public static List<Result> Init()
+        {
+            return new List<Result>
+            {
+                new()
+                {
+                    Title = "Plugin initialized",
+                    IcoPath = "images\\icon.png",
+                    Action = _ => true
+                }
+            };
+        }
+
         public List<Result> AddShortcut(string shortcut, string path)
         {
             return new List<Result>
             {
-                new Result()
+                new()
                 {
                     Title = $"Add shortcut '{shortcut.ToUpper()}'.",
                     SubTitle = $"{path}",
@@ -87,7 +100,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         {
             return new List<Result>
             {
-                new Result()
+                new()
                 {
                     Title = $"Change shortcut '{shortcut.ToUpper()}' path.",
                     SubTitle = $"{path}",
@@ -107,7 +120,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         {
             return new List<Result>
             {
-                new Result()
+                new()
                 {
                     Title = $"Open shortcut '{shortcut.ToUpper()}'.",
                     IcoPath = "images\\icon.png",
@@ -117,19 +130,6 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
                         Utils.OpenFolder(_shortcutsStorage.Shortcuts[shortcut]);
                         return true;
                     }
-                }
-            };
-        }
-
-        public List<Result> PluginInitialized()
-        {
-            return new List<Result>
-            {
-                new Result
-                {
-                    Title = $"Plugin initialized",
-                    IcoPath = "images\\icon.png",
-                    Action = _ => true
                 }
             };
         }
@@ -150,23 +150,12 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
                 .ToList();
         }
 
-        public List<Result> Reload()
+        public void Reload()
         {
-            return new List<Result>
-            {
-                new Result
-                {
-                    Title = $"Reload plugin",
-                    IcoPath = "images\\icon.png",
-                    Action = _ =>
-                    {
-                        // var path = _context.CurrentPluginMetadata.PluginDirectory;
-                        _shortcutsStorage = new ShortcutsStorage(_pluginDirectory);
-
-                        return true;
-                    }
-                }
-            };
+            if (_shortcutsStorage is null)
+                _shortcutsStorage = new ShortcutsStorage(_pluginDirectory);
+            else
+                _shortcutsStorage.ReloadShortcuts();
         }
     }
 }

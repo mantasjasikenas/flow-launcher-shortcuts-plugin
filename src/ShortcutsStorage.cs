@@ -7,83 +7,70 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
 {
     public class ShortcutsStorage
     {
-        public Dictionary<string, string> Shortcuts { get; }
+        public Dictionary<string, string> Shortcuts { get; private set; }
         private readonly string _pluginDirectory;
-        private readonly string _settingsFileName;
 
 
         public ShortcutsStorage(string pluginDirectory)
         {
-            _settingsFileName = SettingsManager.GetSettingsFileName();
             _pluginDirectory = pluginDirectory;
-            Shortcuts = LoadShortcutFile(pluginDirectory);
+            Shortcuts = LoadShortcutFile();
         }
 
-        private Dictionary<string, string> LoadShortcutFile(string pluginDirectory)
+        public void ReloadShortcuts()
         {
-            var fullPath = Path.Combine(pluginDirectory, _settingsFileName);
+            Shortcuts = LoadShortcutFile();
+        }
+        
+        private Dictionary<string, string> LoadShortcutFile()
+        {
+            var fullPath = Path.Combine(_pluginDirectory, SettingsManager.ShortcutsFileName);
+            if (!File.Exists(fullPath)) return new Dictionary<string, string>();
 
-            if (File.Exists(fullPath))
+            try
             {
-                try
-                {
-                    string json = File.ReadAllText(fullPath);
-                    return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                }
-                catch (Exception)
-                {
-                    return new Dictionary<string, string>();
-                }
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(fullPath));
             }
-
-            return new Dictionary<string, string>();
+            catch (Exception)
+            {
+                return new Dictionary<string, string>();
+            }
         }
 
-        private void Save()
+        private void SaveShortcutsFile()
         {
-            var options = new JsonSerializerOptions() {WriteIndented = true};
+            var options = new JsonSerializerOptions {WriteIndented = true};
+            var fullPath = Path.Combine(_pluginDirectory, SettingsManager.ShortcutsFileName);
 
-            var fullPath = Path.Combine(_pluginDirectory, _settingsFileName);
-
-            string json = JsonSerializer.Serialize(Shortcuts, options);
+            var json = JsonSerializer.Serialize(Shortcuts, options);
             File.WriteAllText(fullPath, json);
         }
 
-        public void AddShortcut(string id, string path)
+        public void AddShortcut(string id, string shortcutPath)
         {
             if (!Shortcuts.ContainsKey(id))
-            {
-                Shortcuts.Add(id, path);
-                Save();
-            }
+                Shortcuts.Add(id, shortcutPath);
             else
-            {
-                Shortcuts[id] = path;
-                Save();
-            }
+                Shortcuts[id] = shortcutPath;
+
+            SaveShortcutsFile();
         }
 
         public void RemoveShortcut(string id)
         {
-            if (Shortcuts.ContainsKey(id))
-            {
-                Shortcuts.Remove(id);
-                Save();
-            }
+            if (!Shortcuts.ContainsKey(id)) return;
+            
+            Shortcuts.Remove(id);
+            SaveShortcutsFile();
         }
 
-        public void ChangeShortcutPath(string id, string path)
+        public void ChangeShortcutPath(string id, string shortcutPath)
         {
-            if (Shortcuts.ContainsKey(id))
-            {
-                Shortcuts[id] = path;
-                Save();
-            }
+            if (!Shortcuts.ContainsKey(id)) return;
+            
+            Shortcuts[id] = shortcutPath;
+            SaveShortcutsFile();
         }
 
-        public string GetSettingsFileName()
-        {
-            return _settingsFileName;
-        }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin
 {
@@ -12,37 +13,38 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         public void Init(PluginInitContext context)
         {
             _context = context;
-            string path = _context.CurrentPluginMetadata.PluginDirectory;
+            var path = _context.CurrentPluginMetadata.PluginDirectory;
             _shortcuts = new ShortcutsManager(path);
             _settings = new SettingsManager(path, _shortcuts);
         }
 
         public List<Result> Query(Query query)
         {
-            // Get command
-            var search = query.Search;
+            // Get command from query
+            var querySearch = query.Search;
 
 
             // Shortcut command
-            if (_shortcuts.GetShortcuts().ContainsKey(search))
-                return _shortcuts.OpenShortcut(search);
+            if (_shortcuts.GetShortcuts().ContainsKey(querySearch))
+                return _shortcuts.OpenShortcut(querySearch);
 
 
             // Settings command without args
-            if (_settings.Commands.ContainsKey(search))
-                return _settings.Commands[search].Invoke();
+            if (_settings.Commands.ContainsKey(querySearch))
+                return _settings.Commands[querySearch].Invoke();
 
 
             // Settings command with args
-            var command = Utils.Split(search);
-            if (command != null)
+            if (query.SearchTerms.Length >= 2)
             {
-                if (_settings.Settings.ContainsKey(command.Keyword))
+                var command = Utils.Split(querySearch);
+                if (command is not null && _settings.Settings.ContainsKey(command.Keyword))
                     return _settings.Settings[command.Keyword].Invoke(command.Id, command.Path);
             }
+            
 
 
-            return _shortcuts.PluginInitialized();
+            return ShortcutsManager.Init();
         }
     }
 }

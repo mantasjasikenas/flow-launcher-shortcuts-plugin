@@ -15,20 +15,26 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         private readonly string _pluginDirectory;
         private readonly ShortcutsManager _shortcutsManager;
         private List<Helper> _helpers;
-        private const string SettingsFileName = "shortcuts.json";
-        private const string HelpersFileName = "helpers.json";
+
+        public static string ShortcutsFileName { get; } = "shortcuts.json";
+        public static string HelpersFileName { get; } = "helpers.json";
 
 
         public SettingsManager(string pluginDirectory, ShortcutsManager shortcutsManager)
         {
             _shortcutsManager = shortcutsManager;
             _pluginDirectory = pluginDirectory;
+
             Settings = new Dictionary<string, Func<string, string, List<Result>>>(StringComparer
                 .InvariantCultureIgnoreCase);
             Commands = new Dictionary<string, Func<List<Result>>>(StringComparer.InvariantCultureIgnoreCase);
-
-            _helpers = LoadHelper();
-
+            _helpers = LoadHelpersFile();
+            
+            Init();
+        }
+        
+        private void Init()
+        {
             //Settings commands
             Settings.Add("add", _shortcutsManager.AddShortcut);
             Settings.Add("remove", _shortcutsManager.RemoveShortcut);
@@ -37,26 +43,20 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
 
 
             //Commands
-            Commands.Add("config", OpenConfig);
-            Commands.Add("helpers", OpenHelpers);
-            Commands.Add("reload", Reload);
+            Commands.Add("config", OpenConfigCommand);
+            Commands.Add("helpers", OpenHelpersCommand);
+            Commands.Add("reload", ReloadCommand);
+            Commands.Add("help", HelpCommand);
             Commands.Add("list", _shortcutsManager.ListShortcuts);
-            Commands.Add("help", HelpList);
         }
 
-        public static string GetSettingsFileName()
+        private List<Result> OpenConfigCommand()
         {
-            return SettingsFileName;
-        }
-
-        public List<Result> OpenConfig()
-        {
-            var pathConfig = Path.Combine(_pluginDirectory,
-                SettingsFileName);
+            var pathConfig = Path.Combine(_pluginDirectory, ShortcutsFileName);
 
             return new List<Result>
             {
-                new Result()
+                new()
                 {
                     Title = "Open plugin config.",
                     SubTitle = $"{pathConfig}",
@@ -72,15 +72,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
                 }
             };
         }
-        
-        public List<Result> OpenHelpers()
+
+        private List<Result> OpenHelpersCommand()
         {
             var pathConfig = Path.Combine(_pluginDirectory,
                 HelpersFileName);
 
             return new List<Result>
             {
-                new Result()
+                new()
                 {
                     Title = "Open plugin helpers.",
                     SubTitle = $"{pathConfig}",
@@ -97,27 +97,26 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             };
         }
 
-        public List<Result> Reload()
+        private List<Result> ReloadCommand()
         {
             return new List<Result>
             {
-                new Result()
+                new()
                 {
                     Title = "Reload plugin.",
                     IcoPath = "images\\icon.png",
                     Action = _ =>
                     {
                         _shortcutsManager.Reload();
-                        _helpers = LoadHelper();
+                        _helpers = LoadHelpersFile();
                         return true;
                     }
                 }
             };
         }
 
-        public List<Result> HelpList()
+        private List<Result> HelpCommand()
         {
-            LoadHelper();
             return Settings.Keys.Union(Commands.Keys).Select(x =>
                     new Result
                     {
@@ -128,24 +127,19 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
                 .ToList();
         }
 
-        private List<Helper> LoadHelper()
+        private List<Helper> LoadHelpersFile()
         {
             var fullPath = Path.Combine(_pluginDirectory, HelpersFileName);
+            if (!File.Exists(fullPath)) return new List<Helper>();
 
-            if (File.Exists(fullPath))
+            try
             {
-                try
-                {
-                    string json = File.ReadAllText(fullPath);
-                    return JsonSerializer.Deserialize<List<Helper>>(json);
-                }
-                catch (Exception)
-                {
-                    return new List<Helper>();
-                }
+                return JsonSerializer.Deserialize<List<Helper>>(File.ReadAllText(fullPath));
             }
-
-            return new List<Helper>();
+            catch (Exception)
+            {
+                return new List<Helper>();
+            }
         }
     }
 }
