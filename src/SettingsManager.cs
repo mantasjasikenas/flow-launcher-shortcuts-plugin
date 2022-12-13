@@ -16,8 +16,8 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         private readonly ShortcutsManager _shortcutsManager;
         private List<Helper> _helpers;
 
-        public static string ShortcutsFileName { get; } = "shortcuts.json";
-        public static string HelpersFileName { get; } = "helpers.json";
+        public static string ShortcutsFileName => "config\\shortcuts.json";
+        public static string HelpersFileName => "config\\helpers.json";
 
 
         public SettingsManager(string pluginDirectory, ShortcutsManager shortcutsManager)
@@ -29,10 +29,10 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
                 .InvariantCultureIgnoreCase);
             Commands = new Dictionary<string, Func<List<Result>>>(StringComparer.InvariantCultureIgnoreCase);
             _helpers = LoadHelpersFile();
-            
+
             Init();
         }
-        
+
         private void Init()
         {
             //Settings commands
@@ -54,23 +54,11 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         {
             var pathConfig = Path.Combine(_pluginDirectory, ShortcutsFileName);
 
-            return new List<Result>
+            return Utils.SingleResult(Resources.SettingsManager_OpenConfigCommand_Open_plugin_config, pathConfig, () =>
             {
-                new()
-                {
-                    Title = "Open plugin config.",
-                    SubTitle = $"{pathConfig}",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        Clipboard.SetText(pathConfig);
-                        new Process {StartInfo = new ProcessStartInfo(pathConfig) {UseShellExecute = true}}.Start();
-
-                        return true;
-                    }
-                }
-            };
+                Clipboard.SetText(pathConfig);
+                new Process {StartInfo = new ProcessStartInfo(pathConfig) {UseShellExecute = true}}.Start();
+            });
         }
 
         private List<Result> OpenHelpersCommand()
@@ -78,41 +66,21 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             var pathConfig = Path.Combine(_pluginDirectory,
                 HelpersFileName);
 
-            return new List<Result>
-            {
-                new()
+            return Utils.SingleResult(Resources.SettingsManager_OpenHelpersCommand_Open_plugin_helpers, pathConfig,
+                () =>
                 {
-                    Title = "Open plugin helpers.",
-                    SubTitle = $"{pathConfig}",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        Clipboard.SetText(pathConfig);
-                        new Process {StartInfo = new ProcessStartInfo(pathConfig) {UseShellExecute = true}}.Start();
-
-                        return true;
-                    }
-                }
-            };
+                    Clipboard.SetText(pathConfig);
+                    new Process {StartInfo = new ProcessStartInfo(pathConfig) {UseShellExecute = true}}.Start();
+                });
         }
 
         private List<Result> ReloadCommand()
         {
-            return new List<Result>
+            return Utils.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin, action: () =>
             {
-                new()
-                {
-                    Title = "Reload plugin.",
-                    IcoPath = "images\\icon.png",
-                    Action = _ =>
-                    {
-                        _shortcutsManager.Reload();
-                        _helpers = LoadHelpersFile();
-                        return true;
-                    }
-                }
-            };
+                _shortcutsManager.Reload();
+                _helpers = LoadHelpersFile();
+            });
         }
 
         private List<Result> HelpCommand()

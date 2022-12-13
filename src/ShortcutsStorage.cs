@@ -21,7 +21,33 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         {
             Shortcuts = LoadShortcutFile();
         }
-        
+
+        public void AddShortcut(string id, string shortcutPath)
+        {
+            if (!Shortcuts.ContainsKey(id))
+                Shortcuts.Add(id, shortcutPath);
+            else
+                Shortcuts[id] = shortcutPath;
+
+            SaveShortcutsFile();
+        }
+
+        public void RemoveShortcut(string id)
+        {
+            if (!Shortcuts.ContainsKey(id)) return;
+
+            Shortcuts.Remove(id);
+            SaveShortcutsFile();
+        }
+
+        public void ChangeShortcutPath(string id, string shortcutPath)
+        {
+            if (!Shortcuts.ContainsKey(id)) return;
+
+            Shortcuts[id] = shortcutPath;
+            SaveShortcutsFile();
+        }
+
         private Dictionary<string, string> LoadShortcutFile()
         {
             var fullPath = Path.Combine(_pluginDirectory, SettingsManager.ShortcutsFileName);
@@ -45,32 +71,5 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             var json = JsonSerializer.Serialize(Shortcuts, options);
             File.WriteAllText(fullPath, json);
         }
-
-        public void AddShortcut(string id, string shortcutPath)
-        {
-            if (!Shortcuts.ContainsKey(id))
-                Shortcuts.Add(id, shortcutPath);
-            else
-                Shortcuts[id] = shortcutPath;
-
-            SaveShortcutsFile();
-        }
-
-        public void RemoveShortcut(string id)
-        {
-            if (!Shortcuts.ContainsKey(id)) return;
-            
-            Shortcuts.Remove(id);
-            SaveShortcutsFile();
-        }
-
-        public void ChangeShortcutPath(string id, string shortcutPath)
-        {
-            if (!Shortcuts.ContainsKey(id)) return;
-            
-            Shortcuts[id] = shortcutPath;
-            SaveShortcutsFile();
-        }
-
     }
 }

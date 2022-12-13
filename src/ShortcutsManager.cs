@@ -23,55 +23,19 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
 
         public static List<Result> Init()
         {
-            return new List<Result>
-            {
-                new()
-                {
-                    Title = "Plugin initialized",
-                    IcoPath = "images\\icon.png",
-                    Action = _ => true
-                }
-            };
+            return Utils.SingleResult(Resources.ShortcutsManager_Init_Plugin_initialized);
         }
 
         public List<Result> AddShortcut(string shortcut, string path)
         {
-            return new List<Result>
-            {
-                new()
-                {
-                    Title = $"Add shortcut '{shortcut.ToUpper()}'.",
-                    SubTitle = $"{path}",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        _shortcutsStorage.AddShortcut(shortcut, path);
-
-                        return true;
-                    }
-                }
-            };
+            return Utils.SingleResult(string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut, shortcut.ToUpper()), path,
+                () => { _shortcutsStorage.AddShortcut(shortcut, path); });
         }
 
         public List<Result> RemoveShortcut(string shortcut, string path)
         {
-            return new List<Result>
-            {
-                new Result()
-                {
-                    Title = $"Remove shortcut '{shortcut.ToUpper()}'.",
-                    SubTitle = $"{path}",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        _shortcutsStorage.RemoveShortcut(shortcut);
-
-                        return true;
-                    }
-                }
-            };
+            return Utils.SingleResult(string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut, shortcut.ToUpper()), path,
+                () => { _shortcutsStorage.RemoveShortcut(shortcut); });
         }
 
         public List<Result> GetShortcutPath(string shortcut, string path)
@@ -79,59 +43,20 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             if (_shortcutsStorage.Shortcuts.ContainsKey(shortcut))
                 path = _shortcutsStorage.Shortcuts[shortcut];
 
-            return new List<Result>
-            {
-                new Result()
-                {
-                    Title = $"Copy shortcut {shortcut.ToUpper()} path.",
-                    SubTitle = $"{path}",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        Clipboard.SetText(path);
-                        return true;
-                    }
-                }
-            };
+            return Utils.SingleResult(string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, shortcut.ToUpper()), path,
+                () => { Clipboard.SetText(path); });
         }
 
         public List<Result> ChangeShortcutPath(string shortcut, string path)
         {
-            return new List<Result>
-            {
-                new()
-                {
-                    Title = $"Change shortcut '{shortcut.ToUpper()}' path.",
-                    SubTitle = $"{path}",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        _shortcutsStorage.ChangeShortcutPath(shortcut, path);
-
-                        return true;
-                    }
-                }
-            };
+            return Utils.SingleResult(string.Format(Resources.ShortcutsManager_ChangeShortcutPath_Change_shortcut_path, shortcut.ToUpper()), path,
+                () => { _shortcutsStorage.ChangeShortcutPath(shortcut, path); });
         }
 
         public List<Result> OpenShortcut(string shortcut)
         {
-            return new List<Result>
-            {
-                new()
-                {
-                    Title = $"Open shortcut '{shortcut.ToUpper()}'.",
-                    IcoPath = "images\\icon.png",
-
-                    Action = _ =>
-                    {
-                        Utils.OpenFolder(_shortcutsStorage.Shortcuts[shortcut]);
-                        return true;
-                    }
-                }
-            };
+            return Utils.SingleResult(string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.ToUpper()), _shortcutsStorage.Shortcuts[shortcut],
+                () => { Utils.OpenFolder(_shortcutsStorage.Shortcuts[shortcut]); });
         }
 
         public List<Result> ListShortcuts()

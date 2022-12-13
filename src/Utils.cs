@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -21,7 +23,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             }
             else
             {
-                MessageBox.Show($"{folderPath} Directory does not exist!");
+                MessageBox.Show(string.Format(Resources.Utils_OpenFolder_Directory_does_not_exist, folderPath));
             }
         }
 
@@ -43,5 +45,22 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
 
             return command;
         }
+        
+        // Returns a list with a single result
+        public static List<Result> SingleResult(string title, string subtitle = "", Action action = default, bool hideAfterAction = true) =>
+            new()
+            {
+                new Result
+                {
+                    Title = title,
+                    SubTitle = subtitle,
+                    IcoPath = "images\\icon.png",
+                    Action = _ =>
+                    {
+                        action?.Invoke();
+                        return hideAfterAction;
+                    }
+                }
+            };
     }
 }
