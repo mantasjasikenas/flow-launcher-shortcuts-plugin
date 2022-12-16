@@ -48,6 +48,8 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             Commands.Add("reload", ReloadCommand);
             Commands.Add("help", HelpCommand);
             Commands.Add("list", _shortcutsManager.ListShortcuts);
+            Commands.Add("import", _shortcutsManager.ImportShortcuts);
+            Commands.Add("export", _shortcutsManager.ExportShortcuts);
         }
 
         private List<Result> OpenConfigCommand()

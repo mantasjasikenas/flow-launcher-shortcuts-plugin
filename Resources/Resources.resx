@@ -48,4 +48,19 @@
     <data name="Utils_OpenFolder_Directory_does_not_exist" xml:space="preserve">
         <value>Directory does not exist! ({0})</value>
     </data>
+    <data name="Import_shortcuts" xml:space="preserve">
+        <value>Import shortcuts</value>
+    </data>
+    <data name="Export_shortcuts" xml:space="preserve">
+        <value>Export shortcuts</value>
+    </data>
+    <data name="Shortcuts_file_not_found" xml:space="preserve">
+        <value>Shortcuts file not found!</value>
+    </data>
+    <data name="Error_while_exporting_shortcuts" xml:space="preserve">
+        <value>Error while exporting shortcuts</value>
+    </data>
+    <data name="Failed_to_import_shortcuts_file" xml:space="preserve">
+        <value>Failed to import shortcuts file</value>
+    </data>
 </root>

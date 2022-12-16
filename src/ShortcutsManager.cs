@@ -58,7 +58,19 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             return Utils.SingleResult(string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.ToUpper()), _shortcutsStorage.Shortcuts[shortcut],
                 () => { Utils.OpenFolder(_shortcutsStorage.Shortcuts[shortcut]); });
         }
-
+        
+        public List<Result> ImportShortcuts()
+        {
+            return Utils.SingleResult(Resources.Import_shortcuts, "",
+                () => { _shortcutsStorage.ImportShortcuts(); });
+        }
+        
+        public List<Result> ExportShortcuts()
+        {
+            return Utils.SingleResult(Resources.Export_shortcuts, "",
+                () => { _shortcutsStorage.ExportShortcuts(); });
+        }
+        
         public List<Result> ListShortcuts()
         {
             return _shortcutsStorage.Shortcuts.Select(shortcut => new Result

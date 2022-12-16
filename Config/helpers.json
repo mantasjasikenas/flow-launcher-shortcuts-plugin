@@ -43,5 +43,15 @@
     "Keyword": "list",
     "Description": "Shows list of shortcuts.",
     "Example": "dir list"
+  },
+  {
+    "Keyword": "import",
+    "Description": "Imports shortcuts from JSON file.",
+    "Example": "dir import"
+  },
+  {
+    "Keyword": "export",
+    "Description": "Exports shortcuts to JSON file.",
+    "Example": "dir export"
   }
 ]

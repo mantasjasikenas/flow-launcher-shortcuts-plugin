@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin
 {
@@ -22,8 +23,8 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
         {
             // Get command from query
             var querySearch = query.Search;
-
-
+            
+            
             // Shortcut command
             if (_shortcutsManager.GetShortcuts().ContainsKey(querySearch))
                 return _shortcutsManager.OpenShortcut(querySearch);
@@ -33,7 +34,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
             if (_settingsManager.Commands.ContainsKey(querySearch))
                 return _settingsManager.Commands[querySearch].Invoke();
 
-
+            
             // Settings command with args
             if (query.SearchTerms.Length >= 2)
             {

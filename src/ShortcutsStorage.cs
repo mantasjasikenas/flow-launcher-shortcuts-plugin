@@ -2,6 +2,8 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Windows;
+using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin
 {
@@ -46,6 +48,68 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin
 
             Shortcuts[id] = shortcutPath;
             SaveShortcutsFile();
+        }
+
+        // TODO: Check if imported file JSON is valid
+        public void ImportShortcuts()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Title = Resources.Import_shortcuts,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = "json",
+                Filter = "JSON (*.json)|*.json",
+                FilterIndex = 2,
+                RestoreDirectory = true
+            };
+
+            if (openFileDialog.ShowDialog() != true) return;
+            var shortcutsPath = Path.Combine(_pluginDirectory, SettingsManager.ShortcutsFileName);
+            
+            try
+            {
+                File.Copy(openFileDialog.FileName, shortcutsPath, true);
+                ReloadShortcuts();
+            }
+            catch
+            {
+                MessageBox.Show(Resources.Failed_to_import_shortcuts_file);
+            }
+        }
+
+        public void ExportShortcuts()
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                Title = Resources.Export_shortcuts,
+                FileName = "shortcuts.json",
+                CheckPathExists = true,
+                DefaultExt = "json",
+                Filter = "JSON (*.json)|*.json",
+                FilterIndex = 2,
+                RestoreDirectory = true
+            };
+
+            if (saveFileDialog.ShowDialog() != true) return;
+            
+            var shortcutsPath = Path.Combine(_pluginDirectory, SettingsManager.ShortcutsFileName);
+            if (!File.Exists(shortcutsPath))
+            {
+                MessageBox.Show(Resources.Shortcuts_file_not_found);
+                return;
+            }
+
+            try
+            {
+                File.Copy(shortcutsPath, saveFileDialog.FileName);
+            }
+            catch
+            {
+                MessageBox.Show(Resources.Error_while_exporting_shortcuts);
+            }
         }
 
         private Dictionary<string, string> LoadShortcutFile()
