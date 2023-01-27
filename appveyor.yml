@@ -1,0 +1,18 @@
+version: 1.0.0.{build}
+image: Visual Studio 2019
+
+environment:
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+build_script:
+- ps: dotnet publish -c Release -r win-x64 Flow.Launcher.Plugin.ShortcutPlugin/Flow.Launcher.Plugin.ShortcutPlugin.csproj
+
+after_build:
+- ps: >-
+    Compress-Archive -Path "Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish\*" -DestinationPath "plugin.zip"
+
+    Rename-Item plugin.zip Flow.Launcher.Plugin.ShortcutPlugin.flowlauncher
+
+artifacts:
+    - path: 'Flow.Launcher.Plugin.ShortcutPlugin.flowlauncher'
