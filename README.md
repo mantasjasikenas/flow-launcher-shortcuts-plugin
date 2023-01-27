@@ -1,4 +1,8 @@
-# Shortcuts Plugin
+Flow.Launcher.Plugin.ShortcutPlugin
+==================
 
-Plugin for Flow Launcher to create shortcuts to files and folders.
+A plugin for the [Flow launcher](https://github.com/Flow-Launcher/Flow.Launcher).
 
+### Usage
+
+    st <arguments>
