@@ -1,21 +1,22 @@
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.Manager;
+using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
+using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
 public class ShortcutPlugin : IPlugin
 {
-    private ShortcutsManager _shortcutsManager;
-    private SettingsManager _settingsManager;
-    private PluginInitContext _context;
-
+    private ISettingsService _settingsService;
+    private IShortcutsRepository _shortcutsRepository;
+    private IShortcutsService _shortcutsService;
 
     public void Init(PluginInitContext context)
     {
-        _context = context;
-        var path = _context.CurrentPluginMetadata.PluginDirectory;
-        _shortcutsManager = new ShortcutsManager(path);
-        _settingsManager = new SettingsManager(path, _shortcutsManager);
+        var path = context.CurrentPluginMetadata.PluginDirectory;
+
+        _shortcutsRepository = new ShortcutsRepository(path);
+        _shortcutsService = new ShortcutsService(path, _shortcutsRepository);
+        _settingsService = new SettingsService(path, _shortcutsService);
     }
 
     public List<Result> Query(Query query)
@@ -24,22 +25,22 @@ public class ShortcutPlugin : IPlugin
         var querySearch = query.Search;
 
         // Shortcut command
-        if (_shortcutsManager.GetShortcuts().ContainsKey(querySearch))
-            return _shortcutsManager.OpenShortcut(querySearch);
+        if (_shortcutsService.GetShortcuts().ContainsKey(querySearch))
+            return _shortcutsService.OpenShortcut(querySearch);
 
 
         // Settings command without args
-        if (_settingsManager.Commands.ContainsKey(querySearch))
-            return _settingsManager.Commands[querySearch].Invoke();
+        if (_settingsService.Commands.TryGetValue(querySearch, out var settingsCommand))
+            return settingsCommand.Invoke();
 
 
         // Settings command with args
-        if (query.SearchTerms.Length < 2) return ShortcutsManager.Init();
+        if (query.SearchTerms.Length < 2) return ShortcutsService.DefaultResult();
         var command = Utils.Utils.Split(querySearch);
-        if (command is not null && _settingsManager.Settings.ContainsKey(command.Keyword))
-            return _settingsManager.Settings[command.Keyword].Invoke(command.Id, command.Path);
+        if (command is not null && _settingsService.Settings.TryGetValue(command.Keyword, out var setting))
+            return setting.Invoke(command.Id, command.Path);
 
 
-        return ShortcutsManager.Init();
+        return ShortcutsService.DefaultResult();
     }
 }

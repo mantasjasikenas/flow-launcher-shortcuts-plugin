@@ -47,8 +47,9 @@ public static class Utils
 
     // Returns a list with a single result
     public static List<Result> SingleResult(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true) =>
-        new()
+        bool hideAfterAction = true)
+    {
+        return new List<Result>
         {
             new Result
             {
@@ -62,4 +63,5 @@ public static class Utils
                 }
             }
         };
+    }
 }

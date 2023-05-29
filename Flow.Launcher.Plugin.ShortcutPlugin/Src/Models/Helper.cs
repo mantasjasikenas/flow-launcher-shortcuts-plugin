@@ -2,9 +2,9 @@
 
 public class Helper
 {
-    public string Keyword { get;  set; }
-    public string Description { get;  set; }
-    public string Example { get;  set; }
+    public string Keyword { get; set; }
+    public string Description { get; set; }
+    public string Example { get; set; }
 
 
     public static HelperBuilder Builder()

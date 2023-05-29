@@ -1,61 +1,58 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net6.0-windows</TargetFramework>
-		<AssemblyName>Flow.Launcher.Plugin.ShortcutPlugin</AssemblyName>
-		<PackageId>Flow.Launcher.Plugin.ShortcutPlugin</PackageId>
-		<Authors>Mantelis</Authors>
-		<PackageProjectUrl>https://github.com/Mantelis/Flow.Launcher.Plugin.ShortcutPlugin</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/Mantelis/Flow.Launcher.Plugin.ShortcutPlugin</RepositoryUrl>
-		<PackageTags>flow-launcher flow-plugin</PackageTags>
-		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-		<GenerateDocumentationFile>false</GenerateDocumentationFile>
-		<LangVersion>11</LangVersion>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <AssemblyName>Flow.Launcher.Plugin.ShortcutPlugin</AssemblyName>
+        <PackageId>Flow.Launcher.Plugin.ShortcutPlugin</PackageId>
+        <Authors>Mantelis</Authors>
+        <PackageProjectUrl>https://github.com/Mantelis/Flow.Launcher.Plugin.ShortcutPlugin</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Mantelis/Flow.Launcher.Plugin.ShortcutPlugin</RepositoryUrl>
+        <PackageTags>flow-launcher flow-plugin</PackageTags>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <LangVersion>11</LangVersion>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugSymbols>false</DebugSymbols>
-		<DebugType>None</DebugType>
-	</PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>None</DebugType>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Content Include="..\release.ps1">
-		  <Link>release.ps1</Link>
-		</Content>
-		<Content Include="plugin.json">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Images\*.png">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Update="Config\helpers.json">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-		<None Remove="Config\helpers.json" />
-		<Content Include="Config\helpers.json">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+    <ItemGroup>
+        <Content Include="plugin.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Images\*.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="Config\helpers.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="Config\helpers.json"/>
+        <Content Include="Config\helpers.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="CliWrap" Version="3.6.0" />
-		<PackageReference Include="Flow.Launcher.Plugin" Version="2.1.1" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CliWrap" Version="3.6.0"/>
+        <PackageReference Include="Flow.Launcher.Plugin" Version="2.1.1"/>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <Compile Update="Resources\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Update="Resources\Resources.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <EmbeddedResource Update="Resources\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </EmbeddedResource>
-	</ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </EmbeddedResource>
+    </ItemGroup>
 
 </Project>

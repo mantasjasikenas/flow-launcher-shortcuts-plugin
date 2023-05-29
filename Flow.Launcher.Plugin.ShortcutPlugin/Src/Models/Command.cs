@@ -2,9 +2,9 @@
 
 public class Command
 {
-    public string Keyword { get; set; }
-    public string Id { get; set; }
-    public string Path { get; set; }
+    public string Keyword { get; private set; }
+    public string Id { get; private set; }
+    public string Path { get; private set; }
 
 
     public static CommandBuilder Builder()
