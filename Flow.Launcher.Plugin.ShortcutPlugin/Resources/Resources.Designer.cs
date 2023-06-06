@@ -186,6 +186,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Directory or file does not exist! ({0}).
+        /// </summary>
+        internal static string Utils_OpenFileOrFolder_File_or_directory_does_not_exist {
+            get {
+                return ResourceManager.GetString("Utils_OpenFileOrFolder_File_or_directory_does_not_exist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Directory does not exist! ({0}).
         /// </summary>
         internal static string Utils_OpenFolder_Directory_does_not_exist {

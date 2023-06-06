@@ -53,6 +53,9 @@
     <data name="Utils_OpenFolder_Directory_does_not_exist" xml:space="preserve">
         <value>Directory does not exist! ({0})</value>
     </data>
+    <data name="Utils_OpenFileOrFolder_File_or_directory_does_not_exist" xml:space="preserve">
+        <value>Directory or file does not exist! ({0})</value>
+    </data>
     <data name="Import_shortcuts" xml:space="preserve">
         <value>Import shortcuts</value>
     </data>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -10,18 +11,47 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 public static class Utils
 {
-    public static void OpenFolder(string folderPath)
+    public static void OpenFileOrFolder(string path)
     {
-        if (!Directory.Exists(folderPath))
+        if (IsFile(path))
         {
-            MessageBox.Show(string.Format(Resources.Utils_OpenFolder_Directory_does_not_exist, folderPath));
-            return;
+            OpenFile(path);
+        }
+        else if (IsDirectory(path))
+        {
+            OpenFolder(path);
+        }
+        else
+        {
+            MessageBox.Show(string.Format(Resources.Utils_OpenFileOrFolder_File_or_directory_does_not_exist, path));
         }
 
+    }
+
+    private static void OpenFile(string path)  {
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = path,
+            UseShellExecute = true
+        };
+        Process.Start(processStartInfo);
+    }
+
+
+    private static void OpenFolder(string path)
+    {
         Cli.Wrap("explorer.exe")
-           .WithArguments(folderPath)
+           .WithArguments(path)
            .ExecuteAsync();
     }
+
+
+    private static bool IsFile(string path) =>
+        File.Exists(path);
+
+
+    private static bool IsDirectory(string path) =>
+        Directory.Exists(path);
 
 
     public static Command Split(string query)
