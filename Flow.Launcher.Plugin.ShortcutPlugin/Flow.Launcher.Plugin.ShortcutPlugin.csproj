@@ -10,7 +10,7 @@
         <PackageTags>flow-launcher flow-plugin</PackageTags>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <LangVersion>12</LangVersion>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -17,7 +18,7 @@ public class ShortcutsService : IShortcutsService
         _shortcutsRepository = shortcutsRepository;
     }
 
-    public Dictionary<string, string> GetShortcuts()
+    public Dictionary<string, Shortcut> GetShortcuts()
     {
         return _shortcutsRepository.GetShortcuts();
     }
@@ -39,7 +40,7 @@ public class ShortcutsService : IShortcutsService
     public List<Result> GetShortcutPath(string shortcut, string path)
     {
         if (_shortcutsRepository.GetShortcuts().TryGetValue(shortcut, out var shortcutPath))
-            path = shortcutPath;
+            path = shortcutPath.Path;
 
         return Utils.Utils.SingleResult(
             string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, shortcut.ToUpper()), path,
@@ -57,8 +58,8 @@ public class ShortcutsService : IShortcutsService
     {
         return Utils.Utils.SingleResult(
             string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.ToUpper()),
-            _shortcutsRepository.GetShortcuts()[shortcut],
-            () => { Utils.Utils.OpenPath(_shortcutsRepository.GetShortcuts()[shortcut]); });
+            _shortcutsRepository.GetShortcuts()[shortcut].Path,
+            () => { Utils.Utils.OpenShortcut(_shortcutsRepository.GetShortcuts()[shortcut]); });
     }
 
     public List<Result> ImportShortcuts()
@@ -80,11 +81,11 @@ public class ShortcutsService : IShortcutsService
                .Select(shortcut => new Result
                {
                    Title = $"{shortcut.Key.ToUpper()}",
-                   SubTitle = $"{shortcut.Value}",
+                   SubTitle = $"{shortcut.Value.Path}",
                    IcoPath = "images\\icon.png",
                    Action = _ =>
                    {
-                       Utils.Utils.OpenPath(shortcut.Value);
+                       Utils.Utils.OpenShortcut(shortcut.Value);
                        return true;
                    }
                })

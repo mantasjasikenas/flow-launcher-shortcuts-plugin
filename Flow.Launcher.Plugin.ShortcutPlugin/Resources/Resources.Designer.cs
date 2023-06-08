@@ -123,6 +123,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Shortcut type unsupported!.
+        /// </summary>
+        internal static string Shortcut_type_not_supported {
+            get {
+                return ResourceManager.GetString("Shortcut_type_not_supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Shortcuts file not found!.
         /// </summary>
         internal static string Shortcuts_file_not_found {

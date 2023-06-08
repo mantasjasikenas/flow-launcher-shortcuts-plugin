@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Windows;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Microsoft.Win32;
 
@@ -11,29 +13,46 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly string _pluginDirectory;
-    private Dictionary<string, string> _shortcuts;
+    private readonly string _shortcutsPath;
+    private Dictionary<string, Shortcut> _shortcuts;
 
 
     public ShortcutsRepository(string pluginDirectory)
     {
         _pluginDirectory = pluginDirectory;
-        _shortcuts = LoadShortcutFile();
+        _shortcutsPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
+        _shortcuts = ReadShortcutFile(_shortcutsPath);
     }
 
     public void ReloadShortcuts()
     {
-        _shortcuts = LoadShortcutFile();
+        _shortcuts = ReadShortcutFile(_shortcutsPath);
     }
 
-    public Dictionary<string, string> GetShortcuts()
+    public Dictionary<string, Shortcut> GetShortcuts()
     {
         return _shortcuts;
     }
 
     public void AddShortcut(string id, string shortcutPath)
     {
-        _shortcuts[id] = shortcutPath;
-        SaveShortcutsFile();
+        var type = Utils.Utils.ResolveShortcutType(shortcutPath);
+
+        if(type is ShortcutType.Unknown)
+        {
+            MessageBox.Show(Resources.Shortcut_type_not_supported);
+            return;
+        }
+
+        var shortcut = new Shortcut
+        {
+            Key = id,
+            Path = shortcutPath,
+            Type = type
+        };
+
+        _shortcuts[id] = shortcut;
+        SaveShortcutsToFile();
     }
 
     public void RemoveShortcut(string id)
@@ -41,15 +60,15 @@ public class ShortcutsRepository : IShortcutsRepository
         if (!_shortcuts.ContainsKey(id)) return;
 
         _shortcuts.Remove(id);
-        SaveShortcutsFile();
+        SaveShortcutsToFile();
     }
 
     public void ChangeShortcutPath(string id, string shortcutPath)
     {
         if (!_shortcuts.ContainsKey(id)) return;
 
-        _shortcuts[id] = shortcutPath;
-        SaveShortcutsFile();
+        AddShortcut(id, shortcutPath);
+        SaveShortcutsToFile();
     }
 
     public void ImportShortcuts()
@@ -66,15 +85,22 @@ public class ShortcutsRepository : IShortcutsRepository
             RestoreDirectory = true
         };
 
-        if (openFileDialog.ShowDialog() != true) return;
-        var shortcutsPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
+        if (openFileDialog.ShowDialog() != true)
+            return;
 
         try
         {
-            File.Copy(openFileDialog.FileName, shortcutsPath, true);
+            var importedShortcuts = ReadShortcutFile(openFileDialog.FileName);
+
+            if(importedShortcuts.Count == 0)
+                throw new Exception("No shortcuts found in file");
+
+            _shortcuts = importedShortcuts;
+
+            SaveShortcutsToFile();
             ReloadShortcuts();
         }
-        catch
+        catch (Exception ex)
         {
             MessageBox.Show(Resources.Failed_to_import_shortcuts_file);
         }
@@ -113,27 +139,27 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    private Dictionary<string, string> LoadShortcutFile()
+    private Dictionary<string, Shortcut> ReadShortcutFile(string path)
     {
-        var fullPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
-        if (!File.Exists(fullPath)) return new Dictionary<string, string>();
+        if (!File.Exists(path)) return new Dictionary<string, Shortcut>();
 
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(fullPath));
+            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(File.ReadAllText(path));
+            return shortcuts.ToDictionary(shortcut => shortcut.Key);
         }
         catch (Exception)
         {
-            return new Dictionary<string, string>();
+            return new Dictionary<string, Shortcut>();
         }
     }
 
-    private void SaveShortcutsFile()
+    private void SaveShortcutsToFile()
     {
         var options = new JsonSerializerOptions {WriteIndented = true};
         var fullPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
 
-        var json = JsonSerializer.Serialize(_shortcuts, options);
+        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
         File.WriteAllText(fullPath, json);
     }
 }

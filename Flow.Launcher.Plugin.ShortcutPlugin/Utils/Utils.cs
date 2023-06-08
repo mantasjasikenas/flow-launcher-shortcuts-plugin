@@ -3,31 +3,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Windows;
-using CliWrap;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Command = Flow.Launcher.Plugin.ShortcutPlugin.models.Command;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
-public static class Utils
+public static partial class Utils
 {
-    public static void OpenPath(string path)
+    public static void OpenShortcut(Shortcut shortcut)
     {
-        if (IsValidFile(path))
+        var path = shortcut.Path;
+
+        switch (shortcut.Type)
         {
-            OpenFile(path);
-        }
-        else if (IsValidDirectory(path))
-        {
-            OpenFolder(path);
-        }
-        else if(IsValidUrl(path))
-        {
-            OpenWebsite(path);
-        }
-        else
-        {
-            MessageBox.Show(string.Format(Resources.Utils_OpenFileOrFolder_File_or_directory_does_not_exist, path));
+            case ShortcutType.Directory:
+                OpenDirectory(path);
+                break;
+            case ShortcutType.File:
+                OpenFile(path);
+                break;
+            case ShortcutType.Url:
+                OpenUrl(path);
+                break;
+            default:
+                return;
         }
 
     }
@@ -42,14 +41,16 @@ public static class Utils
     }
 
 
-    private static void OpenFolder(string path)
+    private static void OpenDirectory(string path)
     {
-        Cli.Wrap("explorer.exe")
+        /*Cli.Wrap("explorer.exe")
            .WithArguments(path)
-           .ExecuteAsync();
+           .ExecuteAsync();*/
+
+        Process.Start("explorer.exe", path);
     }
 
-    private static void OpenWebsite(string url)
+    private static void OpenUrl(string url)
     {
         var processStartInfo = new ProcessStartInfo
         {
@@ -68,16 +69,16 @@ public static class Utils
         Directory.Exists(path);
 
     private static bool IsValidUrl(string path) =>
-        Uri.IsWellFormedUriString(path, UriKind.Absolute);
+        Uri.IsWellFormedUriString(path, UriKind.RelativeOrAbsolute);
 
 
     public static Command Split(string query)
     {
         try
         {
-            var keyword = Regex.Match(query, @"^\w+").ToString();
-            var id = Regex.Matches(query, @"\w+")[1].ToString();
-            var path = Regex.Match(query, @"(?<=\w+ \w+ ).+(?<=\n|$)").ToString();
+            var keyword = KeywordRegex().Match(query).ToString();
+            var id = IdRegex().Matches(query)[1].ToString();
+            var path = PathRegex().Match(query).ToString();
 
             return Command
                    .Builder()
@@ -90,6 +91,26 @@ public static class Utils
         {
             return null;
         }
+    }
+
+    public static ShortcutType ResolveShortcutType(string path)
+    {
+        if (IsValidFile(path))
+        {
+            return ShortcutType.File;
+        }
+
+        if (IsValidDirectory(path))
+        {
+            return ShortcutType.Directory;
+        }
+
+        if(IsValidUrl(path))
+        {
+            return ShortcutType.Url;
+        }
+
+        return ShortcutType.Unknown;
     }
 
     // Returns a list with a single result
@@ -111,4 +132,13 @@ public static class Utils
             }
         };
     }
+
+    [GeneratedRegex("^\\w+")]
+    private static partial Regex KeywordRegex();
+
+    [GeneratedRegex("\\w+")]
+    private static partial Regex IdRegex();
+
+    [GeneratedRegex("(?<=\\w+ \\w+ ).+(?<=\\n|$)")]
+    private static partial Regex PathRegex();
 }

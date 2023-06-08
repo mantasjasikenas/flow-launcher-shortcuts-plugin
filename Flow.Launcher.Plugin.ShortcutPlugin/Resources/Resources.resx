@@ -71,4 +71,7 @@
     <data name="Failed_to_import_shortcuts_file" xml:space="preserve">
         <value>Failed to import shortcuts file</value>
     </data>
+    <data name="Shortcut_type_not_supported" xml:space="preserve">
+        <value>Shortcut type unsupported!</value>
+    </data>
 </root>
