@@ -74,4 +74,8 @@
     <data name="Shortcut_type_not_supported" xml:space="preserve">
         <value>Shortcut type unsupported!</value>
     </data>
+    <data name="Shortcuts_Query_No_results_found" xml:space="preserve">
+        <value>No results found</value>
+    </data>
+
 </root>

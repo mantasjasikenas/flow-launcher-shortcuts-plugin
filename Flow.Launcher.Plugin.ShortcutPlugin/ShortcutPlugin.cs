@@ -1,6 +1,8 @@
+using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
-using Results = System.Collections.Generic.List<Flow.Launcher.Plugin.Result>;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
@@ -19,24 +21,22 @@ public class ShortcutPlugin : IPlugin
         _settingsService = new SettingsService(path, _shortcutsService);
     }
 
-    public Results Query(Query query)
+    public List<Result> Query(Query query)
     {
         var querySearch = query.Search;
 
         if (_shortcutsService.GetShortcuts().ContainsKey(querySearch))
             return _shortcutsService.OpenShortcut(querySearch);
 
-
         if (_settingsService.Commands.TryGetValue(querySearch, out var settingsCommand))
             return settingsCommand.Invoke();
 
+        if (query.SearchTerms.Length < 2) return ResultExtensions.InitializedResult();
 
-        if (query.SearchTerms.Length < 2) return ShortcutsService.DefaultResult();
-        var command = Utils.Utils.Split(querySearch);
+        var command = Command.Parse(querySearch);
         if (command is not null && _settingsService.Settings.TryGetValue(command.Keyword, out var setting))
             return setting.Invoke(command.Id, command.Path);
 
-
-        return ShortcutsService.DefaultResult();
+        return ResultExtensions.InitializedResult();
     }
 }

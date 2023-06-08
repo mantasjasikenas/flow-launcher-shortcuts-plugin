@@ -141,6 +141,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No results found.
+        /// </summary>
+        internal static string Shortcuts_Query_No_results_found {
+            get {
+                return ResourceManager.GetString("Shortcuts_Query_No_results_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add shortcut &apos;{0}&apos;..
         /// </summary>
         internal static string ShortcutsManager_AddShortcut_Add_shortcut {

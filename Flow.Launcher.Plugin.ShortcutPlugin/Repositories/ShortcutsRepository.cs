@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
+using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Microsoft.Win32;
@@ -36,7 +37,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void AddShortcut(string id, string shortcutPath)
     {
-        var type = Utils.Utils.ResolveShortcutType(shortcutPath);
+        var type = PathExtensions.ResolveShortcutType(shortcutPath);
 
         if(type is ShortcutType.Unknown)
         {

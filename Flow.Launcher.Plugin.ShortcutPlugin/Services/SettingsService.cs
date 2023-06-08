@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using CliWrap;
+using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -70,7 +71,7 @@ public class SettingsService : ISettingsService
     {
         var pathConfig = Path.Combine(_pluginDirectory, filename);
 
-        return Utils.Utils.SingleResult(title, pathConfig,
+        return ResultExtensions.SingleResult(title, pathConfig,
             () =>
             {
                 Clipboard.SetText(pathConfig);
@@ -83,7 +84,7 @@ public class SettingsService : ISettingsService
 
     private List<Result> ReloadCommand()
     {
-        return Utils.Utils.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin, action: () =>
+        return ResultExtensions.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin, action: () =>
         {
             _shortcutsService.Reload();
             _helpers = LoadHelpersFile();
