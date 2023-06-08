@@ -39,7 +39,7 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         var type = PathExtensions.ResolveShortcutType(shortcutPath);
 
-        if(type is ShortcutType.Unknown)
+        if (type is ShortcutType.Unknown)
         {
             MessageBox.Show(Resources.Shortcut_type_not_supported);
             return;
@@ -93,7 +93,7 @@ public class ShortcutsRepository : IShortcutsRepository
         {
             var importedShortcuts = ReadShortcutFile(openFileDialog.FileName);
 
-            if(importedShortcuts.Count == 0)
+            if (importedShortcuts.Count == 0)
                 throw new Exception("No shortcuts found in file");
 
             _shortcuts = importedShortcuts;
@@ -101,7 +101,7 @@ public class ShortcutsRepository : IShortcutsRepository
             SaveShortcutsToFile();
             ReloadShortcuts();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             MessageBox.Show(Resources.Failed_to_import_shortcuts_file);
         }

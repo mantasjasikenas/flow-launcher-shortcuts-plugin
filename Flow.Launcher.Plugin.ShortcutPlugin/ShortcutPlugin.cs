@@ -1,21 +1,28 @@
 using System.Collections.Generic;
+using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
-public class ShortcutPlugin : IPlugin
+public class ShortcutPlugin : IPlugin, ISettingProvider
 {
     private ISettingsService _settingsService;
     private IShortcutsRepository _shortcutsRepository;
     private IShortcutsService _shortcutsService;
 
+    private PluginInitContext _context;
+    private SettingsUserControl _settingWindow;
+
+
     public void Init(PluginInitContext context)
     {
         var path = context.CurrentPluginMetadata.PluginDirectory;
 
+        _context = context;
         _shortcutsRepository = new ShortcutsRepository(path);
         _shortcutsService = new ShortcutsService(path, _shortcutsRepository);
         _settingsService = new SettingsService(path, _shortcutsService);
@@ -38,5 +45,11 @@ public class ShortcutPlugin : IPlugin
             return setting.Invoke(command.Id, command.Path);
 
         return ResultExtensions.InitializedResult();
+    }
+
+    public Control CreateSettingPanel()
+    {
+        _settingWindow = new SettingsUserControl(_context, _shortcutsService);
+        return _settingWindow;
     }
 }

@@ -1,6 +1,6 @@
-﻿    using System.Diagnostics;
-    using CliWrap;
-    using Flow.Launcher.Plugin.ShortcutPlugin.models;
+﻿using System.Diagnostics;
+using CliWrap;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
@@ -24,10 +24,10 @@ public static class FileUtility
             default:
                 return;
         }
-
     }
 
-    private static void OpenFile(string path)  {
+    private static void OpenFile(string path)
+    {
         var processStartInfo = new ProcessStartInfo
         {
             FileName = path,
@@ -55,6 +55,4 @@ public static class FileUtility
         };
         Process.Start(processStartInfo);
     }
-
-
 }

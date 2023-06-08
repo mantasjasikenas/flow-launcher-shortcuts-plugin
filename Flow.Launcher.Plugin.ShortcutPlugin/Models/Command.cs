@@ -9,6 +9,33 @@ public class Command : IParsable<Command>
     public string Id { get; private set; }
     public string Path { get; private set; }
 
+    public static Command Parse(string s, IFormatProvider provider = null)
+    {
+        try
+        {
+            var keyword = Regex.Match(s, @"^\w+").ToString();
+            var id = Regex.Matches(s, @"\w+")[1].ToString();
+            var path = Regex.Match(s, @"(?<=\w+ \w+ ).+(?<=\n|$)").ToString();
+
+
+            return Builder()
+                   .SetId(id)
+                   .SetPath(path)
+                   .SetKeyword(keyword)
+                   .Build();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static bool TryParse(string s, IFormatProvider provider, out Command result)
+    {
+        result = Parse(s, provider);
+        return result is not null;
+    }
+
 
     public static CommandBuilder Builder()
     {
@@ -41,32 +68,5 @@ public class Command : IParsable<Command>
         {
             return _command;
         }
-    }
-
-    public static Command Parse(string s, IFormatProvider provider = null)
-    {
-        try
-        {
-            var keyword = Regex.Match(s, @"^\w+").ToString();
-            var id = Regex.Matches(s, @"\w+")[1].ToString();
-            var path = Regex.Match(s, @"(?<=\w+ \w+ ).+(?<=\n|$)").ToString();
-
-
-            return Builder()
-                   .SetId(id)
-                   .SetPath(path)
-                   .SetKeyword(keyword)
-                   .Build();
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public static bool TryParse(string s, IFormatProvider provider, out Command result)
-    {
-        result = Parse(s, provider);
-        return result is not null;
     }
 }

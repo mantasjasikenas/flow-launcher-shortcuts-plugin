@@ -8,11 +8,18 @@ $saveToDesktop = $false
 
 taskkill /im Flow.Launcher.exe /F
 dotnet publish Flow.Launcher.Plugin.ShortcutPlugin -c Release -r win-x64 --no-self-contained -o $publishDest
+if (Test-Path $pluginsDest)
+{
+    Remove-Item -Path $pluginsDest -Force -Recurse
+}
 Copy-Item -Path $publishDest -Destination $pluginsDest -Force -Recurse
+Copy-Item -Path "C:\Users\tutta\Storage\Dev\Resources\shortcuts.json" -Destination "$pluginsDest\Config" -Force
 
 # Processing publish to desktop
-if($saveToDesktop){
-    if (Test-Path $desktopDest) {
+if ($saveToDesktop)
+{
+    if (Test-Path $desktopDest)
+    {
         Remove-Item -Path $desktopDest -Force -Recurse
     }
 

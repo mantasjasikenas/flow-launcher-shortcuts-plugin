@@ -4,6 +4,7 @@ using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
@@ -57,7 +58,7 @@ public class ShortcutsService : IShortcutsService
         return ResultExtensions.SingleResult(
             string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.ToUpper()),
             _shortcutsRepository.GetShortcuts()[shortcut].Path,
-            () => { Utils.FileUtility.OpenShortcut(_shortcutsRepository.GetShortcuts()[shortcut]); });
+            () => { FileUtility.OpenShortcut(_shortcutsRepository.GetShortcuts()[shortcut]); });
     }
 
     public List<Result> ImportShortcuts()
@@ -83,7 +84,7 @@ public class ShortcutsService : IShortcutsService
                             IcoPath = "images\\icon.png",
                             Action = _ =>
                             {
-                                Utils.FileUtility.OpenShortcut(shortcut.Value);
+                                FileUtility.OpenShortcut(shortcut.Value);
                                 return true;
                             }
                         })
