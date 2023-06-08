@@ -19,17 +19,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="Config\helpers.json" />
         <Content Include="plugin.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Content Include="Images\*.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content Update="Config\helpers.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <Content Include="Config\helpers.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <None Remove="Config\helpers.json" />
     </ItemGroup>
 
     <ItemGroup>

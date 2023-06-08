@@ -1,6 +1,6 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Publish to desktop" type="DotNetFolderPublish" factoryName="Publish to folder">
-    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" runtime="Portable" target_folder="$USER_HOME$/Desktop/ShortcutPlugin" target_framework="net7.0-windows" uuid_high="4120565477455449618" uuid_low="-6038369617017827552" />
+    <riderPublish configuration="Release" platform="Any CPU" runtime="Portable" target_folder="$USER_HOME$/Desktop/ShortcutPlugin" target_framework="net7.0-windows" uuid_high="4120565477455449618" uuid_low="-6038369617017827552" />
     <method v="2" />
   </configuration>
 </component>

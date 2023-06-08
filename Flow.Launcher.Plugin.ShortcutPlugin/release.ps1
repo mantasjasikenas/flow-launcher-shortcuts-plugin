@@ -1,6 +1,24 @@
+# Variables
+$version = "1.0.2"
+$publishDest = "C:\Users\tutta\Storage\Dev\Projects\ShortcutPlugin\Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish"
+$pluginsDest = "C:\Users\tutta\AppData\Roaming\FlowLauncher\Plugins\ShortcutManager-$version"
+$desktopDest = "C:\Users\tutta\Desktop\ShortcutManager-$version"
+
+$saveToDesktop = $false
+
 taskkill /im Flow.Launcher.exe /F
-dotnet publish Flow.Launcher.Plugin.ShortcutPlugin -c Release -r win-x64 --no-self-contained
-Copy-Item "C:\Users\tutta\Storage\Dev\Projects\ShortcutPlugin\Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish/*" "C:\Users\tutta\AppData\Roaming\FlowLauncher\Plugins\ShortcutManager" -Recurse -Force
+dotnet publish Flow.Launcher.Plugin.ShortcutPlugin -c Release -r win-x64 --no-self-contained -o $publishDest
+Copy-Item -Path $publishDest -Destination $pluginsDest -Force -Recurse
+
+# Processing publish to desktop
+if($saveToDesktop){
+    if (Test-Path $desktopDest) {
+        Remove-Item -Path $desktopDest -Force -Recurse
+    }
+
+    Copy-Item -Path $publishDest -Destination $desktopDest -Force -Recurse
+    Compress-Archive -Path $desktopDest -DestinationPath "$desktopDest.zip" -Force
+}
+
+
 Start-Process C:\Users\tutta\AppData\Local\FlowLauncher\Flow.Launcher.exe
-
-
