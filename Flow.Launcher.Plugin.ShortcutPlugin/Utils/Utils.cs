@@ -11,15 +11,19 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 public static class Utils
 {
-    public static void OpenFileOrFolder(string path)
+    public static void OpenPath(string path)
     {
-        if (IsFile(path))
+        if (IsValidFile(path))
         {
             OpenFile(path);
         }
-        else if (IsDirectory(path))
+        else if (IsValidDirectory(path))
         {
             OpenFolder(path);
+        }
+        else if(IsValidUrl(path))
+        {
+            OpenWebsite(path);
         }
         else
         {
@@ -45,13 +49,26 @@ public static class Utils
            .ExecuteAsync();
     }
 
+    private static void OpenWebsite(string url)
+    {
+        var processStartInfo = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = url
+        };
+        Process.Start(processStartInfo);
+    }
 
-    private static bool IsFile(string path) =>
+
+    private static bool IsValidFile(string path) =>
         File.Exists(path);
 
 
-    private static bool IsDirectory(string path) =>
+    private static bool IsValidDirectory(string path) =>
         Directory.Exists(path);
+
+    private static bool IsValidUrl(string path) =>
+        Uri.IsWellFormedUriString(path, UriKind.Absolute);
 
 
     public static Command Split(string query)
@@ -81,7 +98,7 @@ public static class Utils
     {
         return new List<Result>
         {
-            new Result
+            new()
             {
                 Title = title,
                 SubTitle = subtitle,

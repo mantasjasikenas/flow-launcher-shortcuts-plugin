@@ -2,11 +2,11 @@
   "ID": "661D020D-4E0B-414B-B12B-58F795A20D79",
   "ActionKeyword": "dir",
   "Name": "ShortcutPlugin",
-  "Description": "Open specified directory in file explorer",
+  "Description": "Open specified directory, file or website from Flow Launcher quickly",
   "Author": "Mantelis",
-  "Version": "1.0.0",
+  "Version": "1.0.2",
   "Language": "csharp",
-  "Website": "https://github.com/Mantelis/Flow.Launcher.Plugin.ShortcutPlugin",
+  "Website": "https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin",
   "IcoPath": "images\\icon.png",
   "ExecuteFileName": "Flow.Launcher.Plugin.ShortcutPlugin.dll"
 }

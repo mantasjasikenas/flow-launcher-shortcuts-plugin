@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0-windows</TargetFramework>
+        <TargetFramework>net7.0-windows</TargetFramework>
         <AssemblyName>Flow.Launcher.Plugin.ShortcutPlugin</AssemblyName>
         <PackageId>Flow.Launcher.Plugin.ShortcutPlugin</PackageId>
         <Authors>Mantelis</Authors>
@@ -10,7 +10,7 @@
         <PackageTags>flow-launcher flow-plugin</PackageTags>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <LangVersion>11</LangVersion>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -19,6 +19,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Content Include="Config\helpers.json" />
         <Content Include="plugin.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
@@ -28,15 +29,12 @@
         <Content Update="Config\helpers.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <None Remove="Config\helpers.json"/>
-        <Content Include="Config\helpers.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        <None Remove="Config\helpers.json" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.0"/>
-        <PackageReference Include="Flow.Launcher.Plugin" Version="2.1.1"/>
+        <PackageReference Include="CliWrap" Version="3.6.3" />
+        <PackageReference Include="Flow.Launcher.Plugin" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -58,7 +58,7 @@ public class ShortcutsService : IShortcutsService
         return Utils.Utils.SingleResult(
             string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.ToUpper()),
             _shortcutsRepository.GetShortcuts()[shortcut],
-            () => { Utils.Utils.OpenFileOrFolder(_shortcutsRepository.GetShortcuts()[shortcut]); });
+            () => { Utils.Utils.OpenPath(_shortcutsRepository.GetShortcuts()[shortcut]); });
     }
 
     public List<Result> ImportShortcuts()
@@ -84,7 +84,7 @@ public class ShortcutsService : IShortcutsService
                    IcoPath = "images\\icon.png",
                    Action = _ =>
                    {
-                       Utils.Utils.OpenFileOrFolder(shortcut.Value);
+                       Utils.Utils.OpenPath(shortcut.Value);
                        return true;
                    }
                })
