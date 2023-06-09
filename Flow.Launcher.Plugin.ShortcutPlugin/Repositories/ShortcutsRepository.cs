@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
-using Flow.Launcher.Plugin.ShortcutPlugin.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
@@ -21,18 +21,18 @@ public class ShortcutsRepository : IShortcutsRepository
     public ShortcutsRepository(string pluginDirectory)
     {
         _pluginDirectory = pluginDirectory;
-        _shortcutsPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
+        _shortcutsPath = Path.Combine(_pluginDirectory, Constants.ShortcutsFileName);
         _shortcuts = ReadShortcutFile(_shortcutsPath);
     }
 
-    public void ReloadShortcuts()
+    public Shortcut GetShortcut(string id)
     {
-        _shortcuts = ReadShortcutFile(_shortcutsPath);
+        return _shortcuts.TryGetValue(id, out var shortcut) ? shortcut : null;
     }
 
-    public Dictionary<string, Shortcut> GetShortcuts()
+    public IList<Shortcut> GetShortcuts()
     {
-        return _shortcuts;
+        return _shortcuts.Values.ToList();
     }
 
     public void AddShortcut(string id, string shortcutPath)
@@ -56,6 +56,12 @@ public class ShortcutsRepository : IShortcutsRepository
         SaveShortcutsToFile();
     }
 
+    public void AddShortcut(Shortcut shortcut)
+    {
+        _shortcuts[shortcut.Key] = shortcut;
+        SaveShortcutsToFile();
+    }
+
     public void RemoveShortcut(string id)
     {
         if (!_shortcuts.ContainsKey(id)) return;
@@ -64,12 +70,25 @@ public class ShortcutsRepository : IShortcutsRepository
         SaveShortcutsToFile();
     }
 
-    public void ChangeShortcutPath(string id, string shortcutPath)
+    public void ReplaceShortcut(Shortcut shortcut)
+    {
+        if (!_shortcuts.ContainsKey(shortcut.Key)) return;
+
+        _shortcuts[shortcut.Key] = shortcut;
+        SaveShortcutsToFile();
+    }
+
+    public void ReplaceShortcutPath(string id, string shortcutPath)
     {
         if (!_shortcuts.ContainsKey(id)) return;
 
         AddShortcut(id, shortcutPath);
         SaveShortcutsToFile();
+    }
+
+    public void ReloadShortcuts()
+    {
+        _shortcuts = ReadShortcutFile(_shortcutsPath);
     }
 
     public void ImportShortcuts()
@@ -122,7 +141,7 @@ public class ShortcutsRepository : IShortcutsRepository
         };
 
         if (saveFileDialog.ShowDialog() != true) return;
-        var shortcutsPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
+        var shortcutsPath = Path.Combine(_pluginDirectory, Constants.ShortcutsFileName);
 
         if (!File.Exists(shortcutsPath))
         {
@@ -158,7 +177,7 @@ public class ShortcutsRepository : IShortcutsRepository
     private void SaveShortcutsToFile()
     {
         var options = new JsonSerializerOptions {WriteIndented = true};
-        var fullPath = Path.Combine(_pluginDirectory, SettingsService.ShortcutsFileName);
+        var fullPath = Path.Combine(_pluginDirectory, Constants.ShortcutsFileName);
 
         var json = JsonSerializer.Serialize(_shortcuts.Values, options);
         File.WriteAllText(fullPath, json);

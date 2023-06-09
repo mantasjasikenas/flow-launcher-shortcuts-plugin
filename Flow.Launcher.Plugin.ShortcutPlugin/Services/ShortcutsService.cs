@@ -19,46 +19,55 @@ public class ShortcutsService : IShortcutsService
         _shortcutsRepository = shortcutsRepository;
     }
 
-    public Dictionary<string, Shortcut> GetShortcuts()
+    public List<Shortcut> GetShortcuts()
     {
-        return _shortcutsRepository.GetShortcuts();
+        return _shortcutsRepository.GetShortcuts().ToList();
     }
 
-    public List<Result> AddShortcut(string shortcut, string path)
+    public List<Result> AddShortcut(string key, string path)
     {
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut, shortcut.ToUpper()), path,
-            () => { _shortcutsRepository.AddShortcut(shortcut, path); });
+            string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut, key.ToUpper()), path,
+            () => { _shortcutsRepository.AddShortcut(key, path); });
     }
 
-    public List<Result> RemoveShortcut(string shortcut, string path)
+    public List<Result> RemoveShortcut(string key, string path)
     {
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut, shortcut.ToUpper()), path,
-            () => { _shortcutsRepository.RemoveShortcut(shortcut); });
+            string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut, key.ToUpper()), path,
+            () => { _shortcutsRepository.RemoveShortcut(key); });
     }
 
-    public List<Result> GetShortcutPath(string shortcut, string path)
+    public List<Result> GetShortcutPath(string key, string path)
     {
-        if (_shortcutsRepository.GetShortcuts().TryGetValue(shortcut, out var shortcutPath)) path = shortcutPath.Path;
+        var shortcut = _shortcutsRepository.GetShortcut(key);
+
+        if (shortcut is not null)
+            path = shortcut.Path;
+
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, shortcut.ToUpper()), path,
+            string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, key.ToUpper()), path,
             () => { Clipboard.SetText(path); });
     }
 
-    public List<Result> ChangeShortcutPath(string shortcut, string path)
+    public List<Result> ChangeShortcutPath(string key, string path)
     {
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_ChangeShortcutPath_Change_shortcut_path, shortcut.ToUpper()), path,
-            () => { _shortcutsRepository.ChangeShortcutPath(shortcut, path); });
+            string.Format(Resources.ShortcutsManager_ChangeShortcutPath_Change_shortcut_path, key.ToUpper()), path,
+            () => { _shortcutsRepository.ReplaceShortcutPath(key, path); });
     }
 
-    public List<Result> OpenShortcut(string shortcut)
+    public List<Result> OpenShortcut(string key)
     {
+        var shortcut = _shortcutsRepository.GetShortcut(key);
+
+        if (shortcut is null)
+            return ResultExtensions.EmptyResult();
+
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.ToUpper()),
-            _shortcutsRepository.GetShortcuts()[shortcut].Path,
-            () => { FileUtility.OpenShortcut(_shortcutsRepository.GetShortcuts()[shortcut]); });
+            string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.Key.ToUpper()),
+            shortcut.Path,
+            () => { FileUtility.OpenShortcut(shortcut); });
     }
 
     public List<Result> ImportShortcuts()
@@ -76,15 +85,18 @@ public class ShortcutsService : IShortcutsService
     public List<Result> ListShortcuts()
     {
         var shortcuts = _shortcutsRepository.GetShortcuts();
-        if (shortcuts.Count == 0) return ResultExtensions.EmptyResult();
+
+        if (shortcuts.Count == 0)
+            return ResultExtensions.EmptyResult();
+
         return shortcuts.Select(shortcut => new Result
                         {
                             Title = $"{shortcut.Key.ToUpper()}",
-                            SubTitle = $"{shortcut.Value.Path}",
+                            SubTitle = $"{shortcut.Path}",
                             IcoPath = "images\\icon.png",
                             Action = _ =>
                             {
-                                FileUtility.OpenShortcut(shortcut.Value);
+                                FileUtility.OpenShortcut(shortcut);
                                 return true;
                             }
                         })

@@ -5,11 +5,14 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public interface IShortcutsRepository
 {
-    void ReloadShortcuts();
-    Dictionary<string, Shortcut> GetShortcuts();
+    Shortcut GetShortcut(string id);
+    IList<Shortcut> GetShortcuts();
+    void AddShortcut(Shortcut shortcut);
     void AddShortcut(string id, string shortcutPath);
     void RemoveShortcut(string id);
-    void ChangeShortcutPath(string id, string shortcutPath);
+    void ReplaceShortcut(Shortcut shortcut);
+    void ReplaceShortcutPath(string id, string shortcutPath);
+    void ReloadShortcuts();
     void ImportShortcuts();
     void ExportShortcuts();
 }

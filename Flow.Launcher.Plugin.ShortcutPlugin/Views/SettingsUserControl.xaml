@@ -13,8 +13,10 @@
         <StackPanel Orientation="Vertical">
             <CheckBox Content="Two-state CheckBox" />
             <CheckBox Content="Two-state CheckBox" />
+            <Button Content="Open config"
+                    Click="OpenConfigButton_OnClick" />
 
-            <ListView Margin="10"
+            <!--<ListView Margin="10"
                       ItemsSource="{Binding Shortcuts}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -26,7 +28,7 @@
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+            </ListView>-->
 
         </StackPanel>
     </Grid>

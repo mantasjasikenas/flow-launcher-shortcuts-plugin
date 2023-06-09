@@ -5,12 +5,12 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
 public interface IShortcutsService
 {
-    Dictionary<string, Shortcut> GetShortcuts();
-    List<Result> AddShortcut(string shortcut, string path);
-    List<Result> RemoveShortcut(string shortcut, string path);
-    List<Result> GetShortcutPath(string shortcut, string path);
-    List<Result> ChangeShortcutPath(string shortcut, string path);
-    List<Result> OpenShortcut(string shortcut);
+    List<Shortcut> GetShortcuts();
+    List<Result> AddShortcut(string key, string path);
+    List<Result> RemoveShortcut(string key, string path);
+    List<Result> GetShortcutPath(string key, string path);
+    List<Result> ChangeShortcutPath(string key, string path);
+    List<Result> OpenShortcut(string key);
     List<Result> ImportShortcuts();
     List<Result> ExportShortcuts();
     List<Result> ListShortcuts();
