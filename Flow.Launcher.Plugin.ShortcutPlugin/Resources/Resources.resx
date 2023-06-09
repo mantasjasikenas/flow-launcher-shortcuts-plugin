@@ -28,7 +28,7 @@
         <value>Plugin initialized</value>
     </data>
     <data name="ShortcutsManager_AddShortcut_Add_shortcut" xml:space="preserve">
-        <value>Add shortcut '{0}'.</value>
+        <value>Add {0} shortcut '{1}'.</value>
     </data>
     <data name="ShortcutsManager_RemoveShortcut_Remove_shortcut" xml:space="preserve">
         <value>Remove shortcut '{0}'.</value>

@@ -150,7 +150,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add shortcut &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Add {0} shortcut &apos;{1}&apos;..
         /// </summary>
         internal static string ShortcutsManager_AddShortcut_Add_shortcut {
             get {

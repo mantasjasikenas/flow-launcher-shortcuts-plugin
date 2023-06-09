@@ -24,30 +24,52 @@ public class ShortcutsService : IShortcutsService
         return _shortcutsRepository.GetShortcuts().ToList();
     }
 
-    public List<Result> AddShortcut(string key, string path)
+    public List<Result> AddShortcut(string key, string path, ShortcutType type)
     {
+        if (type is ShortcutType.Unknown)
+            type = PathExtensions.ResolveShortcutType(path);
+
+        var title = string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut,
+            type is ShortcutType.Unknown
+                ? ""
+                : $"{type.ToString().ToLower()}" + " type",
+            key);
+
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut, key.ToUpper()), path,
-            () => { _shortcutsRepository.AddShortcut(key, path); });
+            title, path,
+            () =>
+            {
+                _shortcutsRepository.AddShortcut(new Shortcut
+                {
+                    Key = key,
+                    Path = path,
+                    Type = type
+                });
+            });
     }
 
-    public List<Result> RemoveShortcut(string key, string path)
-    {
-        return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut, key.ToUpper()), path,
-            () => { _shortcutsRepository.RemoveShortcut(key); });
-    }
-
-    public List<Result> GetShortcutPath(string key, string path)
+    public List<Result> RemoveShortcut(string key)
     {
         var shortcut = _shortcutsRepository.GetShortcut(key);
 
-        if (shortcut is not null)
-            path = shortcut.Path;
+        if (shortcut is null)
+            return ResultExtensions.EmptyResult("Shortcut not found.");
 
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, key.ToUpper()), path,
-            () => { Clipboard.SetText(path); });
+            string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut, key.ToUpper()), shortcut.Path,
+            () => { _shortcutsRepository.RemoveShortcut(key); });
+    }
+
+    public List<Result> GetShortcutPath(string key)
+    {
+        var shortcut = _shortcutsRepository.GetShortcut(key);
+
+        if (shortcut is null)
+            return ResultExtensions.EmptyResult("Shortcut not found.");
+
+        return ResultExtensions.SingleResult(
+            string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, key.ToUpper()), shortcut.Path,
+            () => { Clipboard.SetText(shortcut.Path); });
     }
 
     public List<Result> ChangeShortcutPath(string key, string path)

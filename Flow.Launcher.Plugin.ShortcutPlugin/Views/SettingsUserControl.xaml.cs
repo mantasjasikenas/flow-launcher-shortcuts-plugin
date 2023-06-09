@@ -27,8 +27,8 @@ public partial class SettingsUserControl : UserControl
 
     private void OpenConfigButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var result = _commandsService.CommandsWithoutParams["config"].Invoke();
+        /*var result = _commandsService.CommandsWithoutParams["config"].Invoke();
         var action = result.FirstOrDefault()?.Action;
-        action?.Invoke(null);
+        action?.Invoke(null);*/
     }
 }
