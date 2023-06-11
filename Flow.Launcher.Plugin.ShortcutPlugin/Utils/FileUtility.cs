@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
@@ -8,7 +9,7 @@ public static class FileUtility
 {
     public static void OpenShortcut(Shortcut shortcut)
     {
-        var path = shortcut.Path;
+        var path = Environment.ExpandEnvironmentVariables(shortcut.Path);
 
         switch (shortcut.Type)
         {
