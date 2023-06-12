@@ -20,6 +20,11 @@
     "Example": "dir path [keyword]"
   },
   {
+    "Keyword": "settings",
+    "Description": "Opens Flow Launcher settings.",
+    "Example": "dir settings"
+  },
+  {
     "Keyword": "config",
     "Description": "Opens config file.",
     "Example": "dir config"

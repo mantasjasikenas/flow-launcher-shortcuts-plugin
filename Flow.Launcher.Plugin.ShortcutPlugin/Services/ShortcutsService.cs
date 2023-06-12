@@ -10,12 +10,10 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
 public class ShortcutsService : IShortcutsService
 {
-    private readonly string _pluginDirectory;
-    private IShortcutsRepository _shortcutsRepository;
+    private readonly IShortcutsRepository _shortcutsRepository;
 
-    public ShortcutsService(string pluginDirectory, IShortcutsRepository shortcutsRepository)
+    public ShortcutsService(IShortcutsRepository shortcutsRepository)
     {
-        _pluginDirectory = pluginDirectory;
         _shortcutsRepository = shortcutsRepository;
     }
 
@@ -36,7 +34,7 @@ public class ShortcutsService : IShortcutsService
             key);
 
         return ResultExtensions.SingleResult(
-            title, path,
+            title, path.RetrieveFullPath(),
             () =>
             {
                 _shortcutsRepository.AddShortcut(new Shortcut
@@ -127,9 +125,6 @@ public class ShortcutsService : IShortcutsService
 
     public void Reload()
     {
-        if (_shortcutsRepository is null)
-            _shortcutsRepository = new ShortcutsRepository(_pluginDirectory);
-        else
-            _shortcutsRepository.ReloadShortcuts();
+        _shortcutsRepository.ReloadShortcuts();
     }
 }

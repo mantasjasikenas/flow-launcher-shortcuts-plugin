@@ -21,12 +21,15 @@ public class CommandsService : ICommandsService
 
     private readonly PluginInitContext _context;
     private readonly IShortcutsService _shortcutsService;
+    private readonly ISettingsService _settingsService;
 
 
-    public CommandsService(PluginInitContext context, IShortcutsService shortcutsService)
+    public CommandsService(PluginInitContext context, IShortcutsService shortcutsService,
+        ISettingsService settingsService)
     {
         _context = context;
         _shortcutsService = shortcutsService;
+        _settingsService = settingsService;
         _pluginDirectory = context.CurrentPluginMetadata.PluginDirectory;
 
         _commandsWithParams = new Dictionary<string, Func<QueryCommand, List<Result>>>(StringComparer
@@ -180,7 +183,7 @@ public class CommandsService : ICommandsService
 
     private List<Result> OpenConfigCommand()
     {
-        return OpenFileCommand(Constants.ShortcutsFileName,
+        return OpenFileCommand(_settingsService.GetSetting(x => x.ShortcutsPath),
             Resources.SettingsManager_OpenConfigCommand_Open_plugin_config);
     }
 
@@ -193,33 +196,36 @@ public class CommandsService : ICommandsService
 
     private List<Result> OpenHelpersCommand()
     {
-        return OpenFileCommand(Constants.HelpersFileName,
+        var helpersPath = Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.HelpersFileName);
+
+        return OpenFileCommand(helpersPath,
             Resources.SettingsManager_OpenHelpersCommand_Open_plugin_helpers);
     }
 
 
-    private List<Result> OpenFileCommand(string filename, string title)
+    private List<Result> OpenFileCommand(string path, string title)
     {
-        var pathConfig = Path.Combine(_pluginDirectory, filename);
-
-        return ResultExtensions.SingleResult(title, pathConfig,
+        return ResultExtensions.SingleResult(title, path,
             () =>
             {
-                Clipboard.SetText(pathConfig);
+                Clipboard.SetText(path);
                 Cli.Wrap("powershell")
-                   .WithArguments(pathConfig)
+                   .WithArguments(path)
                    .ExecuteAsync();
             }
         );
     }
 
+    public void ReloadData()
+    {
+        _settingsService.Reload();
+        _shortcutsService.Reload();
+        _helpers = LoadHelpersFile();
+    }
+
     private List<Result> ReloadCommand()
     {
-        return ResultExtensions.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin, action: () =>
-        {
-            _shortcutsService.Reload();
-            _helpers = LoadHelpersFile();
-        });
+        return ResultExtensions.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin, action: ReloadData);
     }
 
     private List<Result> HelpCommand()

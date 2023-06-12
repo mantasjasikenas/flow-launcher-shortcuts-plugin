@@ -6,27 +6,34 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
 public static class PathExtensions
 {
-    public static bool IsValidFile(string path)
+    private static bool IsValidFile(string path)
     {
         return File.Exists(path);
     }
 
-    public static bool IsValidDirectory(string path)
+    private static bool IsValidDirectory(string path)
     {
         return Directory.Exists(path);
     }
 
-    public static bool IsValidUrl(string path)
+    private static bool IsValidUrl(string path)
     {
         return Uri.IsWellFormedUriString(path, UriKind.RelativeOrAbsolute);
     }
 
     public static ShortcutType ResolveShortcutType(string path)
     {
+        path = path.RetrieveFullPath();
+
         if (IsValidFile(path)) return ShortcutType.File;
 
         if (IsValidDirectory(path)) return ShortcutType.Directory;
 
         return IsValidUrl(path) ? ShortcutType.Url : ShortcutType.Unknown;
+    }
+
+    public static string RetrieveFullPath(this string path)
+    {
+        return Environment.ExpandEnvironmentVariables(path);
     }
 }

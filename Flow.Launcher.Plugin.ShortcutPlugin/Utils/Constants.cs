@@ -2,7 +2,7 @@
 
 public static class Constants
 {
-    public const string ShortcutsFileName = "config\\shortcuts.json";
+    public const string ShortcutsFileName = "Config\\shortcuts.json";
 
-    public const string HelpersFileName = "config\\helpers.json";
+    public const string HelpersFileName = "Config\\helpers.json";
 }

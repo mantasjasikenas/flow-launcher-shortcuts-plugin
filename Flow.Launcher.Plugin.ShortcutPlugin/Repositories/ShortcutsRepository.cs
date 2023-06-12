@@ -6,23 +6,24 @@ using System.Text.Json;
 using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
+using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public class ShortcutsRepository : IShortcutsRepository
 {
-    private readonly string _pluginDirectory;
-    private readonly string _shortcutsPath;
+    private readonly ISettingsService _settingsService;
+
+    //private Settings _settings;
     private Dictionary<string, Shortcut> _shortcuts;
 
 
-    public ShortcutsRepository(string pluginDirectory)
+    public ShortcutsRepository(ISettingsService settingsService)
     {
-        _pluginDirectory = pluginDirectory;
-        _shortcutsPath = Path.Combine(_pluginDirectory, Constants.ShortcutsFileName);
-        _shortcuts = ReadShortcutFile(_shortcutsPath);
+        _settingsService = settingsService;
+        //_settings = settingsService.GetSettings();
+        _shortcuts = ReadShortcutFile(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
     public Shortcut GetShortcut(string id)
@@ -88,7 +89,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void ReloadShortcuts()
     {
-        _shortcuts = ReadShortcutFile(_shortcutsPath);
+        _shortcuts = ReadShortcutFile(_settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
     public void ImportShortcuts()
@@ -141,9 +142,8 @@ public class ShortcutsRepository : IShortcutsRepository
         };
 
         if (saveFileDialog.ShowDialog() != true) return;
-        var shortcutsPath = Path.Combine(_pluginDirectory, Constants.ShortcutsFileName);
 
-        if (!File.Exists(shortcutsPath))
+        if (!File.Exists(_settingsService.GetSetting(x => x.ShortcutsPath)))
         {
             MessageBox.Show(Resources.Shortcuts_file_not_found);
             return;
@@ -151,7 +151,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
         try
         {
-            File.Copy(shortcutsPath, saveFileDialog.FileName);
+            File.Copy(_settingsService.GetSetting(x => x.ShortcutsPath), saveFileDialog.FileName);
         }
         catch
         {
@@ -177,9 +177,8 @@ public class ShortcutsRepository : IShortcutsRepository
     private void SaveShortcutsToFile()
     {
         var options = new JsonSerializerOptions {WriteIndented = true};
-        var fullPath = Path.Combine(_pluginDirectory, Constants.ShortcutsFileName);
-
         var json = JsonSerializer.Serialize(_shortcuts.Values, options);
-        File.WriteAllText(fullPath, json);
+
+        File.WriteAllText(_settingsService.GetSetting(x => x.ShortcutsPath), json);
     }
 }

@@ -3,32 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Flow.Launcher.Plugin.ShortcutPlugin.Views"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              mc:Ignorable="d"
              d:DesignHeight="450"
-             d:DesignWidth="800">
+             d:DesignWidth="940">
 
-    <Grid Margin="70, 10, 10, 10">
-        <StackPanel Orientation="Vertical">
-            <CheckBox Content="Two-state CheckBox" />
-            <CheckBox Content="Two-state CheckBox" />
-            <Button Content="Open config"
-                    Click="OpenConfigButton_OnClick" />
+    <Grid Margin="70, 10, 15, 10">
+        <StackPanel Orientation="Vertical"
+                    HorizontalAlignment="Stretch">
 
-            <!--<ListView Margin="10"
-                      ItemsSource="{Binding Shortcuts}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Key}"
-                                       FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Path}"
-                                       Margin="10 0 0 0"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>-->
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Grid.Column="0">
+                    <ui:FontIcon Glyph="&#xE8B7;" />
+                    <Label Padding="10,0,0,0"
+                           Content="Shortcuts path" />
+                </StackPanel>
+
+                <TextBox Text="{Binding Path = ShortcutsPath, Mode=TwoWay}"
+                         Width="350"
+                         Padding="5"
+                         Grid.Column="1" />
+            </Grid>
 
         </StackPanel>
     </Grid>
