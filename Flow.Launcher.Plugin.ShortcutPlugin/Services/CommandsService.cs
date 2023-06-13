@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Windows;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -15,30 +15,35 @@ public class CommandsService : ICommandsService
 {
     private readonly Dictionary<string, Func<QueryCommand, List<Result>>> _commandsWithParams;
     private readonly Dictionary<string, Func<List<Result>>> _commandsWithoutParams;
-    private List<Helper> _helpers;
-
-    private readonly string _pluginDirectory;
 
     private readonly PluginInitContext _context;
     private readonly IShortcutsService _shortcutsService;
     private readonly ISettingsService _settingsService;
+    private readonly IHelpersRepository _helpersRepository;
 
 
-    public CommandsService(PluginInitContext context, IShortcutsService shortcutsService,
-        ISettingsService settingsService)
+    public CommandsService(PluginInitContext context,
+        IShortcutsService shortcutsService,
+        ISettingsService settingsService,
+        IHelpersRepository helpersRepository)
     {
         _context = context;
         _shortcutsService = shortcutsService;
         _settingsService = settingsService;
-        _pluginDirectory = context.CurrentPluginMetadata.PluginDirectory;
+        _helpersRepository = helpersRepository;
 
         _commandsWithParams = new Dictionary<string, Func<QueryCommand, List<Result>>>(StringComparer
             .InvariantCultureIgnoreCase);
         _commandsWithoutParams = new Dictionary<string, Func<List<Result>>>(StringComparer.InvariantCultureIgnoreCase);
 
-        _helpers = LoadHelpersFile();
-
         Init();
+    }
+
+    public void ReloadPluginData()
+    {
+        _settingsService.Reload();
+        _shortcutsService.Reload();
+        _helpersRepository.Reload();
     }
 
     public bool TryInvokeCommand(string query, out List<Result> results)
@@ -121,7 +126,7 @@ public class CommandsService : ICommandsService
         _commandsWithoutParams.Add("reload", ReloadCommand);
         _commandsWithoutParams.Add("settings", OpenPluginSettingsCommand);
         _commandsWithoutParams.Add("help", HelpCommand);
-        _commandsWithoutParams.Add("list", _shortcutsService.ListShortcuts);
+        _commandsWithoutParams.Add("list", _shortcutsService.GetShortcuts);
         _commandsWithoutParams.Add("import", _shortcutsService.ImportShortcuts);
         _commandsWithoutParams.Add("export", _shortcutsService.ExportShortcuts);
     }
@@ -216,44 +221,25 @@ public class CommandsService : ICommandsService
         );
     }
 
-    public void ReloadData()
-    {
-        _settingsService.Reload();
-        _shortcutsService.Reload();
-        _helpers = LoadHelpersFile();
-    }
-
     private List<Result> ReloadCommand()
     {
-        return ResultExtensions.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin, action: ReloadData);
+        return ResultExtensions.SingleResult(Resources.SettingsManager_ReloadCommand_Reload_plugin,
+            action: ReloadPluginData);
     }
 
     private List<Result> HelpCommand()
     {
-        return _commandsWithParams.Keys.Union(_commandsWithoutParams.Keys)
+        var helpers = _helpersRepository.GetHelpers();
+
+        return _commandsWithParams.Keys
+                                  .Union(_commandsWithoutParams.Keys)
                                   .Select(x =>
                                       new Result
                                       {
-                                          Title = _helpers.Find(z => z.Keyword.Equals(x))?.Example,
-                                          SubTitle = _helpers.Find(z => z.Keyword.Equals(x))?.Description,
+                                          Title = helpers.Find(z => z.Keyword.Equals(x))?.Example,
+                                          SubTitle = helpers.Find(z => z.Keyword.Equals(x))?.Description,
                                           IcoPath = "images\\icon.png", Action = _ => true
                                       })
                                   .ToList();
-    }
-
-
-    private List<Helper> LoadHelpersFile()
-    {
-        var fullPath = Path.Combine(_pluginDirectory, Constants.HelpersFileName);
-        if (!File.Exists(fullPath)) return new List<Helper>();
-
-        try
-        {
-            return JsonSerializer.Deserialize<List<Helper>>(File.ReadAllText(fullPath));
-        }
-        catch (Exception)
-        {
-            return new List<Helper>();
-        }
     }
 }

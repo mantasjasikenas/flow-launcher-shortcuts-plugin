@@ -14,15 +14,13 @@ public partial class SettingsUserControl : UserControl
     private readonly ISettingsService _settingsService;
     private PluginInitContext _context;
 
-    public IList<Shortcut> Shortcuts => _shortcutsService.GetShortcuts();
-
     public string ShortcutsPath
     {
         get => _settingsService.GetSetting(x => x.ShortcutsPath);
         set
         {
             _settingsService.SetSettings((x, v) => x.ShortcutsPath = v, value);
-            _commandsService.ReloadData();
+            _commandsService.ReloadPluginData();
         }
     }
 

@@ -17,9 +17,25 @@ public class ShortcutsService : IShortcutsService
         _shortcutsRepository = shortcutsRepository;
     }
 
-    public List<Shortcut> GetShortcuts()
+    public List<Result> GetShortcuts()
     {
-        return _shortcutsRepository.GetShortcuts().ToList();
+        var shortcuts = _shortcutsRepository.GetShortcuts();
+
+        if (shortcuts.Count == 0)
+            return ResultExtensions.EmptyResult();
+
+        return shortcuts.Select(shortcut => new Result
+                        {
+                            Title = $"{shortcut.Key.ToUpper()}",
+                            SubTitle = $"{shortcut.Path}",
+                            IcoPath = "images\\icon.png",
+                            Action = _ =>
+                            {
+                                FileUtility.OpenShortcut(shortcut);
+                                return true;
+                            }
+                        })
+                        .ToList();
     }
 
     public List<Result> AddShortcut(string key, string path, ShortcutType type)
@@ -100,27 +116,6 @@ public class ShortcutsService : IShortcutsService
     {
         return ResultExtensions.SingleResult(Resources.Export_shortcuts, "",
             () => { _shortcutsRepository.ExportShortcuts(); });
-    }
-
-    public List<Result> ListShortcuts()
-    {
-        var shortcuts = _shortcutsRepository.GetShortcuts();
-
-        if (shortcuts.Count == 0)
-            return ResultExtensions.EmptyResult();
-
-        return shortcuts.Select(shortcut => new Result
-                        {
-                            Title = $"{shortcut.Key.ToUpper()}",
-                            SubTitle = $"{shortcut.Path}",
-                            IcoPath = "images\\icon.png",
-                            Action = _ =>
-                            {
-                                FileUtility.OpenShortcut(shortcut);
-                                return true;
-                            }
-                        })
-                        .ToList();
     }
 
     public void Reload()

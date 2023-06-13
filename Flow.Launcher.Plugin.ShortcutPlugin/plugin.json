@@ -1,8 +1,8 @@
 {
   "ID": "661D020D-4E0B-414B-B12B-58F795A20D79",
-  "ActionKeyword": "dir",
+  "ActionKeyword": "s",
   "Name": "ShortcutPlugin",
-  "Description": "Open specified directory, file or website from Flow Launcher quickly",
+  "Description": "Open user defined shortcut quickly from Flow Launcher",
   "Author": "Mantelis",
   "Version": "1.0.2",
   "Language": "csharp",

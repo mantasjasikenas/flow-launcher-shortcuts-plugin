@@ -24,12 +24,12 @@ public class SettingsService : ISettingsService
     public Settings LoadSettings()
     {
         var settings = _context.API.LoadSettingJsonStorage<Settings>();
+        var isValid = ValidateSettings(settings);
 
-        if (settings is {ShortcutsPath: null})
+        if (!isValid)
         {
             LoadDefaultSettings();
         }
-
 
         return settings;
     }
@@ -37,14 +37,6 @@ public class SettingsService : ISettingsService
     public void Reload()
     {
         _settings = LoadSettings();
-    }
-
-    private void LoadDefaultSettings()
-    {
-        _settings.ShortcutsPath =
-            Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.ShortcutsFileName);
-
-        SaveSettings();
     }
 
     public void ModifySettings(Action<Settings> modifyAction)
@@ -62,5 +54,18 @@ public class SettingsService : ISettingsService
     {
         setAction(_settings, value);
         SaveSettings();
+    }
+
+    private void LoadDefaultSettings()
+    {
+        _settings.ShortcutsPath =
+            Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.ShortcutsFileName);
+
+        SaveSettings();
+    }
+
+    private static bool ValidateSettings(Settings settings)
+    {
+        return settings.ShortcutsPath is not null && File.Exists(settings.ShortcutsPath);
     }
 }
