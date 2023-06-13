@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
@@ -46,7 +49,6 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
         if (_commandsService.TryInvokeCommand(query.Search, out var commandResult))
             return commandResult;
 
-
         return ResultExtensions.InitializedResult();
     }
 
@@ -58,14 +60,18 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
 
     private List<Result> TestMethod()
     {
-        //var plugins = _context.API.GetAllPlugins();
-        /*var names = plugins.Select(x => x.Metadata.Name).ToList();
-        _context.API.ShowMsg(string.Join(", ", names));*/
+        var plugins = _context.API.GetAllPlugins();
+        var plugin = plugins.First(x => x.Metadata.ActionKeyword.Equals("ad"));
 
-        // find plugin by keyword
-        //var plugin = plugins.FirstOrDefault(x => x.Metadata.ActionKeyword.Equals("ad"));
+        var query = QueryBuilder.Build("ad tv");
 
-        return ResultExtensions.SingleResult("test", "test",
-            () => { _settingsService.ModifySettings(settings => { settings.ShortcutsPath = "test"; }); });
+        var action = () =>
+        {
+            var result = plugin.Plugin.QueryAsync(query, CancellationToken.None).Result;
+            result.First().Action.Invoke(null);
+        };
+
+
+        return ResultExtensions.SingleResult("Dev", "", action);
     }
 }

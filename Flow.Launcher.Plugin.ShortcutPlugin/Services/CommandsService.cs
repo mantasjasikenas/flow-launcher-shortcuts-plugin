@@ -137,12 +137,29 @@ public class CommandsService : ICommandsService
         _commandsWithParams.Add("remove", ParseRemoveShortcutCommand);
         _commandsWithParams.Add("change", ParseChangeShortcutCommand);
         _commandsWithParams.Add("path", ParseGetShortcutPathCommand);
+        _commandsWithParams.Add("keyword", ParsePluginKeywordCommand);
+    }
+
+    private List<Result> ParsePluginKeywordCommand(QueryCommand queryCommand)
+    {
+        var args = SplitCommandLineArguments(queryCommand.Args);
+
+        return args.Count switch
+        {
+            0 => ResultExtensions.SingleResult("Plugin keyword",
+                $"{_context.CurrentPluginMetadata.ActionKeyword}"),
+
+            1 => ResultExtensions.SingleResult($"Change plugin keyword to '{args[0]}'",
+                $"Old keyword: {_context.CurrentPluginMetadata.ActionKeyword}",
+                () => { _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, args[0]); }),
+
+            _ => ResultExtensions.SingleResult("Invalid arguments", "Please provide only one argument - new keyword.")
+        };
     }
 
     private List<Result> ParseAddShortcutCommand(QueryCommand queryCommand)
     {
         var args = SplitCommandLineArguments(queryCommand.Args);
-
 
         if (args.Count < 2)
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name and path");
@@ -220,6 +237,7 @@ public class CommandsService : ICommandsService
             }
         );
     }
+
 
     private List<Result> ReloadCommand()
     {

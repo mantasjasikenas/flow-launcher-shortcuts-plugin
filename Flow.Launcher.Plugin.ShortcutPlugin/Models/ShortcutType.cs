@@ -5,5 +5,6 @@ public enum ShortcutType
     Directory,
     File,
     Url,
+    Plugin,
     Unknown
 }
