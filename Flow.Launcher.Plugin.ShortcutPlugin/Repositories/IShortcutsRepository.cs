@@ -12,6 +12,7 @@ public interface IShortcutsRepository
     void RemoveShortcut(string id);
     void ReplaceShortcut(Shortcut shortcut);
     void ReplaceShortcutPath(string id, string shortcutPath);
+    void DuplicateShortcut(string key, string duplicateKey);
     void ReloadShortcuts();
     void ImportShortcuts();
     void ExportShortcuts();

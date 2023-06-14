@@ -138,6 +138,7 @@ public class CommandsService : ICommandsService
         _commandsWithParams.Add("change", ParseChangeShortcutCommand);
         _commandsWithParams.Add("path", ParseGetShortcutPathCommand);
         _commandsWithParams.Add("keyword", ParsePluginKeywordCommand);
+        _commandsWithParams.Add("duplicate", ParseDuplicateShortcutCommand);
     }
 
     private List<Result> ParsePluginKeywordCommand(QueryCommand queryCommand)
@@ -154,6 +155,21 @@ public class CommandsService : ICommandsService
                 () => { _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, args[0]); }),
 
             _ => ResultExtensions.SingleResult("Invalid arguments", "Please provide only one argument - new keyword.")
+        };
+    }
+
+    private List<Result> ParseDuplicateShortcutCommand(QueryCommand queryCommand)
+    {
+        var args = SplitCommandLineArguments(queryCommand.Args);
+
+        return args.Count switch
+        {
+            0 or 1 => ResultExtensions.SingleResult("Duplicate shortcut",
+                "Please provide shortcut name and new shortcut name"),
+
+            2 => _shortcutsService.DuplicateShortcut(args[0], args[1]),
+
+            _ => ResultExtensions.SingleResult("Invalid arguments", "Please provide two arguments - existing shortcut and new name.")
         };
     }
 

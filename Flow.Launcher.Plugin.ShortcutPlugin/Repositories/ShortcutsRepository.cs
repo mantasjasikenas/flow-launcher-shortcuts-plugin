@@ -87,6 +87,21 @@ public class ShortcutsRepository : IShortcutsRepository
         SaveShortcutsToFile();
     }
 
+    public void DuplicateShortcut(string key, string duplicateKey)
+    {
+        if (!_shortcuts.ContainsKey(key)) return;
+
+        var shortcut = _shortcuts[key];
+        var newShortcut = new Shortcut
+        {
+            Key = duplicateKey,
+            Path = shortcut.Path,
+            Type = shortcut.Type
+        };
+        _shortcuts[duplicateKey] = newShortcut;
+        SaveShortcutsToFile();
+    }
+
     public void ReloadShortcuts()
     {
         _shortcuts = ReadShortcutFile(_settingsService.GetSetting(x => x.ShortcutsPath));

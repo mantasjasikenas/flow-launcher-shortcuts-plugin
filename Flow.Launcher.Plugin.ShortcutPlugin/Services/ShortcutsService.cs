@@ -106,6 +106,17 @@ public class ShortcutsService : IShortcutsService
             () => { FileUtility.OpenShortcut(shortcut); });
     }
 
+    public  List<Result> DuplicateShortcut(string key, string newKey)
+    {
+        if(_shortcutsRepository.GetShortcut(key) is null)
+            return ResultExtensions.EmptyResult($"Shortcut '{key}' not found.");
+
+        return ResultExtensions.SingleResult(
+            $"Duplicate shortcut '{key}' to '{newKey}'",
+            "",
+            () => { _shortcutsRepository.DuplicateShortcut(key, newKey); });
+    }
+
     public List<Result> ImportShortcuts()
     {
         return ResultExtensions.SingleResult(Resources.Import_shortcuts, "",

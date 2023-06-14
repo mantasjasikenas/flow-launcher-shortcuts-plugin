@@ -10,6 +10,7 @@ public interface IShortcutsService
     List<Result> GetShortcutPath(string key);
     List<Result> ChangeShortcutPath(string key, string path);
     List<Result> OpenShortcut(string key);
+    List<Result> DuplicateShortcut(string key, string newKey);
     List<Result> ImportShortcuts();
     List<Result> ExportShortcuts();
     List<Result> GetShortcuts();
