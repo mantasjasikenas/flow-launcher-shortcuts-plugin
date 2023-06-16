@@ -1,7 +1,7 @@
 ﻿using System;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 public interface ISettingsService
 {

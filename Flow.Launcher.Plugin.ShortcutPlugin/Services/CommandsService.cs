@@ -6,7 +6,8 @@ using System.Windows;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
-using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
+using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -41,6 +42,35 @@ public class CommandsService : ICommandsService
         _commandsWithoutParams = new Dictionary<string, Func<List<Result>>>(StringComparer.InvariantCultureIgnoreCase);
 
         Init();
+    }
+
+    private void Init()
+    {
+        LoadCommandsWithArgs();
+        LoadCommandsWithoutArgs();
+    }
+
+    private void LoadCommandsWithoutArgs()
+    {
+        _commandsWithoutParams.Add("config", OpenConfigCommand);
+        _commandsWithoutParams.Add("helpers", OpenHelpersCommand);
+        _commandsWithoutParams.Add("reload", ReloadCommand);
+        _commandsWithoutParams.Add("settings", OpenPluginSettingsCommand);
+        _commandsWithoutParams.Add("help", HelpCommand);
+        _commandsWithoutParams.Add("list", _shortcutsService.GetShortcuts);
+        _commandsWithoutParams.Add("import", _shortcutsService.ImportShortcuts);
+        _commandsWithoutParams.Add("export", _shortcutsService.ExportShortcuts);
+    }
+
+    private void LoadCommandsWithArgs()
+    {
+        _commandsWithParams.Add("add", ParseAddShortcutCommand);
+        _commandsWithParams.Add("var", ParseVariableCommand);
+        _commandsWithParams.Add("remove", ParseRemoveShortcutCommand);
+        _commandsWithParams.Add("change", ParseChangeShortcutCommand);
+        _commandsWithParams.Add("path", ParseGetShortcutPathCommand);
+        _commandsWithParams.Add("keyword", ParsePluginKeywordCommand);
+        _commandsWithParams.Add("duplicate", ParseDuplicateShortcutCommand);
     }
 
     public void ReloadPluginData()
@@ -118,35 +148,6 @@ public class CommandsService : ICommandsService
         return arguments;
     }
 
-    private void Init()
-    {
-        LoadCommandsWithArgs();
-        LoadCommandsWithoutArgs();
-    }
-
-    private void LoadCommandsWithoutArgs()
-    {
-        _commandsWithoutParams.Add("config", OpenConfigCommand);
-        _commandsWithoutParams.Add("helpers", OpenHelpersCommand);
-        _commandsWithoutParams.Add("reload", ReloadCommand);
-        _commandsWithoutParams.Add("settings", OpenPluginSettingsCommand);
-        _commandsWithoutParams.Add("help", HelpCommand);
-        _commandsWithoutParams.Add("list", _shortcutsService.GetShortcuts);
-        _commandsWithoutParams.Add("import", _shortcutsService.ImportShortcuts);
-        _commandsWithoutParams.Add("export", _shortcutsService.ExportShortcuts);
-    }
-
-    private void LoadCommandsWithArgs()
-    {
-        _commandsWithParams.Add("add", ParseAddShortcutCommand);
-        _commandsWithParams.Add("var", ParseVariableCommand);
-        _commandsWithParams.Add("remove", ParseRemoveShortcutCommand);
-        _commandsWithParams.Add("change", ParseChangeShortcutCommand);
-        _commandsWithParams.Add("path", ParseGetShortcutPathCommand);
-        _commandsWithParams.Add("keyword", ParsePluginKeywordCommand);
-        _commandsWithParams.Add("duplicate", ParseDuplicateShortcutCommand);
-    }
-
     private List<Result> ParsePluginKeywordCommand(QueryCommand queryCommand)
     {
         var args = SplitCommandLineArguments(queryCommand.Args);
@@ -156,9 +157,21 @@ public class CommandsService : ICommandsService
             0 => ResultExtensions.SingleResult("Plugin keyword",
                 $"{_context.CurrentPluginMetadata.ActionKeyword}"),
 
-            1 => ResultExtensions.SingleResult($"Change plugin keyword to '{args[0]}'",
-                $"Old keyword: {_context.CurrentPluginMetadata.ActionKeyword}",
-                () => { _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, args[0]); }),
+            1 => ResultExtensions.SingleResult($"Set plugin keyword to '{args[0]}'",
+                "",
+                () =>
+                {
+                    var newKeyword = args[0];
+                    var oldKeyword = _context.CurrentPluginMetadata.ActionKeyword;
+
+                    _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword);
+                    _context.CurrentPluginMetadata.ActionKeyword = newKeyword;
+
+                    if(newKeyword.Equals(oldKeyword, StringComparison.InvariantCultureIgnoreCase))
+                        return;
+
+                    _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, oldKeyword);
+                }),
 
             _ => ResultExtensions.SingleResult("Invalid arguments", "Please provide only one argument - new keyword.")
         };
@@ -288,15 +301,17 @@ public class CommandsService : ICommandsService
     private List<Result> HelpCommand()
     {
         var helpers = _helpersRepository.GetHelpers();
+        var pluginKeyword = string.Join(' ', _context.CurrentPluginMetadata.ActionKeywords);
 
         return _commandsWithParams.Keys
                                   .Union(_commandsWithoutParams.Keys)
-                                  .Select(x =>
+                                  .Select(key =>
                                       new Result
                                       {
-                                          Title = helpers.Find(z => z.Keyword.Equals(x))?.Example,
-                                          SubTitle = helpers.Find(z => z.Keyword.Equals(x))?.Description,
-                                          IcoPath = "images\\icon.png", Action = _ => true
+                                          Title = $"{pluginKeyword} " + key,
+                                          SubTitle = helpers.Find(z => z.Keyword.Equals(key))?.Description,
+                                          IcoPath = "images\\icon.png",
+                                          Action = _ => true
                                       })
                                   .ToList();
     }

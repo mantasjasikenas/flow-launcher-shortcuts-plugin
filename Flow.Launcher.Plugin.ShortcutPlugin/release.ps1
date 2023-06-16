@@ -7,7 +7,13 @@ $desktopDest = "C:\Users\tutta\Desktop\ShortcutManager-$version"
 $saveToDesktop = $false
 
 taskkill /im Flow.Launcher.exe /F
+
+if (Test-Path $publishDest)
+{
+    Remove-Item -Path $publishDest -Force -Recurse
+}
 dotnet publish Flow.Launcher.Plugin.ShortcutPlugin -c Release -r win-x64 --no-self-contained -o $publishDest
+
 if (Test-Path $pluginsDest)
 {
     Remove-Item -Path $pluginsDest -Force -Recurse

@@ -2,61 +2,76 @@
   {
     "Keyword": "add",
     "Description": "Adds new shortcut.",
-    "Example": "dir add [keyword] [path]"
+    "Example": "add [keyword] [path]"
+  },
+  {
+    "Keyword": "var",
+    "Description": "Shows or sets variable.",
+    "Example": "var [name] [value]"
   },
   {
     "Keyword": "remove",
     "Description": "Removes shortcut.",
-    "Example": "dir remove [keyword]"
+    "Example": "remove [keyword]"
   },
   {
     "Keyword": "change",
     "Description": "Changes shortcut path.",
-    "Example": "dir change [keyword] [path]"
+    "Example": "change [keyword] [path]"
   },
   {
     "Keyword": "path",
     "Description": "Shows shortcut path.",
-    "Example": "dir path [keyword]"
+    "Example": "path [keyword]"
+  },
+  {
+    "Keyword": "keyword",
+    "Description": "Shows or sets plugin keyword.",
+    "Example": "keyword [newKeyword]"
+  },
+  {
+    "Keyword": "duplicate",
+    "Description": "Duplicates shortcut.",
+    "Example": "duplicate [source] [destination]"
   },
   {
     "Keyword": "settings",
     "Description": "Opens Flow Launcher settings.",
-    "Example": "dir settings"
+    "Example": "settings"
   },
   {
     "Keyword": "config",
     "Description": "Opens config file.",
-    "Example": "dir config"
+    "Example": "config"
   },
   {
     "Keyword": "helpers",
     "Description": "Opens helpers file.",
-    "Example": "dir helpers"
+    "Example": "helpers"
   },
   {
     "Keyword": "reload",
     "Description": "Reloads plugin.",
-    "Example": "dir reload"
+    "Example": "reload"
   },
   {
     "Keyword": "help",
     "Description": "Shows this help.",
-    "Example": "dir help"
+    "Example": "help"
   },
   {
     "Keyword": "list",
     "Description": "Shows list of shortcuts.",
-    "Example": "dir list"
+    "Example": "list"
   },
   {
     "Keyword": "import",
     "Description": "Imports shortcuts from JSON file.",
-    "Example": "dir import"
+    "Example": "import"
   },
   {
     "Keyword": "export",
     "Description": "Exports shortcuts to JSON file.",
-    "Example": "dir export"
+    "Example": "export"
   }
 ]
