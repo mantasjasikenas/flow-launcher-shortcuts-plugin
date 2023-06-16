@@ -15,9 +15,9 @@ public static class ResultExtensions
         return SingleResult(Resources.Shortcuts_Query_No_results_found);
     }
 
-    public static List<Result> EmptyResult(string subtitle)
+    public static List<Result> EmptyResult(string title, string subtitle = "")
     {
-        return SingleResult(Resources.Shortcuts_Query_No_results_found, subtitle);
+        return SingleResult(title, subtitle);
     }
 
     public static List<Result> SingleResult(string title, string subtitle = "", Action action = default,

@@ -76,12 +76,12 @@ public class SettingsService : ISettingsService
     {
         var invalidProperties = new List<string>();
 
-        if (settings.ShortcutsPath is null || !File.Exists(settings.ShortcutsPath))
+        if (settings.ShortcutsPath is null)
         {
             invalidProperties.Add(nameof(settings.ShortcutsPath));
         }
 
-        if (settings.VariablesPath is null || !File.Exists(settings.VariablesPath))
+        if (settings.VariablesPath is null)
         {
             invalidProperties.Add(nameof(settings.VariablesPath));
         }

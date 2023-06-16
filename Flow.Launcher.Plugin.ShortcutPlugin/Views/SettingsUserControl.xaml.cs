@@ -13,25 +13,10 @@ public partial class SettingsUserControl : UserControl
     private readonly ISettingsService _settingsService;
     private PluginInitContext _context;
 
-    public string ShortcutsPath
-    {
-        get => _settingsService.GetSetting(x => x.ShortcutsPath);
-        set
-        {
-            _settingsService.SetSettings((x, v) => x.ShortcutsPath = v, value);
-            _commandsService.ReloadPluginData();
-        }
-    }
+    public string ShortcutsPath { get; set; }
 
-    public string VariablesPath
-    {
-        get => _settingsService.GetSetting(x => x.VariablesPath);
-        set
-        {
-            _settingsService.SetSettings((x, v) => x.VariablesPath = v, value);
-            _commandsService.ReloadPluginData();
-        }
-    }
+    public string VariablesPath { get; set; }
+
 
     public SettingsUserControl(PluginInitContext context,
         ISettingsService settingsService,
@@ -41,6 +26,29 @@ public partial class SettingsUserControl : UserControl
         _commandsService = commandsService;
         _settingsService = settingsService;
 
+        ShortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
+        VariablesPath = _settingsService.GetSetting(x => x.VariablesPath);
+
         InitializeComponent();
+    }
+
+    private void SaveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var isModified = false;
+
+        if (ShortcutsPath != _settingsService.GetSetting(x => x.ShortcutsPath))
+        {
+            _settingsService.SetSettings((x, v) => x.ShortcutsPath = v, ShortcutsPath);
+            isModified = true;
+        }
+
+        if (VariablesPath != _settingsService.GetSetting(x => x.VariablesPath))
+        {
+            _settingsService.SetSettings((x, v) => x.VariablesPath = v, VariablesPath);
+            isModified = true;
+        }
+
+        if (isModified)
+            _commandsService.ReloadPluginData();
     }
 }

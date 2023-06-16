@@ -13,7 +13,7 @@ if (Test-Path $pluginsDest)
     Remove-Item -Path $pluginsDest -Force -Recurse
 }
 Copy-Item -Path $publishDest -Destination $pluginsDest -Force -Recurse
-Copy-Item -Path "C:\Users\tutta\Storage\Dev\Resources\shortcuts.json" -Destination "$pluginsDest\Config" -Force
+#Copy-Item -Path "C:\Users\tutta\Storage\Dev\Resources\shortcuts.json" -Destination "$pluginsDest\Config" -Force
 
 # Processing publish to desktop
 if ($saveToDesktop)

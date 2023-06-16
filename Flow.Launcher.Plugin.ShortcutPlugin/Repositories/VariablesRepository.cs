@@ -63,7 +63,8 @@ public class VariablesRepository : IVariablesRepository
 
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string, Variable>>(File.ReadAllText(VariablesPath));
+            var variables = JsonSerializer.Deserialize<List<Variable>>(File.ReadAllText(path));
+            return variables.ToDictionary(shortcut => shortcut.Name);
         }
         catch (Exception)
         {

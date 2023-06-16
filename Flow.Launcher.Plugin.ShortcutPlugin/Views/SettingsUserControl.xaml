@@ -28,7 +28,7 @@
                             VerticalAlignment="Center"
                             Grid.Column="0"
                             Grid.Row="0">
-                    <ui:FontIcon Glyph="&#xE8B7;" />
+                    <!--<ui:FontIcon Glyph="&#xE8B7;" />-->
                     <Label Padding="10,0,0,0"
                            Content="Shortcuts file path" />
                 </StackPanel>
@@ -44,7 +44,7 @@
                             VerticalAlignment="Center"
                             Grid.Column="0"
                             Grid.Row="1">
-                    <ui:FontIcon Glyph="&#xE8B7;" />
+                    <!--<ui:FontIcon Glyph="&#xE8B7;" />-->
                     <Label Padding="10,0,0,0"
                            Content="Variables file path" />
                 </StackPanel>
@@ -56,6 +56,11 @@
                          Grid.Row="1"/>
             </Grid>
 
+            <Button Content="Save"
+                    Margin="0,20,0,5"
+                    Click="SaveButton_OnClick"
+                    HorizontalAlignment="Right"
+                    Width="60"/>
         </StackPanel>
     </Grid>
 

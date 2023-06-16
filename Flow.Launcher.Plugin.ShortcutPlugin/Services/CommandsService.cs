@@ -186,8 +186,7 @@ public class CommandsService : ICommandsService
 
         return args.Count switch
         {
-            0 => ResultExtensions.SingleResult("Variables",
-                "Please provide variable name"),
+            0 => _variablesService.GetVariables(),
 
             1 => _variablesService.GetVariable(args[0]),
 
