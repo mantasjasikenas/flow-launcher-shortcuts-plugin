@@ -35,7 +35,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
         _shortcutsService = new ShortcutsService(_shortcutsRepository);
         _variablesRepository = new VariablesRepository(context, _settingsService);
         _variablesService = new VariablesService(_variablesRepository);
-        _commandsService = new CommandsService(context, _shortcutsService, _settingsService, _helpersRepository, _variablesService);
+        _commandsService = new CommandsService(context, _shortcutsService, _settingsService, _helpersRepository,
+            _variablesService);
     }
 
     public List<Result> Query(Query query)
@@ -58,7 +59,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
 
     public Control CreateSettingPanel()
     {
-        _settingWindow = new SettingsUserControl(_context, _settingsService, _shortcutsService, _commandsService);
+        _settingWindow = new SettingsUserControl(_context, _settingsService, _commandsService);
         return _settingWindow;
     }
 

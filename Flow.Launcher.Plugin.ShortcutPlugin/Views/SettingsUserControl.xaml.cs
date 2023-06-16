@@ -10,7 +10,6 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Views;
 public partial class SettingsUserControl : UserControl
 {
     private readonly ICommandsService _commandsService;
-    private readonly IShortcutsService _shortcutsService;
     private readonly ISettingsService _settingsService;
     private PluginInitContext _context;
 
@@ -24,20 +23,24 @@ public partial class SettingsUserControl : UserControl
         }
     }
 
-    public SettingsUserControl(PluginInitContext context, ISettingsService settingsService,
-        IShortcutsService shortcutsService,
+    public string VariablesPath
+    {
+        get => _settingsService.GetSetting(x => x.VariablesPath);
+        set
+        {
+            _settingsService.SetSettings((x, v) => x.VariablesPath = v, value);
+            _commandsService.ReloadPluginData();
+        }
+    }
+
+    public SettingsUserControl(PluginInitContext context,
+        ISettingsService settingsService,
         ICommandsService commandsService)
     {
         _context = context;
         _commandsService = commandsService;
         _settingsService = settingsService;
-        _shortcutsService = shortcutsService;
-
 
         InitializeComponent();
-    }
-
-    private void OpenConfigButton_OnClick(object sender, RoutedEventArgs e)
-    {
     }
 }

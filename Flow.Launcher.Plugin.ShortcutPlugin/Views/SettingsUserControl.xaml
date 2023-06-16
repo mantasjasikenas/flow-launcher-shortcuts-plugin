@@ -18,19 +18,42 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
+                <!--Shortcuts path-->
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Grid.Column="0">
+                            Grid.Column="0"
+                            Grid.Row="0">
                     <ui:FontIcon Glyph="&#xE8B7;" />
                     <Label Padding="10,0,0,0"
-                           Content="Shortcuts path" />
+                           Content="Shortcuts file path" />
                 </StackPanel>
 
                 <TextBox Text="{Binding Path = ShortcutsPath, Mode=TwoWay}"
                          Width="350"
                          Padding="5"
+                         Grid.Row="0"
                          Grid.Column="1" />
+
+                <!---->
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Grid.Column="0"
+                            Grid.Row="1">
+                    <ui:FontIcon Glyph="&#xE8B7;" />
+                    <Label Padding="10,0,0,0"
+                           Content="Variables file path" />
+                </StackPanel>
+
+                <TextBox Text="{Binding Path = VariablesPath, Mode=TwoWay}"
+                         Width="350"
+                         Padding="5"
+                         Grid.Column="1"
+                         Grid.Row="1"/>
             </Grid>
 
         </StackPanel>
