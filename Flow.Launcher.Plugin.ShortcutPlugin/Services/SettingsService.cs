@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
@@ -13,30 +14,17 @@ public class SettingsService : ISettingsService
     public SettingsService(PluginInitContext context)
     {
         _context = context;
-        _settings = LoadSettings();
+        LoadSettings();
     }
 
-    public void SaveSettings()
+    public Settings GetSettings()
     {
-        _context.API.SaveSettingJsonStorage<Settings>();
-    }
-
-    public Settings LoadSettings()
-    {
-        var settings = _context.API.LoadSettingJsonStorage<Settings>();
-        var isValid = ValidateSettings(settings);
-
-        if (!isValid)
-        {
-            LoadDefaultSettings();
-        }
-
-        return settings;
+        return _settings;
     }
 
     public void Reload()
     {
-        _settings = LoadSettings();
+        LoadSettings();
     }
 
     public void ModifySettings(Action<Settings> modifyAction)
@@ -56,16 +44,48 @@ public class SettingsService : ISettingsService
         SaveSettings();
     }
 
-    private void LoadDefaultSettings()
+    private void SaveSettings()
     {
-        _settings.ShortcutsPath =
-            Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.ShortcutsFileName);
+        _context.API.SaveSettingJsonStorage<Settings>();
+    }
+
+    private void LoadSettings()
+    {
+        _settings = _context.API.LoadSettingJsonStorage<Settings>();
+        var (isValid, invalidProperties) = Validate(_settings);
+
+        if (!isValid)
+            LoadDefaultSettings(invalidProperties);
+    }
+
+    private void LoadDefaultSettings(ICollection<string> invalidProperties)
+    {
+        if (invalidProperties.Contains(nameof(Settings.ShortcutsPath)))
+            _settings.ShortcutsPath =
+                Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.ShortcutsFileName);
+
+        if (invalidProperties.Contains(nameof(Settings.VariablesPath)))
+            _settings.VariablesPath =
+                Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.VariablesFileName);
+
 
         SaveSettings();
     }
 
-    private static bool ValidateSettings(Settings settings)
+    private static (bool, List<string>) Validate(Settings settings)
     {
-        return settings.ShortcutsPath is not null && File.Exists(settings.ShortcutsPath);
+        var invalidProperties = new List<string>();
+
+        if (settings.ShortcutsPath is null || !File.Exists(settings.ShortcutsPath))
+        {
+            invalidProperties.Add(nameof(settings.ShortcutsPath));
+        }
+
+        if (settings.VariablesPath is null || !File.Exists(settings.VariablesPath))
+        {
+            invalidProperties.Add(nameof(settings.VariablesPath));
+        }
+
+        return (invalidProperties.Count == 0, invalidProperties);
     }
 }

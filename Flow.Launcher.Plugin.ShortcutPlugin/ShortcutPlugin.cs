@@ -18,6 +18,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
     private IShortcutsService _shortcutsService;
     private ISettingsService _settingsService;
     private IHelpersRepository _helpersRepository;
+    private IVariablesRepository _variablesRepository;
+    private IVariablesService _variablesService;
 
     private PluginInitContext _context;
     private SettingsUserControl _settingWindow;
@@ -31,7 +33,9 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
         _shortcutsRepository = new ShortcutsRepository(_settingsService);
         _helpersRepository = new HelpersRepository(context);
         _shortcutsService = new ShortcutsService(_shortcutsRepository);
-        _commandsService = new CommandsService(context, _shortcutsService, _settingsService, _helpersRepository);
+        _variablesRepository = new VariablesRepository(context, _settingsService);
+        _variablesService = new VariablesService(_variablesRepository);
+        _commandsService = new CommandsService(context, _shortcutsService, _settingsService, _helpersRepository, _variablesService);
     }
 
     public List<Result> Query(Query query)

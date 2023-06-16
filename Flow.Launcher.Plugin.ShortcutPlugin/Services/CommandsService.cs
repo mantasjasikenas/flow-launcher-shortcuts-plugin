@@ -19,18 +19,22 @@ public class CommandsService : ICommandsService
     private readonly PluginInitContext _context;
     private readonly IShortcutsService _shortcutsService;
     private readonly ISettingsService _settingsService;
+    private readonly IVariablesService _variablesService;
+
     private readonly IHelpersRepository _helpersRepository;
 
 
     public CommandsService(PluginInitContext context,
         IShortcutsService shortcutsService,
         ISettingsService settingsService,
-        IHelpersRepository helpersRepository)
+        IHelpersRepository helpersRepository,
+        IVariablesService variablesService)
     {
         _context = context;
         _shortcutsService = shortcutsService;
         _settingsService = settingsService;
         _helpersRepository = helpersRepository;
+        _variablesService = variablesService;
 
         _commandsWithParams = new Dictionary<string, Func<QueryCommand, List<Result>>>(StringComparer
             .InvariantCultureIgnoreCase);
@@ -43,6 +47,7 @@ public class CommandsService : ICommandsService
     {
         _settingsService.Reload();
         _shortcutsService.Reload();
+        _variablesService.Reload();
         _helpersRepository.Reload();
     }
 
@@ -134,6 +139,7 @@ public class CommandsService : ICommandsService
     private void LoadCommandsWithArgs()
     {
         _commandsWithParams.Add("add", ParseAddShortcutCommand);
+        _commandsWithParams.Add("var", ParseVariableCommand);
         _commandsWithParams.Add("remove", ParseRemoveShortcutCommand);
         _commandsWithParams.Add("change", ParseChangeShortcutCommand);
         _commandsWithParams.Add("path", ParseGetShortcutPathCommand);
@@ -169,7 +175,26 @@ public class CommandsService : ICommandsService
 
             2 => _shortcutsService.DuplicateShortcut(args[0], args[1]),
 
-            _ => ResultExtensions.SingleResult("Invalid arguments", "Please provide two arguments - existing shortcut and new name.")
+            _ => ResultExtensions.SingleResult("Invalid arguments",
+                "Please provide two arguments - existing shortcut and new name.")
+        };
+    }
+
+    private List<Result> ParseVariableCommand(QueryCommand queryCommand)
+    {
+        var args = SplitCommandLineArguments(queryCommand.Args);
+
+        return args.Count switch
+        {
+            0 => ResultExtensions.SingleResult("Variables",
+                "Please provide variable name"),
+
+            1 => _variablesService.GetVariable(args[0]),
+
+            2 => _variablesService.AddVariable(args[0], args[1]),
+
+            _ => ResultExtensions.SingleResult("Invalid arguments",
+                "Please provide variable name and value or only variable name.")
         };
     }
 

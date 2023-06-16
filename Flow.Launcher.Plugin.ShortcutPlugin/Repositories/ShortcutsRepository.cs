@@ -15,14 +15,12 @@ public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
 
-    //private Settings _settings;
     private Dictionary<string, Shortcut> _shortcuts;
 
 
     public ShortcutsRepository(ISettingsService settingsService)
     {
         _settingsService = settingsService;
-        //_settings = settingsService.GetSettings();
         _shortcuts = ReadShortcutFile(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
