@@ -167,7 +167,7 @@ public class CommandsService : ICommandsService
                     _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword);
                     _context.CurrentPluginMetadata.ActionKeyword = newKeyword;
 
-                    if(newKeyword.Equals(oldKeyword, StringComparison.InvariantCultureIgnoreCase))
+                    if (newKeyword.Equals(oldKeyword, StringComparison.InvariantCultureIgnoreCase))
                         return;
 
                     _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, oldKeyword);
@@ -217,10 +217,10 @@ public class CommandsService : ICommandsService
         if (args.Count < 2)
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name and path");
 
-        var shortcutType = ShortcutType.Unknown;
+        var shortcutType = ShortcutType.Unspecified;
 
         if (args.Count == 3)
-            shortcutType = Enum.TryParse<ShortcutType>(args[2], true, out var type) ? type : ShortcutType.Unknown;
+            shortcutType = Enum.TryParse<ShortcutType>(args[2], true, out var type) ? type : ShortcutType.Unspecified;
 
         return _shortcutsService.AddShortcut(args[0], args[1], shortcutType);
     }
@@ -308,7 +308,8 @@ public class CommandsService : ICommandsService
                                   .Select(key =>
                                       new Result
                                       {
-                                          Title = $"{pluginKeyword} " + key,
+                                          Title = $"{pluginKeyword} " +
+                                              helpers.FirstOrDefault(z => z.Keyword.Equals(key))?.Example ?? key,
                                           SubTitle = helpers.Find(z => z.Keyword.Equals(key))?.Description,
                                           IcoPath = "images\\icon.png",
                                           Action = _ => true

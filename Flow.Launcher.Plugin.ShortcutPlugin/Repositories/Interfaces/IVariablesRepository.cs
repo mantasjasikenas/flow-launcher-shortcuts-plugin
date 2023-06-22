@@ -11,4 +11,5 @@ public interface IVariablesRepository
     public Variable GetVariable(string name);
     public List<Variable> GetVariables();
     public void Reload();
+    string ExpandVariables(string value);
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Handlers;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
@@ -13,10 +14,17 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 public class ShortcutsService : IShortcutsService
 {
     private readonly IShortcutsRepository _shortcutsRepository;
+    private readonly IPathHandler _pathHandler;
+    private readonly IVariablesService _variablesService;
 
-    public ShortcutsService(IShortcutsRepository shortcutsRepository)
+
+    public ShortcutsService(IShortcutsRepository shortcutsRepository,
+        IPathHandler pathHandler,
+        IVariablesService variablesService)
     {
         _shortcutsRepository = shortcutsRepository;
+        _pathHandler = pathHandler;
+        _variablesService = variablesService;
     }
 
     public List<Result> GetShortcuts()
@@ -33,32 +41,34 @@ public class ShortcutsService : IShortcutsService
                             IcoPath = "images\\icon.png",
                             Action = _ =>
                             {
-                                FileUtility.OpenShortcut(shortcut);
+                                _pathHandler.OpenShortcut(shortcut);
                                 return true;
                             }
                         })
                         .ToList();
     }
 
-    public List<Result> AddShortcut(string key, string path, ShortcutType type)
+    public List<Result> AddShortcut(string key, string rawPath, ShortcutType type)
     {
-        if (type is ShortcutType.Unknown)
-            type = PathExtensions.ResolveShortcutType(path);
+        var path = _variablesService.ExpandVariables(rawPath);
+
+        if (type is ShortcutType.Unspecified)
+            type = _pathHandler.ResolveShortcutType(path);
 
         var title = string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut,
-            type is ShortcutType.Unknown
+            type is ShortcutType.Unspecified
                 ? ""
                 : $"{type.ToString().ToLower()}" + " type",
             key);
 
         return ResultExtensions.SingleResult(
-            title, path.RetrieveFullPath(),
+            title, path,
             () =>
             {
                 _shortcutsRepository.AddShortcut(new Shortcut
                 {
                     Key = key,
-                    Path = path,
+                    Path = rawPath,
                     Type = type
                 });
             });
@@ -105,12 +115,12 @@ public class ShortcutsService : IShortcutsService
         return ResultExtensions.SingleResult(
             string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.Key.ToUpper()),
             shortcut.Path,
-            () => { FileUtility.OpenShortcut(shortcut); });
+            () => { _pathHandler.OpenShortcut(shortcut); });
     }
 
-    public  List<Result> DuplicateShortcut(string key, string newKey)
+    public List<Result> DuplicateShortcut(string key, string newKey)
     {
-        if(_shortcutsRepository.GetShortcut(key) is null)
+        if (_shortcutsRepository.GetShortcut(key) is null)
             return ResultExtensions.EmptyResult($"Shortcut '{key}' not found.");
 
         return ResultExtensions.SingleResult(

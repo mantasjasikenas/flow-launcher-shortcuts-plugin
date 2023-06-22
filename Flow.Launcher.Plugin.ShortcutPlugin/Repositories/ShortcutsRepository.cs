@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Handlers;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -16,13 +17,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
+    private readonly IPathHandler _pathHandler;
 
     private Dictionary<string, Shortcut> _shortcuts;
 
 
-    public ShortcutsRepository(ISettingsService settingsService)
+    public ShortcutsRepository(ISettingsService settingsService, IPathHandler pathHandler)
     {
         _settingsService = settingsService;
+        _pathHandler = pathHandler;
         _shortcuts = ReadShortcutFile(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
@@ -34,27 +37,6 @@ public class ShortcutsRepository : IShortcutsRepository
     public IList<Shortcut> GetShortcuts()
     {
         return _shortcuts.Values.ToList();
-    }
-
-    public void AddShortcut(string id, string shortcutPath)
-    {
-        var type = PathExtensions.ResolveShortcutType(shortcutPath);
-
-        if (type is ShortcutType.Unknown)
-        {
-            MessageBox.Show(Resources.Shortcut_type_not_supported);
-            return;
-        }
-
-        var shortcut = new Shortcut
-        {
-            Key = id,
-            Path = shortcutPath,
-            Type = type
-        };
-
-        _shortcuts[id] = shortcut;
-        SaveShortcutsToFile();
     }
 
     public void AddShortcut(Shortcut shortcut)
@@ -83,7 +65,24 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         if (!_shortcuts.ContainsKey(id)) return;
 
-        AddShortcut(id, shortcutPath);
+        var type = _pathHandler.ResolveShortcutType(shortcutPath);
+
+        if (type is ShortcutType.Unspecified)
+        {
+            MessageBox.Show(Resources.Shortcut_type_not_supported);
+            return;
+        }
+
+        var shortcut = new Shortcut
+        {
+            Key = id,
+            Path = shortcutPath,
+            Type = type
+        };
+
+        _shortcuts[id] = shortcut;
+        SaveShortcutsToFile();
+
         SaveShortcutsToFile();
     }
 

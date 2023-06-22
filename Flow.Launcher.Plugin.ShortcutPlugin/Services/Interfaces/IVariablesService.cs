@@ -10,4 +10,5 @@ public interface IVariablesService
     List<Result> RemoveVariable(string name);
     List<Result> UpdateVariable(string name, string value);
     void Reload();
+    string ExpandVariables(string value);
 }

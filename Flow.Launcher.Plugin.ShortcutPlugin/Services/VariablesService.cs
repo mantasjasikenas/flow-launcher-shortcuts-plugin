@@ -85,4 +85,9 @@ public class VariablesService : IVariablesService
     {
         _variablesRepository.Reload();
     }
+
+    public string ExpandVariables(string value)
+    {
+        return _variablesRepository.ExpandVariables(value);
+    }
 }

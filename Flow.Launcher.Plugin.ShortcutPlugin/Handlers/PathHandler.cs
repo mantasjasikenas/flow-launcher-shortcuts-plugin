@@ -1,15 +1,34 @@
 ﻿using System.Diagnostics;
 using CliWrap;
-using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Validators;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Utils;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Handlers;
 
-public static class FileUtility
+public class PathHandler : IPathHandler
 {
-    public static void OpenShortcut(Shortcut shortcut)
+    private readonly IVariablesService _variablesService;
+
+    public PathHandler(IVariablesService variablesService)
     {
-        var path = shortcut.Path.RetrieveFullPath();
+        _variablesService = variablesService;
+    }
+
+    public ShortcutType ResolveShortcutType(string rawPath)
+    {
+        var path = _variablesService.ExpandVariables(rawPath);
+
+        if (PathValidator.IsValidFile(path)) return ShortcutType.File;
+
+        if (PathValidator.IsValidDirectory(path)) return ShortcutType.Directory;
+
+        return PathValidator.IsValidUrl(path) ? ShortcutType.Url : ShortcutType.Unspecified;
+    }
+
+    public void OpenShortcut(Shortcut shortcut)
+    {
+        var path = _variablesService.ExpandVariables(shortcut.Path);
 
         switch (shortcut.Type)
         {
@@ -43,8 +62,6 @@ public static class FileUtility
         Cli.Wrap("explorer.exe")
            .WithArguments(path)
            .ExecuteAsync();
-
-        //Process.Start("explorer.exe", path);
     }
 
     private static void OpenUrl(string url)

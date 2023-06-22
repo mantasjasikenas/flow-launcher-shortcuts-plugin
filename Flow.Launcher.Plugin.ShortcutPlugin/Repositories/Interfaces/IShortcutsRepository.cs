@@ -8,7 +8,6 @@ public interface IShortcutsRepository
     Shortcut GetShortcut(string id);
     IList<Shortcut> GetShortcuts();
     void AddShortcut(Shortcut shortcut);
-    void AddShortcut(string id, string shortcutPath);
     void RemoveShortcut(string id);
     void ReplaceShortcut(Shortcut shortcut);
     void ReplaceShortcutPath(string id, string shortcutPath);
