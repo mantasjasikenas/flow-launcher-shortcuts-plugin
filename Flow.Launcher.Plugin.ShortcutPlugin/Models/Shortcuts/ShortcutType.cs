@@ -1,4 +1,4 @@
-﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.models;
+﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
 public enum ShortcutType
 {
@@ -6,5 +6,6 @@ public enum ShortcutType
     File,
     Url,
     Plugin,
+    Program,
     Unspecified
 }

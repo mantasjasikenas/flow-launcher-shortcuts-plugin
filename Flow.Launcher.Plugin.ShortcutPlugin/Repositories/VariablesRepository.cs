@@ -22,7 +22,7 @@ public class VariablesRepository : IVariablesRepository
     {
         _context = context;
         _settingsService = settingsService;
-        _variables = ReadVariablesFile(VariablesPath);
+        _variables = ReadVariables(VariablesPath);
     }
 
     public List<Variable> GetVariables()
@@ -38,24 +38,24 @@ public class VariablesRepository : IVariablesRepository
     public void AddVariable(string name, string value)
     {
         _variables[name] = new Variable {Name = name, Value = value};
-        SaveVariablesToFile();
+        SaveVariables();
     }
 
     public void RemoveVariable(string name)
     {
         _variables.Remove(name);
-        SaveVariablesToFile();
+        SaveVariables();
     }
 
     public void UpdateVariable(string name, string value)
     {
         _variables[name] = new Variable {Name = name, Value = value};
-        SaveVariablesToFile();
+        SaveVariables();
     }
 
     public void Reload()
     {
-        _variables = ReadVariablesFile(VariablesPath);
+        _variables = ReadVariables(VariablesPath);
     }
 
     public string ExpandVariables(string value)
@@ -66,7 +66,7 @@ public class VariablesRepository : IVariablesRepository
         return Environment.ExpandEnvironmentVariables(result);
     }
 
-    private Dictionary<string, Variable> ReadVariablesFile(string path)
+    private static Dictionary<string, Variable> ReadVariables(string path)
     {
         if (!File.Exists(path)) return new Dictionary<string, Variable>();
 
@@ -81,7 +81,7 @@ public class VariablesRepository : IVariablesRepository
         }
     }
 
-    private void SaveVariablesToFile()
+    private void SaveVariables()
     {
         var options = new JsonSerializerOptions {WriteIndented = true};
         var json = JsonSerializer.Serialize(_variables.Values, options);

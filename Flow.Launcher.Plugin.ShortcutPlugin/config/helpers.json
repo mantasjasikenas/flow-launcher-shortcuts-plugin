@@ -15,11 +15,6 @@
     "Example": "remove [keyword]"
   },
   {
-    "Keyword": "change",
-    "Description": "Changes shortcut path.",
-    "Example": "change [keyword] [path]"
-  },
-  {
     "Keyword": "path",
     "Description": "Shows shortcut path.",
     "Example": "path [keyword]"

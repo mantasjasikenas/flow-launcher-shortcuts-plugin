@@ -6,6 +6,7 @@ using System.Windows;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
@@ -19,6 +20,7 @@ public class CommandsService : ICommandsService
 
     private readonly PluginInitContext _context;
     private readonly IShortcutsService _shortcutsService;
+    private readonly IShortcutsRepository _shortcutsRepository;
     private readonly ISettingsService _settingsService;
     private readonly IVariablesService _variablesService;
 
@@ -27,12 +29,14 @@ public class CommandsService : ICommandsService
 
     public CommandsService(PluginInitContext context,
         IShortcutsService shortcutsService,
+        IShortcutsRepository shortcutsRepository,
         ISettingsService settingsService,
         IHelpersRepository helpersRepository,
         IVariablesService variablesService)
     {
         _context = context;
         _shortcutsService = shortcutsService;
+        _shortcutsRepository = shortcutsRepository;
         _settingsService = settingsService;
         _helpersRepository = helpersRepository;
         _variablesService = variablesService;
@@ -67,7 +71,6 @@ public class CommandsService : ICommandsService
         _commandsWithParams.Add("add", ParseAddShortcutCommand);
         _commandsWithParams.Add("var", ParseVariableCommand);
         _commandsWithParams.Add("remove", ParseRemoveShortcutCommand);
-        _commandsWithParams.Add("change", ParseChangeShortcutCommand);
         _commandsWithParams.Add("path", ParseGetShortcutPathCommand);
         _commandsWithParams.Add("keyword", ParsePluginKeywordCommand);
         _commandsWithParams.Add("duplicate", ParseDuplicateShortcutCommand);
@@ -81,16 +84,37 @@ public class CommandsService : ICommandsService
         _helpersRepository.Reload();
     }
 
+    private bool TryInvokeShortcut(string shortcut, out List<Result> results)
+    {
+        // <--Query is shortcut-->
+        if (_shortcutsRepository.GetShortcut(shortcut) is not null)
+        {
+            results = _shortcutsService.OpenShortcut(shortcut);
+            return true;
+        }
+
+        results = null;
+        return false;
+    }
+
     public bool TryInvokeCommand(string query, out List<Result> results)
     {
+        // <--Query is shortcut-->
+        if (TryInvokeShortcut(query, out var shortcutResult))
+        {
+            results = shortcutResult;
+            return true;
+        }
+
+        // <--Command without params-->
         if (_commandsWithoutParams.TryGetValue(query, out var commandWithoutParams))
         {
             results = commandWithoutParams.Invoke();
             return true;
         }
 
+        // <--Command with params-->
         var command = QueryCommand.Parse(query);
-
         if (command is not null && _commandsWithParams.TryGetValue(command.Keyword, out var commandWithParams))
         {
             results = commandWithParams.Invoke(command);
@@ -101,56 +125,10 @@ public class CommandsService : ICommandsService
         return false;
     }
 
-    private static List<string> SplitCommandLineArguments(string commandLine)
-    {
-        var arguments = new List<string>();
-
-        var inQuotes = false;
-        var isEscaped = false;
-        var argStartIndex = 0;
-
-        for (var i = 0; i < commandLine.Length; i++)
-        {
-            var currentChar = commandLine[i];
-
-            switch (currentChar)
-            {
-                case '\\' when !isEscaped:
-                    isEscaped = true;
-                    continue;
-                case '\"' when !isEscaped:
-                    inQuotes = !inQuotes;
-                    continue;
-                case ' ' when !inQuotes:
-                {
-                    if (i > argStartIndex)
-                    {
-                        var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
-
-                        arguments.Add(argument);
-                    }
-
-                    argStartIndex = i + 1;
-                    break;
-                }
-            }
-
-            isEscaped = false;
-        }
-
-        if (commandLine.Length <= argStartIndex) return arguments;
-
-        var lastArgument = commandLine[argStartIndex..];
-        arguments.Add(lastArgument);
-
-        arguments = arguments.Select(x => x.Replace("\"", "")).Where(x => !string.IsNullOrEmpty(x)).ToList();
-
-        return arguments;
-    }
 
     private List<Result> ParsePluginKeywordCommand(QueryCommand queryCommand)
     {
-        var args = SplitCommandLineArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
 
         return args.Count switch
         {
@@ -179,7 +157,7 @@ public class CommandsService : ICommandsService
 
     private List<Result> ParseDuplicateShortcutCommand(QueryCommand queryCommand)
     {
-        var args = SplitCommandLineArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
 
         return args.Count switch
         {
@@ -195,7 +173,7 @@ public class CommandsService : ICommandsService
 
     private List<Result> ParseVariableCommand(QueryCommand queryCommand)
     {
-        var args = SplitCommandLineArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
 
         return args.Count switch
         {
@@ -212,7 +190,7 @@ public class CommandsService : ICommandsService
 
     private List<Result> ParseAddShortcutCommand(QueryCommand queryCommand)
     {
-        var args = SplitCommandLineArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
 
         if (args.Count < 2)
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name and path");
@@ -227,7 +205,7 @@ public class CommandsService : ICommandsService
 
     private List<Result> ParseRemoveShortcutCommand(QueryCommand queryCommand)
     {
-        var args = SplitCommandLineArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
 
         if (args.Count < 1)
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name");
@@ -237,24 +215,13 @@ public class CommandsService : ICommandsService
 
     private List<Result> ParseGetShortcutPathCommand(QueryCommand queryCommand)
     {
-        var args = SplitCommandLineArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
 
         if (args.Count < 1)
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name");
 
-        return _shortcutsService.GetShortcutPath(args[0]);
+        return _shortcutsService.GetShortcutDetails(args[0]);
     }
-
-    private List<Result> ParseChangeShortcutCommand(QueryCommand queryCommand)
-    {
-        var args = SplitCommandLineArguments(queryCommand.Args);
-
-        if (args.Count < 2)
-            return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name and path");
-
-        return _shortcutsService.ChangeShortcutPath(args[0], args[1]);
-    }
-
 
     private List<Result> OpenConfigCommand()
     {
@@ -283,7 +250,6 @@ public class CommandsService : ICommandsService
         return ResultExtensions.SingleResult(title, path,
             () =>
             {
-                Clipboard.SetText(path);
                 Cli.Wrap("powershell")
                    .WithArguments(path)
                    .ExecuteAsync();
@@ -309,7 +275,7 @@ public class CommandsService : ICommandsService
                                       new Result
                                       {
                                           Title = $"{pluginKeyword} " +
-                                              helpers.FirstOrDefault(z => z.Keyword.Equals(key))?.Example ?? key,
+                                                  helpers.FirstOrDefault(z => z.Keyword.Equals(key))?.Example,
                                           SubTitle = helpers.Find(z => z.Keyword.Equals(key))?.Description,
                                           IcoPath = "images\\icon.png",
                                           Action = _ => true

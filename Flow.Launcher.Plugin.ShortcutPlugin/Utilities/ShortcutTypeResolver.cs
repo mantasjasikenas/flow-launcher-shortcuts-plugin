@@ -1,24 +1,24 @@
 ﻿using System.Diagnostics;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Validators;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Handlers;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
-public class PathHandler : IPathHandler
+public class ShortcutTypeResolver : IShortcutTypeResolver
 {
     private readonly IVariablesService _variablesService;
 
-    public PathHandler(IVariablesService variablesService)
+    public ShortcutTypeResolver(IVariablesService variablesService)
     {
         _variablesService = variablesService;
     }
 
-    public ShortcutType ResolveShortcutType(string rawPath)
+    // TODO refactor this method / move to a different class
+    public ShortcutType ResolveType(string path)
     {
-        var path = _variablesService.ExpandVariables(rawPath);
-
         if (PathValidator.IsValidFile(path)) return ShortcutType.File;
 
         if (PathValidator.IsValidDirectory(path)) return ShortcutType.Directory;
@@ -26,23 +26,42 @@ public class PathHandler : IPathHandler
         return PathValidator.IsValidUrl(path) ? ShortcutType.Url : ShortcutType.Unspecified;
     }
 
-    public void OpenShortcut(Shortcut shortcut)
+    // TODO refactor this method / move to a different class
+    public void ExecuteShortcut(Shortcut shortcut)
     {
-        var path = _variablesService.ExpandVariables(shortcut.Path);
-
-        switch (shortcut.Type)
+        switch (shortcut)
         {
-            case ShortcutType.Directory:
-                OpenDirectory(path);
+            case PluginShortcut:
+            {
+                // handle PluginShortcut
                 break;
-            case ShortcutType.File:
-                OpenFile(path);
+            }
+            case ProgramShortcut:
+            {
+                // handle ProgramShortcut
                 break;
-            case ShortcutType.Url:
+            }
+            case UrlShortcut urlShortcut:
+            {
+                var path = _variablesService.ExpandVariables(urlShortcut.Url);
                 OpenUrl(path);
+
                 break;
-            default:
-                return;
+            }
+            case DirectoryShortcut directoryShortcut:
+            {
+                var path = _variablesService.ExpandVariables(directoryShortcut.Path);
+                OpenDirectory(path);
+
+                break;
+            }
+            case FileShortcut fileShortcut:
+            {
+                var path = _variablesService.ExpandVariables(fileShortcut.Path);
+                OpenFile(path);
+
+                break;
+            }
         }
     }
 

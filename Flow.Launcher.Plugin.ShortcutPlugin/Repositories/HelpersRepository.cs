@@ -17,7 +17,7 @@ public class HelpersRepository : IHelpersRepository
     public HelpersRepository(PluginInitContext context)
     {
         _context = context;
-        _helpers = LoadHelpersFile();
+        _helpers = ReadHelpers();
     }
 
     public List<Helper> GetHelpers()
@@ -27,10 +27,10 @@ public class HelpersRepository : IHelpersRepository
 
     public void Reload()
     {
-        _helpers = LoadHelpersFile();
+        _helpers = ReadHelpers();
     }
 
-    private List<Helper> LoadHelpersFile()
+    private List<Helper> ReadHelpers()
     {
         var fullPath = Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.HelpersFileName);
         if (!File.Exists(fullPath)) return new List<Helper>();

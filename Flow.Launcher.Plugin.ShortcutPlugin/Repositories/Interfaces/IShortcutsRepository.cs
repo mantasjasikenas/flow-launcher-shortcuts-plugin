@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 
 public interface IShortcutsRepository
 {
-    Shortcut GetShortcut(string id);
     IList<Shortcut> GetShortcuts();
+    Shortcut GetShortcut(string key);
     void AddShortcut(Shortcut shortcut);
-    void RemoveShortcut(string id);
+    void RemoveShortcut(string key);
     void ReplaceShortcut(Shortcut shortcut);
-    void ReplaceShortcutPath(string id, string shortcutPath);
-    void DuplicateShortcut(string key, string duplicateKey);
+    void DuplicateShortcut(string existingKey, string duplicateKey);
     void ReloadShortcuts();
-    void ImportShortcuts();
-    void ExportShortcuts();
+    void ImportShortcuts(string path);
+    void ExportShortcuts(string path);
 }

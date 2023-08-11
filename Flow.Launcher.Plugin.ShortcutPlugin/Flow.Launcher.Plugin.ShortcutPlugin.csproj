@@ -32,9 +32,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.3" />
-        <PackageReference Include="Flow.Launcher.Plugin" Version="4.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.5.23280.8" />
+        <PackageReference Include="CliWrap" Version="3.6.4" />
+        <PackageReference Include="Flow.Launcher.Plugin" Version="4.1.1" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.7.23375.6" />
     </ItemGroup>
 
     <ItemGroup>
@@ -51,6 +51,8 @@
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
+
+
     </ItemGroup>
 
 

@@ -4,34 +4,28 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
-using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
-using Flow.Launcher.Plugin.ShortcutPlugin.Handlers;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Microsoft.Win32;
+using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
-    private readonly IPathHandler _pathHandler;
-
     private Dictionary<string, Shortcut> _shortcuts;
 
-
-    public ShortcutsRepository(ISettingsService settingsService, IPathHandler pathHandler)
+    public ShortcutsRepository(ISettingsService settingsService)
     {
         _settingsService = settingsService;
-        _pathHandler = pathHandler;
-        _shortcuts = ReadShortcutFile(settingsService.GetSetting(x => x.ShortcutsPath));
+        _shortcuts = ReadShortcuts(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
-    public Shortcut GetShortcut(string id)
+    [CanBeNull]
+    public Shortcut GetShortcut(string key)
     {
-        return _shortcuts.TryGetValue(id, out var shortcut) ? shortcut : null;
+        return _shortcuts.TryGetValue(key, out var shortcut) ? shortcut : null;
     }
 
     public IList<Shortcut> GetShortcuts()
@@ -42,15 +36,14 @@ public class ShortcutsRepository : IShortcutsRepository
     public void AddShortcut(Shortcut shortcut)
     {
         _shortcuts[shortcut.Key] = shortcut;
-        SaveShortcutsToFile();
+        SaveShortcuts();
     }
 
-    public void RemoveShortcut(string id)
+    public void RemoveShortcut(string key)
     {
-        if (!_shortcuts.ContainsKey(id)) return;
-
-        _shortcuts.Remove(id);
-        SaveShortcutsToFile();
+        var result = _shortcuts.Remove(key);
+        if (result)
+            SaveShortcuts();
     }
 
     public void ReplaceShortcut(Shortcut shortcut)
@@ -58,81 +51,66 @@ public class ShortcutsRepository : IShortcutsRepository
         if (!_shortcuts.ContainsKey(shortcut.Key)) return;
 
         _shortcuts[shortcut.Key] = shortcut;
-        SaveShortcutsToFile();
+        SaveShortcuts();
     }
 
-    public void ReplaceShortcutPath(string id, string shortcutPath)
+    public void DuplicateShortcut(string existingKey, string duplicateKey)
     {
-        if (!_shortcuts.ContainsKey(id)) return;
+        if (!_shortcuts.ContainsKey(existingKey)) return;
 
-        var type = _pathHandler.ResolveShortcutType(shortcutPath);
+        var shortcut = _shortcuts[existingKey];
+        var newShortcut = (Shortcut) shortcut.Clone();
 
-        if (type is ShortcutType.Unspecified)
-        {
-            MessageBox.Show(Resources.Shortcut_type_not_supported);
-            return;
-        }
-
-        var shortcut = new Shortcut
-        {
-            Key = id,
-            Path = shortcutPath,
-            Type = type
-        };
-
-        _shortcuts[id] = shortcut;
-        SaveShortcutsToFile();
-
-        SaveShortcutsToFile();
-    }
-
-    public void DuplicateShortcut(string key, string duplicateKey)
-    {
-        if (!_shortcuts.ContainsKey(key)) return;
-
-        var shortcut = _shortcuts[key];
-        var newShortcut = new Shortcut
-        {
-            Key = duplicateKey,
-            Path = shortcut.Path,
-            Type = shortcut.Type
-        };
+        newShortcut.Key = duplicateKey;
         _shortcuts[duplicateKey] = newShortcut;
-        SaveShortcutsToFile();
+
+        SaveShortcuts();
     }
 
     public void ReloadShortcuts()
     {
-        _shortcuts = ReadShortcutFile(_settingsService.GetSetting(x => x.ShortcutsPath));
+        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        _shortcuts = ReadShortcuts(path);
     }
 
-    public void ImportShortcuts()
+    private static Dictionary<string, Shortcut> ReadShortcuts(string path)
     {
-        var openFileDialog = new OpenFileDialog
-        {
-            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-            Title = Resources.Import_shortcuts,
-            CheckFileExists = true,
-            CheckPathExists = true,
-            DefaultExt = "json",
-            Filter = "JSON (*.json)|*.json",
-            FilterIndex = 2,
-            RestoreDirectory = true
-        };
-
-        if (openFileDialog.ShowDialog() != true)
-            return;
+        if (!File.Exists(path)) return new Dictionary<string, Shortcut>();
 
         try
         {
-            var importedShortcuts = ReadShortcutFile(openFileDialog.FileName);
+            var json = File.ReadAllText(path);
+            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
+            return shortcuts.ToDictionary(shortcut => shortcut.Key);
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show("Error while reading shortcuts file: " + e.Message);
+            return new Dictionary<string, Shortcut>();
+        }
+    }
 
-            if (importedShortcuts.Count == 0)
+    private void SaveShortcuts()
+    {
+        var options = new JsonSerializerOptions {WriteIndented = true};
+        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
+
+        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        File.WriteAllText(path, json);
+    }
+
+    public void ImportShortcuts(string path)
+    {
+        try
+        {
+            var shortcuts = ReadShortcuts(path);
+
+            if (shortcuts.Count == 0)
                 throw new Exception("No shortcuts found in file");
 
-            _shortcuts = importedShortcuts;
+            _shortcuts = shortcuts;
 
-            SaveShortcutsToFile();
+            SaveShortcuts();
             ReloadShortcuts();
         }
         catch (Exception)
@@ -141,22 +119,8 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    public void ExportShortcuts()
+    public void ExportShortcuts(string path)
     {
-        var saveFileDialog = new SaveFileDialog
-        {
-            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-            Title = Resources.Export_shortcuts,
-            FileName = "shortcuts.json",
-            CheckPathExists = true,
-            DefaultExt = "json",
-            Filter = "JSON (*.json)|*.json",
-            FilterIndex = 2,
-            RestoreDirectory = true
-        };
-
-        if (saveFileDialog.ShowDialog() != true) return;
-
         if (!File.Exists(_settingsService.GetSetting(x => x.ShortcutsPath)))
         {
             MessageBox.Show(Resources.Shortcuts_file_not_found);
@@ -165,34 +129,11 @@ public class ShortcutsRepository : IShortcutsRepository
 
         try
         {
-            File.Copy(_settingsService.GetSetting(x => x.ShortcutsPath), saveFileDialog.FileName);
+            File.Copy(_settingsService.GetSetting(x => x.ShortcutsPath), path);
         }
         catch
         {
             MessageBox.Show(Resources.Error_while_exporting_shortcuts);
         }
-    }
-
-    private Dictionary<string, Shortcut> ReadShortcutFile(string path)
-    {
-        if (!File.Exists(path)) return new Dictionary<string, Shortcut>();
-
-        try
-        {
-            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(File.ReadAllText(path));
-            return shortcuts.ToDictionary(shortcut => shortcut.Key);
-        }
-        catch (Exception)
-        {
-            return new Dictionary<string, Shortcut>();
-        }
-    }
-
-    private void SaveShortcutsToFile()
-    {
-        var options = new JsonSerializerOptions {WriteIndented = true};
-        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
-
-        File.WriteAllText(_settingsService.GetSetting(x => x.ShortcutsPath), json);
     }
 }
