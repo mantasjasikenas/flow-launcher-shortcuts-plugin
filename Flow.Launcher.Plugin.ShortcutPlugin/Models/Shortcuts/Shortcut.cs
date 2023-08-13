@@ -27,7 +27,7 @@ public abstract class Shortcut : ICloneable
         };
     }
 
-    public ShortcutType Type => this switch
+    public ShortcutType GetShortcutType() => this switch
     {
         FileShortcut => ShortcutType.File,
         DirectoryShortcut => ShortcutType.Directory,

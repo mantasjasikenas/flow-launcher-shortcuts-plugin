@@ -1,5 +1,5 @@
-<div style="text-align:center;">
-  <img style="border-radius: 15px" src="https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin/blob/master/assets/icon.png?raw=true" alt="Shortcuts logo" width="75">  
+<div align="center">
+  <img src="https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin/blob/master/assets/icon.png?raw=true" alt="Shortcuts logo" width="75">  
   <h1>Shortcuts Plugin <br> Quickly launch your shortcuts</h1>
   <br>
 </div>
