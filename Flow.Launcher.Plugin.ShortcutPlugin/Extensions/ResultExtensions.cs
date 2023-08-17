@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
@@ -29,12 +30,28 @@ public static class ResultExtensions
             {
                 Title = title,
                 SubTitle = subtitle,
-                IcoPath = "images\\icon.png",
+                IcoPath = Constants.IconPath,
                 Action = _ =>
                 {
                     action?.Invoke();
                     return hideAfterAction;
                 }
+            }
+        };
+    }
+
+    public static Result Result(string title, string subtitle = "", Action action = default,
+        bool hideAfterAction = true)
+    {
+        return new Result
+        {
+            Title = title,
+            SubTitle = subtitle,
+            IcoPath = "images\\icon.png",
+            Action = _ =>
+            {
+                action?.Invoke();
+                return hideAfterAction;
             }
         };
     }

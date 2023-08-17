@@ -17,11 +17,11 @@ public static class DependencyInjection
         services.AddSingleton<IShortcutsService, ShortcutsService>();
         services.AddSingleton<IHelpersRepository, HelpersRepository>();
         services.AddSingleton<IVariablesRepository, VariablesRepository>();
+        services.AddSingleton<ICommandsRepository, CommandsRepository>();
         services.AddSingleton<IVariablesService, VariablesService>();
         services.AddSingleton<ICommandsService, CommandsService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutTypeResolver, ShortcutTypeResolver>();
-
 
         return services;
     }

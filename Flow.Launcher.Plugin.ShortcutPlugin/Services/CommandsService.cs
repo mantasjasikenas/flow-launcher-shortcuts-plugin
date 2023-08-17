@@ -2,29 +2,28 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
 public class CommandsService : ICommandsService
 {
-    private readonly Dictionary<string, Func<QueryCommand, List<Result>>> _commandsWithParams;
     private readonly Dictionary<string, Func<List<Result>>> _commandsWithoutParams;
+    private readonly Dictionary<string, Func<models.Query, List<Result>>> _commandsWithParams;
 
     private readonly PluginInitContext _context;
-    private readonly IShortcutsService _shortcutsService;
-    private readonly IShortcutsRepository _shortcutsRepository;
-    private readonly ISettingsService _settingsService;
-    private readonly IVariablesService _variablesService;
 
     private readonly IHelpersRepository _helpersRepository;
+    private readonly ISettingsService _settingsService;
+    private readonly IShortcutsRepository _shortcutsRepository;
+    private readonly IShortcutsService _shortcutsService;
+    private readonly IVariablesService _variablesService;
+    private readonly ICommandsRepository _commandsRepository;
 
 
     public CommandsService(PluginInitContext context,
@@ -32,7 +31,9 @@ public class CommandsService : ICommandsService
         IShortcutsRepository shortcutsRepository,
         ISettingsService settingsService,
         IHelpersRepository helpersRepository,
-        IVariablesService variablesService)
+        IVariablesService variablesService,
+        ICommandsRepository commandsRepository
+    )
     {
         _context = context;
         _shortcutsService = shortcutsService;
@@ -40,13 +41,56 @@ public class CommandsService : ICommandsService
         _settingsService = settingsService;
         _helpersRepository = helpersRepository;
         _variablesService = variablesService;
+        _commandsRepository = commandsRepository;
 
-        _commandsWithParams = new Dictionary<string, Func<QueryCommand, List<Result>>>(StringComparer
+        _commandsWithParams = new Dictionary<string, Func<models.Query, List<Result>>>(StringComparer
             .InvariantCultureIgnoreCase);
         _commandsWithoutParams = new Dictionary<string, Func<List<Result>>>(StringComparer.InvariantCultureIgnoreCase);
 
         Init();
     }
+
+    public List<Result> ResolveCommand(List<string> arguments)
+    {
+        return _commandsRepository.ResolveCommand(arguments);
+    }
+
+    public void ReloadPluginData()
+    {
+        _settingsService.Reload();
+        _shortcutsService.Reload();
+        _variablesService.Reload();
+        _helpersRepository.Reload();
+    }
+
+    public bool TryInvokeCommand(string query, out List<Result> results)
+    {
+        // <--Query is shortcut-->
+        if (TryInvokeShortcut(query, out var shortcutResult))
+        {
+            results = shortcutResult;
+            return true;
+        }
+
+        // <--Command without params-->
+        if (_commandsWithoutParams.TryGetValue(query, out var commandWithoutParams))
+        {
+            results = commandWithoutParams.Invoke();
+            return true;
+        }
+
+        // <--Command with params-->
+        var command = models.Query.Parse(query);
+        if (command is not null && _commandsWithParams.TryGetValue(command.Keyword, out var commandWithParams))
+        {
+            results = commandWithParams.Invoke(command);
+            return true;
+        }
+
+        results = ResultExtensions.InitializedResult();
+        return false;
+    }
+
 
     private void Init()
     {
@@ -76,14 +120,6 @@ public class CommandsService : ICommandsService
         _commandsWithParams.Add("duplicate", ParseDuplicateShortcutCommand);
     }
 
-    public void ReloadPluginData()
-    {
-        _settingsService.Reload();
-        _shortcutsService.Reload();
-        _variablesService.Reload();
-        _helpersRepository.Reload();
-    }
-
     private bool TryInvokeShortcut(string shortcut, out List<Result> results)
     {
         // <--Query is shortcut-->
@@ -97,38 +133,10 @@ public class CommandsService : ICommandsService
         return false;
     }
 
-    public bool TryInvokeCommand(string query, out List<Result> results)
+
+    private List<Result> ParsePluginKeywordCommand(models.Query query)
     {
-        // <--Query is shortcut-->
-        if (TryInvokeShortcut(query, out var shortcutResult))
-        {
-            results = shortcutResult;
-            return true;
-        }
-
-        // <--Command without params-->
-        if (_commandsWithoutParams.TryGetValue(query, out var commandWithoutParams))
-        {
-            results = commandWithoutParams.Invoke();
-            return true;
-        }
-
-        // <--Command with params-->
-        var command = QueryCommand.Parse(query);
-        if (command is not null && _commandsWithParams.TryGetValue(command.Keyword, out var commandWithParams))
-        {
-            results = commandWithParams.Invoke(command);
-            return true;
-        }
-
-        results = ResultExtensions.InitializedResult();
-        return false;
-    }
-
-
-    private List<Result> ParsePluginKeywordCommand(QueryCommand queryCommand)
-    {
-        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(query.Args);
 
         return args.Count switch
         {
@@ -146,7 +154,9 @@ public class CommandsService : ICommandsService
                     _context.CurrentPluginMetadata.ActionKeyword = newKeyword;
 
                     if (newKeyword.Equals(oldKeyword, StringComparison.InvariantCultureIgnoreCase))
+                    {
                         return;
+                    }
 
                     _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, oldKeyword);
                 }),
@@ -155,9 +165,9 @@ public class CommandsService : ICommandsService
         };
     }
 
-    private List<Result> ParseDuplicateShortcutCommand(QueryCommand queryCommand)
+    private List<Result> ParseDuplicateShortcutCommand(models.Query query)
     {
-        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(query.Args);
 
         return args.Count switch
         {
@@ -171,9 +181,9 @@ public class CommandsService : ICommandsService
         };
     }
 
-    private List<Result> ParseVariableCommand(QueryCommand queryCommand)
+    private List<Result> ParseVariableCommand(models.Query query)
     {
-        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(query.Args);
 
         return args.Count switch
         {
@@ -188,37 +198,68 @@ public class CommandsService : ICommandsService
         };
     }
 
-    private List<Result> ParseAddShortcutCommand(QueryCommand queryCommand)
+    private List<Result> ParseAddShortcutCommand(models.Query query)
     {
-        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(query.Args);
 
-        if (args.Count < 2)
-            return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name and path");
+        // no args
+        if (args.Count == 0)
+        {
+            return ResultExtensions.SingleResult("Add shortcut",
+                "Please provide shortcut type, name and args");
+        }
 
-        var shortcutType = ShortcutType.Unspecified;
+        // only type
+        var shortcutType = Enum.TryParse<ShortcutType>(args[0], true, out var type) ? type : ShortcutType.Unspecified;
 
-        if (args.Count == 3)
-            shortcutType = Enum.TryParse<ShortcutType>(args[2], true, out var type) ? type : ShortcutType.Unspecified;
+        if (shortcutType == ShortcutType.Unspecified)
+        {
+            return ResultExtensions.SingleResult("Invalid shortcut type",
+                "Available types: " + string.Join(", ", Enum.GetNames(typeof(ShortcutType)).Select(x => x.ToLower())));
+        }
 
-        return _shortcutsService.AddShortcut(args[0], args[1], shortcutType);
+        if (args.Count == 1)
+        {
+            return ResultExtensions.SingleResult($"Add {shortcutType.ToString().ToLower()} type shortcut",
+                "Please provide shortcut name and path");
+        }
+
+        if (args.Count == 2)
+        {
+            return ResultExtensions.SingleResult($"Add '{args[1]}' {shortcutType.ToString().ToLower()} shortcut",
+                "Please provide shortcut args");
+        }
+
+        // only type and name
+        if (args.Count >= 3)
+        {
+            return _shortcutsService.AddShortcut(args[1], args[2], shortcutType);
+        }
+
+
+        return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut type, name and path");
     }
 
-    private List<Result> ParseRemoveShortcutCommand(QueryCommand queryCommand)
+    private List<Result> ParseRemoveShortcutCommand(models.Query query)
     {
-        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(query.Args);
 
         if (args.Count < 1)
+        {
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name");
+        }
 
         return _shortcutsService.RemoveShortcut(args[0]);
     }
 
-    private List<Result> ParseGetShortcutPathCommand(QueryCommand queryCommand)
+    private List<Result> ParseGetShortcutPathCommand(models.Query query)
     {
-        var args = CommandLineExtensions.SplitArguments(queryCommand.Args);
+        var args = CommandLineExtensions.SplitArguments(query.Args);
 
         if (args.Count < 1)
+        {
             return ResultExtensions.SingleResult("Invalid arguments", "Please provide shortcut name");
+        }
 
         return _shortcutsService.GetShortcutDetails(args[0]);
     }
