@@ -6,8 +6,8 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using JetBrains.Annotations;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -36,11 +36,11 @@ public class CommandsRepository : ICommandsRepository
     {
         if (arguments.Count == 0)
         {
-            return ShowAvailableCommands(arguments);
+            return ShowAvailableCommands();
         }
 
         // In case this is a shortcut command, let's open shortcut
-        if (_shortcutsRepository.GetShortcut(arguments[0]) is not null)
+        if (arguments.Count == 1 && _shortcutsRepository.GetShortcut(arguments[0]) is not null)
         {
             return _shortcutsService.OpenShortcut(arguments[0]);
         }
@@ -54,7 +54,9 @@ public class CommandsRepository : ICommandsRepository
                 // Return possible command matches
                 return _commands.Values
                                 .Where(c => c.Key.StartsWith(arguments[0], StringComparison.InvariantCultureIgnoreCase))
-                                .Select(c => Map(c, c.ResponseInfo, arguments))
+                                .Select(c => ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2))
+                                .DefaultIfEmpty(ResultExtensions.Result("Invalid command",
+                                    "Please provide valid command"))
                                 .ToList();
             }
 
@@ -75,31 +77,39 @@ public class CommandsRepository : ICommandsRepository
         // If command is valid and has a handler
         if (executor.Handler is not null)
         {
-            return new List<Result>
-            {
-                Map(executor, executor.ResponseSuccess, arguments)
-            };
+            return MapResults(executor, executor.ResponseSuccess, arguments);
         }
 
+        // If command is ...
         if (executor.Arguments.Count != 0)
         {
             return executor.Arguments
                            .Cast<Argument>()
-                           .Select(a => Map(a, a.ResponseInfo, arguments))
+                           .Select(a =>
+                               ResultExtensions.Result(a.ResponseInfo.Item1, a.ResponseInfo.Item2,
+                                   () => { _context.API.ChangeQuery($"{a.Key} "); }))
                            .ToList();
         }
 
-        return new List<Result>
-        {
-            Map(executor, executor.ResponseFailure, arguments)
-        };
+
+        return MapResults(executor, executor.ResponseFailure, arguments);
     }
 
-    private List<Result> ShowAvailableCommands(List<string> arguments)
+    private List<Result> ShowAvailableCommands()
     {
         return _commands.Values
-                        .Select(c => Map(c, c.ResponseInfo, arguments))
+                        .Select(c => ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2, () =>
+                        {
+                            //_context.API.ChangeQuery($"{c.Key}");
+                        }))
                         .ToList();
+    }
+
+    private static List<Result> MapResults(IQueryExecutor executor, (string, string)? response, List<string> arguments)
+    {
+        return executor.Handler is null
+            ? ResultExtensions.SingleResult(response?.Item1, response?.Item2)
+            : executor.Handler.Invoke(null, arguments);
     }
 
     private static (IQueryExecutor, IQueryExecutor) GetExecutors(IQueryExecutor executorOld, IQueryExecutor executorNew,
@@ -147,50 +157,126 @@ public class CommandsRepository : ICommandsRepository
         return argExecutor;
     }
 
-    private static Result Map(IQueryExecutor executor, (string, string)? response, List<string> arguments)
-    {
-        return new Result
-        {
-            Action = c => executor.Handler?.Invoke(c, arguments) ?? true,
-            Title = response?.Item1,
-            SubTitle = response?.Item2,
-            IcoPath = Constants.IconPath
-        };
-    }
-
     private void RegisterCommands()
     {
         _commands.Add("add", CreateAddCommand());
         _commands.Add("reload", CreateReloadCommand());
     }
 
-    private Command CreateAddCommand() => new()
+    private Command CreateAddCommand()
     {
-        Key = "add",
-        ResponseInfo = ("add", "Add shortcuts to the list"),
-        ResponseFailure = ("Enter shortcut type", "<Directory/File/Url/Plugin/Program>"),
-        Arguments = GetShortcutTypes()
-    };
+        return new Command
+        {
+            Key = "add",
+            ResponseInfo = ("add", "Add shortcuts to the list"),
+            ResponseFailure = ("Enter shortcut type", "<Directory/File/Url/Plugin/Program>"),
+            Arguments = GetShortcutTypes()
+        };
+    }
 
-    private Command CreateReloadCommand() => new()
+    private Command CreateReloadCommand()
     {
-        Key = "reload",
-        ResponseInfo = ("reload", "Reload plugin data"),
-        ResponseSuccess = ("Reload", "Reload plugin data"),
-        ResponseFailure = ("Failed to reload", "Something went wrong"),
-        Handler = ReloadCommandHandler
-    };
+        return new Command
+        {
+            Key = "reload",
+            ResponseInfo = ("reload", "Reload plugin data"),
+            ResponseSuccess = ("Reload", "Reload plugin data"),
+            ResponseFailure = ("Failed to reload", "Something went wrong"),
+            Handler = ReloadCommandHandler
+        };
+    }
 
-    private List<IQueryExecutor> GetShortcutTypes() => new()
+    private List<Result> ReloadCommandHandler(ActionContext context, List<string> arguments)
     {
-        CreateShortcutType("directory", a => new DirectoryShortcut {Key = a[2], Path = a[3]}),
-        CreateShortcutType("file", a => new FileShortcut {Key = a[2], Path = a[3]}),
-        CreateShortcutType("url", a => new UrlShortcut {Key = a[2], Url = a[3]}),
-        CreateShellShortcut()
-    };
+        return new List<Result>
+        {
+            new()
+            {
+                Title = "Reload1",
+                SubTitle = "Reloads plugin data"
+            },
+            new()
+            {
+                Title = "Reload2",
+                SubTitle = "Reloads plugin data"
+            }
+        };
+    }
+
+    private List<IQueryExecutor> GetShortcutTypes()
+    {
+        return new List<IQueryExecutor>
+        {
+            CreateShortcutType("directory", CreateDirectoryShortcutHandler),
+            CreateShortcutType("file", CreateFileShortcutHandler),
+            CreateShortcutType("url", CreateUrlShortcutHandler),
+            CreateShellShortcut()
+        };
+    }
+
+    private List<Result> CreateUrlShortcutHandler(ActionContext arg1, List<string> arguments)
+    {
+        return ResultExtensions.SingleResult("Creating url shortcut", "", () =>
+        {
+            var key = arguments[2];
+            var url = arguments[3];
+
+            _shortcutsRepository.AddShortcut(new UrlShortcut
+            {
+                Key = key,
+                Url = url
+            });
+        });
+    }
+
+    private List<Result> CreateFileShortcutHandler(ActionContext arg1, List<string> arg2)
+    {
+        return ResultExtensions.SingleResult("Creating file shortcut", "", () =>
+        {
+            var key = arg2[2];
+            var filePath = arg2[3];
+
+            _shortcutsRepository.AddShortcut(new FileShortcut
+            {
+                Key = key,
+                Path = filePath
+            });
+        });
+    }
+
+    private List<Result> CreateDirectoryShortcutHandler(ActionContext arg1, List<string> arg2)
+    {
+        return ResultExtensions.SingleResult("Creating directory shortcut", "", () =>
+        {
+            var key = arg2[2];
+            var directoryPath = arg2[3];
+
+            _shortcutsRepository.AddShortcut(new DirectoryShortcut
+            {
+                Key = key,
+                Path = directoryPath
+            });
+        });
+    }
+
+    private List<Result> CreateShellShortcutHandler(ActionContext context, List<string> arguments)
+    {
+        _shortcutsRepository.AddShortcut(new ShellShortcut
+        {
+            Key = arguments[2],
+            TargetFilePath = arguments[3],
+            Command = arguments[4],
+            Silent = arguments[5]
+                .Equals("true",
+                    StringComparison.InvariantCultureIgnoreCase)
+        });
+
+        throw new NotImplementedException();
+    }
 
 
-    private IQueryExecutor CreateShortcutType(string type, Func<List<string>, Shortcut> createShortcut)
+    private IQueryExecutor CreateShortcutType(string type,
+        Func<ActionContext, List<string>, List<Result>> createShortcutHandler)
     {
         return new ArgumentLiteral
         {
@@ -209,11 +295,7 @@ public class CommandsRepository : ICommandsRepository
                         {
                             ResponseSuccess = ("Add", "Your new shortcut will be addded to the list"),
                             ResponseInfo = ("Enter shortcut path", "This is where your shortcut will point to"),
-                            Handler = (_, a) =>
-                            {
-                                _shortcutsRepository.AddShortcut(createShortcut(a));
-                                return true;
-                            }
+                            Handler = createShortcutHandler
                         }
                     }
                 }
@@ -251,20 +333,7 @@ public class CommandsRepository : ICommandsRepository
                                                 "Your new shortcut will be added to the list"),
                                             ResponseInfo = ("Enter shell silent",
                                                 "Should your shell be silent?"),
-                                            Handler = (_, a) =>
-                                            {
-                                                _shortcutsRepository.AddShortcut(new ShellShortcut
-                                                {
-                                                    Key = a[2],
-                                                    TargetFilePath = a[3],
-                                                    Command = a[4],
-                                                    Silent = a[5]
-                                                        .Equals("true",
-                                                            StringComparison.InvariantCultureIgnoreCase)
-                                                });
-
-                                                return true;
-                                            }
+                                            Handler = CreateShellShortcutHandler
                                         }
                                     }
                                 }
@@ -274,12 +343,5 @@ public class CommandsRepository : ICommandsRepository
                 }
             }
         };
-    }
-
-    private bool ReloadCommandHandler(ActionContext context, List<string> arguments)
-    {
-        //ReloadPluginData();
-        _context.API.ShowMsg("Reloaded", "Reloaded plugin data", Constants.IconPath);
-        return true;
     }
 }

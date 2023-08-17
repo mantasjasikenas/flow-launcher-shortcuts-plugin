@@ -20,7 +20,7 @@ public class BaseQueryExecutor : IQueryExecutor
 {
     public List<IQueryExecutor> Arguments { get; init; }
 
-    public Func<ActionContext, List<string>, bool> Handler { get; init; }
+    public Func<ActionContext, List<string>, List<Result>> Handler { get; init; }
 
     [NotNull] public string Key { get; init; }
 
@@ -33,7 +33,7 @@ public class BaseQueryExecutor : IQueryExecutor
 
 public interface IQueryExecutor : IArgumentsHolder
 {
-    public Func<ActionContext, List<string>, bool> Handler { get; init; }
+    public Func<ActionContext, List<string>, List<Result>> Handler { get; init; }
 
     public (string, string)? ResponseFailure { get; init; }
 
