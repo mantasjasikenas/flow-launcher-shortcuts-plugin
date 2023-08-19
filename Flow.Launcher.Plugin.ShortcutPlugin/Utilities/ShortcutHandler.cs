@@ -1,32 +1,24 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using CliWrap;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Validators;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
-public class ShortcutTypeResolver : IShortcutTypeResolver
+public class ShortcutHandler : IShortcutHandler
 {
     private readonly IVariablesService _variablesService;
 
-    public ShortcutTypeResolver(IVariablesService variablesService)
+    public ShortcutHandler(IVariablesService variablesService)
     {
         _variablesService = variablesService;
     }
 
-    // TODO refactor this method / move to a different class
-    public ShortcutType ResolveType(string path)
-    {
-        if (PathValidator.IsValidFile(path)) return ShortcutType.File;
-
-        if (PathValidator.IsValidDirectory(path)) return ShortcutType.Directory;
-
-        return PathValidator.IsValidUrl(path) ? ShortcutType.Url : ShortcutType.Unspecified;
-    }
-
-    // TODO refactor this method / move to a different class
     public void ExecuteShortcut(Shortcut shortcut)
     {
         switch (shortcut)
@@ -91,5 +83,42 @@ public class ShortcutTypeResolver : IShortcutTypeResolver
             FileName = url
         };
         Process.Start(processStartInfo);
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private List<Result> ExecutePluginShortcut(PluginInitContext context, PluginShortcut shortcut)
+    {
+        return ResultExtensions.SingleResult("Executing plugin shortcut", shortcut.RawQuery, Action);
+
+        void Action()
+        {
+            var plugins = context.API.GetAllPlugins();
+            var plugin = plugins.First(x => x.Metadata.Name.Equals(shortcut.PluginName));
+
+            var query = QueryBuilder.Build(shortcut.RawQuery);
+
+            var results = plugin.Plugin.QueryAsync(query, CancellationToken.None).Result;
+            results.First().Action.Invoke(null);
+        }
+    }
+
+    // ReSharper disable once UnusedMember.Local
+    private List<Result> ExecuteShellShortcut(ShellShortcut shortcut)
+    {
+        return ResultExtensions.SingleResult("Executing shell shortcut", shortcut.Command, () =>
+        {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = shortcut.TargetFilePath,
+                    Arguments = "/c " + shortcut.Command,
+                    UseShellExecute = false,
+                    CreateNoWindow = shortcut.Silent,
+                }
+            };
+
+            process.Start();
+        });
     }
 }

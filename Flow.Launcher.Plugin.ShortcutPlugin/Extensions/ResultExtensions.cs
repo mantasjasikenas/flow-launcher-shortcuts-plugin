@@ -22,7 +22,7 @@ public static class ResultExtensions
     }
 
     public static List<Result> SingleResult(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true)
+        bool hideAfterAction = true, string autocomplete = default)
     {
         return new List<Result>
         {
@@ -31,6 +31,7 @@ public static class ResultExtensions
                 Title = title,
                 SubTitle = subtitle,
                 IcoPath = Constants.IconPath,
+                AutoCompleteText = autocomplete,
                 Action = _ =>
                 {
                     action?.Invoke();
