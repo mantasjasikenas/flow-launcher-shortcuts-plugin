@@ -5,6 +5,8 @@ permissions:
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'Flow.Launcher.Plugin.ShortcutPlugin/plugin.json'
   workflow_dispatch:
