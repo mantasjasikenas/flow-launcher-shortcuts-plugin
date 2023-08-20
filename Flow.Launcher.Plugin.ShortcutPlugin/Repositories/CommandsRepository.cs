@@ -38,7 +38,7 @@ public class CommandsRepository : ICommandsRepository
     }
 
 
-    public List<Result> ResolveCommand(List<string> arguments)
+    public List<Result> ResolveCommand(List<string> arguments, string query)
     {
         if (arguments.Count == 0)
         {
@@ -86,9 +86,19 @@ public class CommandsRepository : ICommandsRepository
             return Map(executor, executor.ResponseSuccess, arguments);
         }
 
-        // If command is ...
+
+
+
+
+        // If command has more arguments
         if (executor.Arguments.Count != 0)
         {
+            // can't check because Flow Launcher trims the query
+            /* if (!query.EndsWith(" "))
+            {
+                return ResultExtensions.SingleResult(executor.ResponseInfo.Item1, executor.ResponseInfo.Item2);    
+            } */
+
             return executor.Arguments
                            .Cast<Argument>()
                            .Select(a =>

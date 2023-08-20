@@ -5,13 +5,14 @@ permissions:
 
 on:
   push:
+    branches:
+      - master
     paths:
-      - 'Flow.Launcher.Plugin.ShortcutPlugin/plugin.json'
+      - "Flow.Launcher.Plugin.ShortcutPlugin/plugin.json"
   workflow_dispatch:
 
 jobs:
   publish:
-
     runs-on: windows-latest
 
     steps:
@@ -26,8 +27,8 @@ jobs:
         id: version
         uses: notiz-dev/github-action-json-property@release
         with:
-          path: 'Flow.Launcher.Plugin.ShortcutPlugin/plugin.json'
-          prop_path: 'Version'
+          path: "Flow.Launcher.Plugin.ShortcutPlugin/plugin.json"
+          prop_path: "Version"
 
       - run: echo ${{steps.version.outputs.prop}}
 

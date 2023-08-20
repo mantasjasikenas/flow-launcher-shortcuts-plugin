@@ -25,9 +25,9 @@ public class CommandsService : ICommandsService
         _commandsRepository = commandsRepository;
     }
 
-    public List<Result> ResolveCommand(List<string> arguments)
+    public List<Result> ResolveCommand(List<string> arguments, string query)
     {
-        return _commandsRepository.ResolveCommand(arguments);
+        return _commandsRepository.ResolveCommand(arguments, query);
     }
 
     public void ReloadPluginData()
