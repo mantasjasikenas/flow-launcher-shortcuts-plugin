@@ -34,7 +34,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable
 
     public List<Result> Query(Query query)
     {
-        var args = CommandLineExtensions.SplitArguments(query.RawQuery);
+        var args = CommandLineExtensions.SplitArguments(query.Search);
         var results = _commandsService.ResolveCommand(args, query.Search);
 
         return results;
