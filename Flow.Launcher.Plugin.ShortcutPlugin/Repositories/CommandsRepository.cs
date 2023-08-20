@@ -223,7 +223,7 @@ public class CommandsRepository : ICommandsRepository
     {
         return ResultExtensions.SingleResult("Setting plugin keyword", $"New keyword will be `{arg2[2]}`", () =>
         {
-            var newKeyword = arg2[1];
+            var newKeyword = arg2[2];
             var oldKeyword = _context.CurrentPluginMetadata.ActionKeyword;
 
             _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword);
@@ -471,7 +471,6 @@ public class CommandsRepository : ICommandsRepository
             _settingsService.Reload();
             _shortcutsService.Reload();
             _variablesService.Reload();
-            // removed helpers reload
         });
     }
 
