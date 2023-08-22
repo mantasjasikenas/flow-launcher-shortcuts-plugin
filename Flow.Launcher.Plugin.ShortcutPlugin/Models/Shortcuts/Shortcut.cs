@@ -10,6 +10,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 [JsonDerivedType(typeof(UrlShortcut), nameof(ShortcutType.Url))]
 [JsonDerivedType(typeof(DirectoryShortcut), nameof(ShortcutType.Directory))]
 [JsonDerivedType(typeof(FileShortcut), nameof(ShortcutType.File))]
+[JsonDerivedType(typeof(GroupShortcut), nameof(ShortcutType.Group))]
 public abstract class Shortcut : ICloneable
 {
     public string Key { get; set; }
@@ -23,6 +24,7 @@ public abstract class Shortcut : ICloneable
             UrlShortcut => "Url",
             ProgramShortcut => "Program",
             PluginShortcut => "Plugin",
+            GroupShortcut => "Group",
             _ => "Unspecified"
         };
     }
@@ -34,6 +36,7 @@ public abstract class Shortcut : ICloneable
         UrlShortcut => ShortcutType.Url,
         ProgramShortcut => ShortcutType.Program,
         PluginShortcut => ShortcutType.Plugin,
+        GroupShortcut => ShortcutType.Group,
         _ => ShortcutType.Unspecified
     };
 

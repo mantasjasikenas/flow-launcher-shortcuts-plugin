@@ -5,52 +5,130 @@ using System.Threading;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
+using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 public class ShortcutHandler : IShortcutHandler
 {
-    private readonly IVariablesService _variablesService;
     private readonly PluginInitContext _context;
+    private readonly IShortcutsRepository _shortcutsRepository;
+    private readonly IVariablesService _variablesService;
 
-    public ShortcutHandler(IVariablesService variablesService, PluginInitContext context)
+    public ShortcutHandler(IVariablesService variablesService, PluginInitContext context,
+        IShortcutsRepository shortcutsRepository)
     {
         _variablesService = variablesService;
         _context = context;
+        _shortcutsRepository = shortcutsRepository;
     }
 
-    public void ExecuteShortcut(Shortcut shortcut, List<string> arguments)
+    public void ExecuteShortcut(Shortcut shortcut, [CanBeNull] List<string> arguments)
     {
-        var parsedArguments = arguments.Any()
+        var parsedArguments = arguments != null && arguments.Any()
             ? CommandLineExtensions.ParseArguments(arguments)
             : new Dictionary<string, string>();
 
         switch (shortcut)
         {
+            case GroupShortcut groupShortcut:
+            {
+                ExecuteGroupShortcut(groupShortcut, arguments);
+                break;
+            }
             case UrlShortcut urlShortcut:
             {
-                var path = Expand(urlShortcut.Url, parsedArguments);
-                OpenUrl(path);
-
+                ExecuteUrlShortcut(urlShortcut, parsedArguments);
                 break;
             }
             case DirectoryShortcut directoryShortcut:
             {
-                var path = Expand(directoryShortcut.Path, parsedArguments);
-                OpenDirectory(path);
-
+                ExecuteDirectoryShortcut(directoryShortcut, parsedArguments);
                 break;
             }
             case FileShortcut fileShortcut:
             {
-                var path = Expand(fileShortcut.Path, parsedArguments);
-                OpenFile(path);
-
+                ExecuteFileShortcut(fileShortcut, parsedArguments);
+                break;
+            }
+            default:
+            {
+                _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
                 break;
             }
         }
+    }
+
+    private void ExecuteGroupShortcut(GroupShortcut groupShortcut, List<string> arguments)
+    {
+        if (groupShortcut.Shortcuts != null)
+        {
+            foreach (var shortcut in groupShortcut.Shortcuts)
+            {
+                if (shortcut is GroupShortcut groupShortcutValue)
+                {
+                    if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
+                    {
+                        _context.API.ShowMsg("Shortcut cannot contain itself.");
+                        continue;
+                    }
+                }
+
+                ExecuteShortcut(shortcut, arguments);
+            }
+        }
+
+        if (groupShortcut.Keys == null)
+        {
+            return;
+        }
+
+        foreach (var key in groupShortcut.Keys)
+        {
+            if (key.Equals(groupShortcut.Key))
+            {
+                _context.API.ShowMsg("Shortcut cannot contain itself.");
+                continue;
+            }
+
+            var value = _shortcutsRepository.GetShortcut(key);
+
+            if (value is GroupShortcut groupShortcutValue)
+            {
+                if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
+                {
+                    _context.API.ShowMsg("Shortcut cannot contain itself.");
+                    continue;
+                }
+            }
+
+            if (value is not null)
+            {
+                ExecuteShortcut(value, arguments);
+            }
+        }
+    }
+
+    private void ExecuteUrlShortcut(UrlShortcut urlShortcut, Dictionary<string, string> parsedArguments)
+    {
+        var path = Expand(urlShortcut.Url, parsedArguments);
+        OpenUrl(path);
+    }
+
+    private void ExecuteDirectoryShortcut(DirectoryShortcut directoryShortcut,
+        Dictionary<string, string> parsedArguments)
+    {
+        var path = Expand(directoryShortcut.Path, parsedArguments);
+        OpenDirectory(path);
+    }
+
+    private void ExecuteFileShortcut(FileShortcut fileShortcut, Dictionary<string, string> parsedArguments)
+    {
+        var path = Expand(fileShortcut.Path, parsedArguments);
+        OpenFile(path);
     }
 
     private string Expand(string value, IReadOnlyDictionary<string, string> args)
@@ -130,7 +208,7 @@ public class ShortcutHandler : IShortcutHandler
                     FileName = shortcut.TargetFilePath,
                     Arguments = "/c " + shortcut.Command,
                     UseShellExecute = false,
-                    CreateNoWindow = shortcut.Silent,
+                    CreateNoWindow = shortcut.Silent
                 }
             };
 

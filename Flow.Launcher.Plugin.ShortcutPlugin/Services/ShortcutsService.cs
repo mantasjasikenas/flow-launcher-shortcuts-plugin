@@ -43,7 +43,7 @@ public class ShortcutsService : IShortcutsService
 
         return shortcuts.Select(shortcut =>
                         {
-                            return ResultExtensions.Result(shortcut.Key.ToUpper(),
+                            return ResultExtensions.Result(shortcut.Key,
                                 $"{shortcut} ({shortcut.GetDerivedType()})",
                                 () => { _shortcutHandler.ExecuteShortcut(shortcut, null); });
                         })

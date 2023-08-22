@@ -22,7 +22,6 @@ public class ShortcutsRepository : IShortcutsRepository
         _shortcuts = ReadShortcuts(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
-    [CanBeNull]
     public Shortcut GetShortcut(string key)
     {
         return _shortcuts.TryGetValue(key, out var shortcut) ? shortcut : null;
@@ -44,6 +43,19 @@ public class ShortcutsRepository : IShortcutsRepository
         var result = _shortcuts.Remove(key);
         if (result)
             SaveShortcuts();
+    }
+
+    public void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys)
+    {
+        var shortcuts = shortcutKeys.Select(key => _shortcuts[key]).ToList();
+        var group = new GroupShortcut
+        {
+            Key = groupKey,
+            Shortcuts = shortcuts
+        };
+
+        _shortcuts[groupKey] = group;
+        SaveShortcuts();
     }
 
     public void ReplaceShortcut(Shortcut shortcut)
