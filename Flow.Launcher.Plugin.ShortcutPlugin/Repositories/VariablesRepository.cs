@@ -6,6 +6,7 @@ using System.Text.Json;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -15,7 +16,6 @@ public class VariablesRepository : IVariablesRepository
     private readonly ISettingsService _settingsService;
 
     private Dictionary<string, Variable> _variables;
-    private string VariablesPath => _settingsService.GetSetting(x => x.VariablesPath);
 
 
     public VariablesRepository(PluginInitContext context, ISettingsService settingsService)
@@ -24,6 +24,8 @@ public class VariablesRepository : IVariablesRepository
         _settingsService = settingsService;
         _variables = ReadVariables(VariablesPath);
     }
+
+    private string VariablesPath => _settingsService.GetSetting(x => x.VariablesPath);
 
     public List<Variable> GetVariables()
     {
@@ -61,14 +63,18 @@ public class VariablesRepository : IVariablesRepository
     public string ExpandVariables(string value)
     {
         var result = _variables.Aggregate(value,
-            (current, variable) => current.Replace($"${{{variable.Key}}}", variable.Value.Value));
+            (current, variable) =>
+                current.Replace(string.Format(Constants.VariableFormat, variable.Key), variable.Value.Value));
 
         return Environment.ExpandEnvironmentVariables(result);
     }
 
     private static Dictionary<string, Variable> ReadVariables(string path)
     {
-        if (!File.Exists(path)) return new Dictionary<string, Variable>();
+        if (!File.Exists(path))
+        {
+            return new Dictionary<string, Variable>();
+        }
 
         try
         {

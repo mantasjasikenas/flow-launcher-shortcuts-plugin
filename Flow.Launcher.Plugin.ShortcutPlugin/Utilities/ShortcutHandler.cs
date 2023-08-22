@@ -13,48 +13,64 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 public class ShortcutHandler : IShortcutHandler
 {
     private readonly IVariablesService _variablesService;
+    private readonly PluginInitContext _context;
 
-    public ShortcutHandler(IVariablesService variablesService)
+    public ShortcutHandler(IVariablesService variablesService, PluginInitContext context)
     {
         _variablesService = variablesService;
+        _context = context;
     }
 
-    public void ExecuteShortcut(Shortcut shortcut)
+    public void ExecuteShortcut(Shortcut shortcut, List<string> arguments)
     {
+        var parsedArguments = arguments.Any()
+            ? CommandLineExtensions.ParseArguments(arguments)
+            : new Dictionary<string, string>();
+
         switch (shortcut)
         {
-            case PluginShortcut:
-            {
-                // handle PluginShortcut
-                break;
-            }
-            case ProgramShortcut:
-            {
-                // handle ProgramShortcut
-                break;
-            }
             case UrlShortcut urlShortcut:
             {
-                var path = _variablesService.ExpandVariables(urlShortcut.Url);
+                var path = Expand(urlShortcut.Url, parsedArguments);
                 OpenUrl(path);
 
                 break;
             }
             case DirectoryShortcut directoryShortcut:
             {
-                var path = _variablesService.ExpandVariables(directoryShortcut.Path);
+                var path = Expand(directoryShortcut.Path, parsedArguments);
                 OpenDirectory(path);
 
                 break;
             }
             case FileShortcut fileShortcut:
             {
-                var path = _variablesService.ExpandVariables(fileShortcut.Path);
+                var path = Expand(fileShortcut.Path, parsedArguments);
                 OpenFile(path);
 
                 break;
             }
         }
+    }
+
+    private string Expand(string value, IReadOnlyDictionary<string, string> args)
+    {
+        var expandedArguments = ExpandArguments(value, args);
+        return _variablesService.ExpandVariables(expandedArguments);
+    }
+
+
+    private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)
+    {
+        foreach (var (key, arg) in args)
+        {
+            var trimmedKey = key.TrimStart('-');
+            var replaceValue = string.Format(Constants.VariableFormat, trimmedKey);
+
+            value = value.Replace(replaceValue, arg);
+        }
+
+        return value;
     }
 
     private static void OpenFile(string path)

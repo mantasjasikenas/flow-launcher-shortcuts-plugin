@@ -26,17 +26,17 @@ public static class CommandLineExtensions
                     inQuotes = !inQuotes;
                     continue;
                 case ' ' when !inQuotes:
-                {
-                    if (i > argStartIndex)
                     {
-                        var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
+                        if (i > argStartIndex)
+                        {
+                            var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
 
-                        arguments.Add(argument);
+                            arguments.Add(argument);
+                        }
+
+                        argStartIndex = i + 1;
+                        break;
                     }
-
-                    argStartIndex = i + 1;
-                    break;
-                }
             }
 
             isEscaped = false;

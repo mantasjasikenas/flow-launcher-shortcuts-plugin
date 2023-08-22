@@ -46,9 +46,12 @@ public class CommandsRepository : ICommandsRepository
         }
 
         // In case this is a shortcut command, let's open shortcut
-        if (arguments.Count == 1 && _shortcutsRepository.GetShortcut(arguments[0]) is not null)
+        // allow passing dynamic arguments to shortcuts
+
+        // arguments.Count == 1 &&
+        if (_shortcutsRepository.GetShortcut(arguments[0]) is not null)
         {
-            return _shortcutsService.OpenShortcut(arguments[0]);
+            return _shortcutsService.OpenShortcut(arguments[0], arguments.Skip(1).ToList());
         }
 
         // If command was not found
