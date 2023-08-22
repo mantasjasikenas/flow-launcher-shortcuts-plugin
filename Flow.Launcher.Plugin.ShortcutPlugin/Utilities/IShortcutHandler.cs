@@ -3,8 +3,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
-public interface IShortcutTypeResolver
+public interface IShortcutHandler
 {
-    ShortcutType ResolveType(string path);
     void ExecuteShortcut(Shortcut shortcut);
 }

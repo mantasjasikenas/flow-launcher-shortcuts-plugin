@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
 // ReSharper disable once UnusedType.Global
-public class ShortcutPlugin : IPlugin, ISettingProvider
+public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable
 {
     private ICommandsService _commandsService;
     private ISettingsService _settingsService;
@@ -33,9 +34,15 @@ public class ShortcutPlugin : IPlugin, ISettingProvider
 
     public List<Result> Query(Query query)
     {
-        return _commandsService.TryInvokeCommand(query.Search, out var result)
-            ? result
-            : ResultExtensions.InitializedResult();
+        var args = CommandLineExtensions.SplitArguments(query.Search);
+        var results = _commandsService.ResolveCommand(args, query.Search);
+
+        return results;
+    }
+
+    public void ReloadData()
+    {
+        _commandsService.ReloadPluginData();
     }
 
     public Control CreateSettingPanel()

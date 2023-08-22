@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;

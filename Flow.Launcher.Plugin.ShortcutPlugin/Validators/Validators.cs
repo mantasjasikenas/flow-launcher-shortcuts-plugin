@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Validators;
 
-public static class PathValidator
+public static class Validators
 {
     public static bool IsValidFile(string path)
     {

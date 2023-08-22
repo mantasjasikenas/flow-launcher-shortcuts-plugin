@@ -2,22 +2,22 @@
 
 public class PluginShortcut : Shortcut
 {
-    public string ActionKeyword { get; init; }
+    public string PluginName { get; init; }
 
-    public string Query { get; init; }
+    public string RawQuery { get; init; }
 
     public override object Clone()
     {
         return new PluginShortcut
         {
             Key = Key,
-            ActionKeyword = ActionKeyword,
-            Query = Query
+            PluginName = PluginName,
+            RawQuery = RawQuery
         };
     }
 
     public override string ToString()
     {
-        return $"{ActionKeyword} {Query}";
+        return $"{PluginName} {RawQuery}";
     }
 }
