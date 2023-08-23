@@ -50,6 +50,24 @@ public class ShortcutsService : IShortcutsService
                         .ToList();
     }
 
+    public List<Result> GetGroups()
+    {
+        var groups = _shortcutsRepository.GetGroups();
+
+        if (groups.Count == 0)
+        {
+            return ResultExtensions.EmptyResult();
+        }
+
+        return groups.Select(group =>
+                     {
+                         return ResultExtensions.Result(group.Key,
+                             $"{group}",
+                             () => { _shortcutHandler.ExecuteShortcut(group, null); });
+                     })
+                     .ToList();
+    }
+
     public List<Result> AddShortcut(Shortcut shortcut)
     {
         return ResultExtensions.SingleResult(
@@ -107,10 +125,7 @@ public class ShortcutsService : IShortcutsService
         return ResultExtensions.SingleResult(
             string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.Key.ToUpper()),
             string.Join(" ", arguments),
-            () =>
-            {
-                _shortcutHandler.ExecuteShortcut(shortcut, arguments);
-            });
+            () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); });
     }
 
     public List<Result> DuplicateShortcut(string key, string newKey)

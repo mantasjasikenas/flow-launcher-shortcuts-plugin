@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -41,17 +41,24 @@ public class ShortcutsRepository : IShortcutsRepository
     public void RemoveShortcut(string key)
     {
         var result = _shortcuts.Remove(key);
+
         if (result)
+        {
             SaveShortcuts();
+        }
+    }
+
+    public List<GroupShortcut> GetGroups()
+    {
+        return _shortcuts.Values.OfType<GroupShortcut>().ToList();
     }
 
     public void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys)
     {
-        var shortcuts = shortcutKeys.Select(key => _shortcuts[key]).ToList();
         var group = new GroupShortcut
         {
             Key = groupKey,
-            Shortcuts = shortcuts
+            Keys = shortcutKeys.ToList()
         };
 
         _shortcuts[groupKey] = group;
@@ -60,18 +67,24 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void ReplaceShortcut(Shortcut shortcut)
     {
-        if (!_shortcuts.ContainsKey(shortcut.Key)) return;
+        if (!_shortcuts.ContainsKey(shortcut.Key))
+        {
+            return;
+        }
 
         _shortcuts[shortcut.Key] = shortcut;
+
         SaveShortcuts();
     }
 
     public void DuplicateShortcut(string existingKey, string duplicateKey)
     {
-        if (!_shortcuts.ContainsKey(existingKey)) return;
+        if (!_shortcuts.TryGetValue(existingKey, out var value))
+        {
+            return;
+        }
 
-        var shortcut = _shortcuts[existingKey];
-        var newShortcut = (Shortcut) shortcut.Clone();
+        var newShortcut = (Shortcut) value.Clone();
 
         newShortcut.Key = duplicateKey;
         _shortcuts[duplicateKey] = newShortcut;
@@ -85,32 +98,6 @@ public class ShortcutsRepository : IShortcutsRepository
         _shortcuts = ReadShortcuts(path);
     }
 
-    private static Dictionary<string, Shortcut> ReadShortcuts(string path)
-    {
-        if (!File.Exists(path)) return new Dictionary<string, Shortcut>();
-
-        try
-        {
-            var json = File.ReadAllText(path);
-            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
-            return shortcuts.ToDictionary(shortcut => shortcut.Key);
-        }
-        catch (Exception e)
-        {
-            MessageBox.Show("Error while reading shortcuts file: " + e.Message);
-            return new Dictionary<string, Shortcut>();
-        }
-    }
-
-    private void SaveShortcuts()
-    {
-        var options = new JsonSerializerOptions {WriteIndented = true};
-        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
-
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
-        File.WriteAllText(path, json);
-    }
-
     public void ImportShortcuts(string path)
     {
         try
@@ -118,7 +105,9 @@ public class ShortcutsRepository : IShortcutsRepository
             var shortcuts = ReadShortcuts(path);
 
             if (shortcuts.Count == 0)
+            {
                 throw new Exception("No shortcuts found in file");
+            }
 
             _shortcuts = shortcuts;
 
@@ -147,5 +136,38 @@ public class ShortcutsRepository : IShortcutsRepository
         {
             MessageBox.Show(Resources.Error_while_exporting_shortcuts);
         }
+    }
+
+    private static Dictionary<string, Shortcut> ReadShortcuts(string path)
+    {
+        if (!File.Exists(path))
+        {
+            return new Dictionary<string, Shortcut>();
+        }
+
+        try
+        {
+            var json = File.ReadAllText(path);
+            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
+            return shortcuts.ToDictionary(shortcut => shortcut.Key);
+        }
+        catch (Exception e)
+        {
+            MessageBox.Show("Error while reading shortcuts file: " + e.Message);
+            return new Dictionary<string, Shortcut>();
+        }
+    }
+
+    private void SaveShortcuts()
+    {
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
+
+        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        File.WriteAllText(path, json);
     }
 }

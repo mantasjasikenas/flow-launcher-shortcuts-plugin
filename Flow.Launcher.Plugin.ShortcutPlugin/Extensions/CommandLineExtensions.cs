@@ -62,6 +62,28 @@ public static class CommandLineExtensions
 
             if (!arg.StartsWith("-")) continue;
 
+            var value = string.Empty;
+            while (i + 1 < args.Count && !args[i + 1].StartsWith("-"))
+            {
+                value += args[++i] + " ";
+            }
+
+            arguments.Add(arg, value.Trim());
+        }
+
+        return arguments;
+    }
+
+    /*public static Dictionary<string, string> ParseArguments(IReadOnlyList<string> args)
+    {
+        var arguments = new Dictionary<string, string>();
+
+        for (var i = 0; i < args.Count; i++)
+        {
+            var arg = args[i];
+
+            if (!arg.StartsWith("-")) continue;
+
             if (i + 1 < args.Count && !args[i + 1].StartsWith("-"))
             {
                 arguments.Add(arg, args[i + 1]);
@@ -74,5 +96,6 @@ public static class CommandLineExtensions
         }
 
         return arguments;
-    }
+    }*/
+
 }

@@ -32,11 +32,16 @@ public class ShortcutHandler : IShortcutHandler
             ? CommandLineExtensions.ParseArguments(arguments)
             : new Dictionary<string, string>();
 
+        ExecuteShortcut(shortcut, parsedArguments);
+    }
+
+    private void ExecuteShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> parsedArguments)
+    {
         switch (shortcut)
         {
             case GroupShortcut groupShortcut:
             {
-                ExecuteGroupShortcut(groupShortcut, arguments);
+                ExecuteGroupShortcut(groupShortcut, parsedArguments);
                 break;
             }
             case UrlShortcut urlShortcut:
@@ -62,7 +67,7 @@ public class ShortcutHandler : IShortcutHandler
         }
     }
 
-    private void ExecuteGroupShortcut(GroupShortcut groupShortcut, List<string> arguments)
+    private void ExecuteGroupShortcut(GroupShortcut groupShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
         if (groupShortcut.Shortcuts != null)
         {
@@ -77,7 +82,7 @@ public class ShortcutHandler : IShortcutHandler
                     }
                 }
 
-                ExecuteShortcut(shortcut, arguments);
+                ExecuteShortcut(shortcut, parsedArguments);
             }
         }
 
@@ -107,25 +112,25 @@ public class ShortcutHandler : IShortcutHandler
 
             if (value is not null)
             {
-                ExecuteShortcut(value, arguments);
+                ExecuteShortcut(value, parsedArguments);
             }
         }
     }
 
-    private void ExecuteUrlShortcut(UrlShortcut urlShortcut, Dictionary<string, string> parsedArguments)
+    private void ExecuteUrlShortcut(UrlShortcut urlShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
         var path = Expand(urlShortcut.Url, parsedArguments);
         OpenUrl(path);
     }
 
     private void ExecuteDirectoryShortcut(DirectoryShortcut directoryShortcut,
-        Dictionary<string, string> parsedArguments)
+        IReadOnlyDictionary<string, string> parsedArguments)
     {
         var path = Expand(directoryShortcut.Path, parsedArguments);
         OpenDirectory(path);
     }
 
-    private void ExecuteFileShortcut(FileShortcut fileShortcut, Dictionary<string, string> parsedArguments)
+    private void ExecuteFileShortcut(FileShortcut fileShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
         var path = Expand(fileShortcut.Path, parsedArguments);
         OpenFile(path);

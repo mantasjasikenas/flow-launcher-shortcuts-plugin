@@ -15,4 +15,5 @@ public interface IShortcutsService
     List<Result> ExportShortcuts();
     List<Result> GetShortcuts();
     void Reload();
+    List<Result> GetGroups();
 }

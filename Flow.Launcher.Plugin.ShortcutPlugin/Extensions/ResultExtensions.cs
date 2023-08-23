@@ -11,6 +11,11 @@ public static class ResultExtensions
         return SingleResult(Resources.ShortcutsManager_Init_Plugin_initialized);
     }
 
+    public static List<Result> NotImplementedResult()
+    {
+        return SingleResult("Not implemented yet", "Please wait for the next release");
+    }
+
     public static List<Result> EmptyResult()
     {
         return SingleResult(Resources.Shortcuts_Query_No_results_found);
