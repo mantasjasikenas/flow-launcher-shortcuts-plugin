@@ -497,15 +497,24 @@ public class CommandsRepository : ICommandsRepository
 
     private List<Result> ConfigCommandHandler(ActionContext arg1, List<string> arg2)
     {
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var shortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var variablesPath = _settingsService.GetSetting(x => x.VariablesPath);
 
-        return ResultExtensions.SingleResult("Open plugin shortcuts config", path,
-            () =>
+        return new List<Result>
+        {
+            ResultExtensions.Result("Open shortcuts config", shortcutsPath, () =>
             {
                 Cli.Wrap("powershell")
-                   .WithArguments(path)
+                   .WithArguments(shortcutsPath)
                    .ExecuteAsync();
-            });
+            }),
+            ResultExtensions.Result("Open variables config", variablesPath, () =>
+            {
+                Cli.Wrap("powershell")
+                   .WithArguments(variablesPath)
+                   .ExecuteAsync();
+            })
+        };
     }
 
     private Command CreateListCommand()
@@ -586,9 +595,9 @@ public class CommandsRepository : ICommandsRepository
         };
     }
 
-    private List<Result> CreateUrlShortcutHandler(ActionContext arg1, List<string> arguments)
+    private List<Result> CreateUrlShortcutHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Creating url shortcut", "", () =>
+        return ResultExtensions.SingleResult("Creating url shortcut", string.Join(" ", arguments.Skip(3)), () =>
         {
             var key = arguments[2];
             var url = arguments[3];

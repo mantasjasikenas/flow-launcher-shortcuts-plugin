@@ -4,6 +4,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -27,8 +28,8 @@ public class VariablesService : IVariablesService
         return variables.Select(variable => new Result
                         {
                             Title = $"Variable '{variable.Name}'",
-                            SubTitle = $"Value {variable.Value}",
-                            IcoPath = "images\\icon.png",
+                            SubTitle = $"Value: '{variable.Value}'",
+                            IcoPath = Constants.IconPath,
                             Action = _ => true
                         })
                         .ToList();
@@ -43,14 +44,14 @@ public class VariablesService : IVariablesService
 
         return ResultExtensions.SingleResult(
             $"Variable '{variable.Name}'",
-            $"Value {variable.Value}");
+            $"Value: '{variable.Value}'");
     }
 
     public List<Result> AddVariable(string name, string value)
     {
         return ResultExtensions.SingleResult(
             $"Add variable '{name}'",
-            $"Value '{value}'",
+            $"Value: '{value}'",
             () => { _variablesRepository.AddVariable(name, value); });
     }
 
@@ -64,7 +65,7 @@ public class VariablesService : IVariablesService
 
         return ResultExtensions.SingleResult(
             $"Remove variable '{name}'",
-            $"Value '{variable.Value}'",
+            $"Value: '{variable.Value}'",
             () => { _variablesRepository.RemoveVariable(name); });
     }
 
