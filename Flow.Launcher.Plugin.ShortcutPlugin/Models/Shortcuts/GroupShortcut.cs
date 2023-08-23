@@ -25,6 +25,6 @@ public class GroupShortcut : Shortcut
         var shortcuts = Shortcuts?.Select(x => x.ToString()).Aggregate((x, y) => x + ", " + y) ?? string.Empty;
         var keys = Keys?.Aggregate((x, y) => x + ", " + y) ?? string.Empty;
 
-        return $"{shortcuts}, {keys}".Trim();
+        return $"{shortcuts}{(string.IsNullOrEmpty(shortcuts) ? string.Empty : ", ")}{keys}".Trim();
     }
 }

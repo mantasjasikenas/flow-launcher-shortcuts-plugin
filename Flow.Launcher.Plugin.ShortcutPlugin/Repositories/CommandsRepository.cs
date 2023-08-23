@@ -170,8 +170,8 @@ public class CommandsRepository : ICommandsRepository
     private void RegisterCommands()
     {
         _commands.Add("add", CreateAddCommand());
-        _commands.Add("reload", CreateReloadCommand());
         _commands.Add("list", CreateListCommand());
+        _commands.Add("reload", CreateReloadCommand());
         _commands.Add("settings", CreateSettingsCommand());
         _commands.Add("config", CreateConfigCommand());
         _commands.Add("import", CreateImportCommand());
@@ -531,7 +531,7 @@ public class CommandsRepository : ICommandsRepository
         {
             Key = "add",
             ResponseInfo = ("add", "Add shortcuts to the list"),
-            ResponseFailure = ("Enter shortcut type", "<Directory/File/Url/Plugin/Program>"),
+            ResponseFailure = ("Enter shortcut type", "Which type of shortcut do you want to add?"),
             Arguments = GetShortcutTypes()
         };
     }
@@ -582,7 +582,7 @@ public class CommandsRepository : ICommandsRepository
             CreateShortcutType("directory", CreateDirectoryShortcutHandler),
             CreateShortcutType("file", CreateFileShortcutHandler),
             CreateShortcutType("url", CreateUrlShortcutHandler),
-            CreateShellShortcut()
+            //CreateShellShortcut()
         };
     }
 
@@ -654,7 +654,7 @@ public class CommandsRepository : ICommandsRepository
         {
             Key = type,
             ResponseFailure = ("Enter shortcut name", "How should your shortcut be named?"),
-            ResponseInfo = ($"add {type}", "<Directory/File/Url/Plugin/Program>"),
+            ResponseInfo = ($"add {type}", ""),
             Arguments = new List<IQueryExecutor>
             {
                 new Argument
