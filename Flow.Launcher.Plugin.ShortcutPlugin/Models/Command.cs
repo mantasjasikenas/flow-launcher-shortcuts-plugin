@@ -20,6 +20,8 @@ public class BaseQueryExecutor : IQueryExecutor
 {
     public List<IQueryExecutor> Arguments { get; init; }
 
+    public bool AllowsMultipleValuesForSingleArgument { get; init; }
+
     public Func<ActionContext, List<string>, List<Result>> Handler { get; init; }
 
     [NotNull] public string Key { get; init; }
@@ -45,4 +47,6 @@ public interface IQueryExecutor : IArgumentsHolder
 public interface IArgumentsHolder
 {
     public List<IQueryExecutor> Arguments { get; init; }
+
+    public bool AllowsMultipleValuesForSingleArgument { get; init; }
 }

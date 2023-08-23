@@ -46,9 +46,9 @@ public class CommandsRepository : ICommandsRepository
         }
 
         // In case this is a shortcut command, let's open shortcut
-        if (arguments.Count == 1 && _shortcutsRepository.GetShortcut(arguments[0]) is not null)
+        if (_shortcutsRepository.GetShortcut(arguments[0]) is not null)
         {
-            return _shortcutsService.OpenShortcut(arguments[0]);
+            return _shortcutsService.OpenShortcut(arguments[0], arguments.Skip(1).ToList()); // Skips shortcut name
         }
 
         // If command was not found
@@ -74,8 +74,8 @@ public class CommandsRepository : ICommandsRepository
         var (executorOld, executorNew) = GetExecutors(null, command, arguments, ref level);
         var executor = executorNew ?? executorOld;
 
-        // more arguments than needed
-        if (level < arguments.Count - 1)
+        // More arguments than needed and ...
+        if (level < arguments.Count - 1 && !executor.AllowsMultipleValuesForSingleArgument)
         {
             return ResultExtensions.SingleResult("Invalid command arguments", "Please provide valid command arguments");
         }
@@ -87,16 +87,13 @@ public class CommandsRepository : ICommandsRepository
         }
 
 
-
-
-
         // If command has more arguments
         if (executor.Arguments.Count != 0)
         {
-            // can't check because Flow Launcher trims the query
+            // Can't check because Flow Launcher trims the query
             /* if (!query.EndsWith(" "))
             {
-                return ResultExtensions.SingleResult(executor.ResponseInfo.Item1, executor.ResponseInfo.Item2);    
+                return ResultExtensions.SingleResult(executor.ResponseInfo.Item1, executor.ResponseInfo.Item2);
             } */
 
             return executor.Arguments
@@ -114,10 +111,7 @@ public class CommandsRepository : ICommandsRepository
     private List<Result> ShowAvailableCommands()
     {
         return _commands.Values
-                        .Select(c => ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2, () =>
-                        {
-                            //_context.API.ChangeQuery($"{c.Key}");
-                        }))
+                        .Select(c => ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2))
                         .ToList();
     }
 
@@ -176,8 +170,8 @@ public class CommandsRepository : ICommandsRepository
     private void RegisterCommands()
     {
         _commands.Add("add", CreateAddCommand());
-        _commands.Add("reload", CreateReloadCommand());
         _commands.Add("list", CreateListCommand());
+        _commands.Add("reload", CreateReloadCommand());
         _commands.Add("settings", CreateSettingsCommand());
         _commands.Add("config", CreateConfigCommand());
         _commands.Add("import", CreateImportCommand());
@@ -186,6 +180,86 @@ public class CommandsRepository : ICommandsRepository
         _commands.Add("remove", CreateRemoveCommand());
         _commands.Add("duplicate", CreateDuplicateCommand());
         _commands.Add("keyword", CreateKeywordCommand());
+        _commands.Add("group", CreateGroupCommand());
+    }
+
+    private Command CreateGroupCommand()
+    {
+        return new Command
+        {
+            Key = "group",
+            ResponseInfo = ("group", "Manage shortcuts group"),
+            ResponseFailure = ("Failed to manage shortcuts group", "Something went wrong"),
+            Arguments = new List<IQueryExecutor>
+            {
+                new ArgumentLiteral
+                {
+                    Key = "add",
+                    ResponseInfo = ("group add", "Add shortcuts group"),
+                    ResponseFailure = ("Failed to add shortcuts group", "Something went wrong"),
+                    Arguments = new List<IQueryExecutor>
+                    {
+                        new Argument
+                        {
+                            ResponseInfo = ("Enter group name", "How should your group be named?"),
+                            Arguments = new List<IQueryExecutor>
+                            {
+                                new Argument
+                                {
+                                    ResponseInfo = ("Enter shortcuts keys", "Which shortcuts should be in the group?"),
+                                    Handler = AddGroupCommandHandler,
+                                    AllowsMultipleValuesForSingleArgument = true
+                                }
+                            }
+                        }
+                    }
+                },
+                new ArgumentLiteral
+                {
+                    Key = "remove",
+                    ResponseInfo = ("group remove", "Remove shortcuts group"),
+                    ResponseFailure = ("Failed to remove shortcuts group", "Something went wrong"),
+                    Arguments = new List<IQueryExecutor>
+                    {
+                        new Argument
+                        {
+                            ResponseInfo = ("Enter group name", "Which group should be removed?"),
+                            ResponseSuccess = ("Remove", "Your group will be removed"),
+                            Handler = RemoveGroupCommandHandler
+                        }
+                    }
+                },
+                new ArgumentLiteral
+                {
+                    Key = "list",
+                    ResponseInfo = ("group list", "List all shortcuts groups"),
+                    ResponseFailure = ("Failed to list shortcuts groups", "Something went wrong"),
+                    ResponseSuccess = ("List", "List all shortcuts groups"),
+                    Handler = ListGroupsCommandHandler
+                }
+            }
+        };
+    }
+
+    private List<Result> ListGroupsCommandHandler(ActionContext context, List<string> arguments)
+    {
+        return _shortcutsService.GetGroups();
+    }
+
+    private List<Result> RemoveGroupCommandHandler(ActionContext context, List<string> arguments)
+    {
+        return _shortcutsService.RemoveShortcut(arguments[2]);
+    }
+
+    private List<Result> AddGroupCommandHandler(ActionContext context, List<string> arguments)
+    {
+        var keys = arguments.Skip(3).ToList();
+
+        return ResultExtensions.SingleResult("Creating group shortcut", "Keys : " + string.Join(", ", keys), () =>
+        {
+            var key = arguments[2];
+            _shortcutsRepository.GroupShortcuts(key, keys);
+        });
     }
 
     private Command CreateKeywordCommand()
@@ -423,15 +497,24 @@ public class CommandsRepository : ICommandsRepository
 
     private List<Result> ConfigCommandHandler(ActionContext arg1, List<string> arg2)
     {
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var shortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var variablesPath = _settingsService.GetSetting(x => x.VariablesPath);
 
-        return ResultExtensions.SingleResult("Open plugin shortcuts config", path,
-            () =>
+        return new List<Result>
+        {
+            ResultExtensions.Result("Open shortcuts config", shortcutsPath, () =>
             {
                 Cli.Wrap("powershell")
-                   .WithArguments(path)
+                   .WithArguments(shortcutsPath)
                    .ExecuteAsync();
-            });
+            }),
+            ResultExtensions.Result("Open variables config", variablesPath, () =>
+            {
+                Cli.Wrap("powershell")
+                   .WithArguments(variablesPath)
+                   .ExecuteAsync();
+            })
+        };
     }
 
     private Command CreateListCommand()
@@ -457,7 +540,7 @@ public class CommandsRepository : ICommandsRepository
         {
             Key = "add",
             ResponseInfo = ("add", "Add shortcuts to the list"),
-            ResponseFailure = ("Enter shortcut type", "<Directory/File/Url/Plugin/Program>"),
+            ResponseFailure = ("Enter shortcut type", "Which type of shortcut do you want to add?"),
             Arguments = GetShortcutTypes()
         };
     }
@@ -508,13 +591,13 @@ public class CommandsRepository : ICommandsRepository
             CreateShortcutType("directory", CreateDirectoryShortcutHandler),
             CreateShortcutType("file", CreateFileShortcutHandler),
             CreateShortcutType("url", CreateUrlShortcutHandler),
-            CreateShellShortcut()
+            //CreateShellShortcut()
         };
     }
 
-    private List<Result> CreateUrlShortcutHandler(ActionContext arg1, List<string> arguments)
+    private List<Result> CreateUrlShortcutHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Creating url shortcut", "", () =>
+        return ResultExtensions.SingleResult("Creating url shortcut", string.Join(" ", arguments.Skip(3)), () =>
         {
             var key = arguments[2];
             var url = arguments[3];
@@ -580,7 +663,7 @@ public class CommandsRepository : ICommandsRepository
         {
             Key = type,
             ResponseFailure = ("Enter shortcut name", "How should your shortcut be named?"),
-            ResponseInfo = ($"add {type}", "<Directory/File/Url/Plugin/Program>"),
+            ResponseInfo = ($"add {type}", ""),
             Arguments = new List<IQueryExecutor>
             {
                 new Argument

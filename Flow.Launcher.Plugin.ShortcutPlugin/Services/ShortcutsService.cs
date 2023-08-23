@@ -17,15 +17,19 @@ public class ShortcutsService : IShortcutsService
     private readonly IShortcutHandler _shortcutHandler;
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
+    private readonly PluginInitContext _context;
 
 
     public ShortcutsService(IShortcutsRepository shortcutsRepository,
         IShortcutHandler shortcutHandler,
-        IVariablesService variablesService)
+        IVariablesService variablesService,
+        PluginInitContext context
+    )
     {
         _shortcutsRepository = shortcutsRepository;
         _shortcutHandler = shortcutHandler;
         _variablesService = variablesService;
+        _context = context;
     }
 
     public List<Result> GetShortcuts()
@@ -39,11 +43,29 @@ public class ShortcutsService : IShortcutsService
 
         return shortcuts.Select(shortcut =>
                         {
-                            return ResultExtensions.Result(shortcut.Key.ToUpper(),
+                            return ResultExtensions.Result(shortcut.Key,
                                 $"{shortcut} ({shortcut.GetDerivedType()})",
-                                () => { _shortcutHandler.ExecuteShortcut(shortcut); });
+                                () => { _shortcutHandler.ExecuteShortcut(shortcut, null); });
                         })
                         .ToList();
+    }
+
+    public List<Result> GetGroups()
+    {
+        var groups = _shortcutsRepository.GetGroups();
+
+        if (groups.Count == 0)
+        {
+            return ResultExtensions.EmptyResult();
+        }
+
+        return groups.Select(group =>
+                     {
+                         return ResultExtensions.Result(group.Key,
+                             $"{group}",
+                             () => { _shortcutHandler.ExecuteShortcut(group, null); });
+                     })
+                     .ToList();
     }
 
     public List<Result> AddShortcut(Shortcut shortcut)
@@ -91,7 +113,7 @@ public class ShortcutsService : IShortcutsService
             });
     }
 
-    public List<Result> OpenShortcut(string key)
+    public List<Result> OpenShortcut(string key, List<string> arguments)
     {
         var shortcut = _shortcutsRepository.GetShortcut(key);
 
@@ -102,8 +124,8 @@ public class ShortcutsService : IShortcutsService
 
         return ResultExtensions.SingleResult(
             string.Format(Resources.ShortcutsManager_OpenShortcut_Open_shortcut, shortcut.Key.ToUpper()),
-            shortcut.ToString(),
-            () => { _shortcutHandler.ExecuteShortcut(shortcut); });
+            string.Join(" ", arguments),
+            () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); });
     }
 
     public List<Result> DuplicateShortcut(string key, string newKey)

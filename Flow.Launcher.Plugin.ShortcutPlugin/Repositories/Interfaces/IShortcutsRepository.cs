@@ -15,4 +15,6 @@ public interface IShortcutsRepository
     void ReloadShortcuts();
     void ImportShortcuts(string path);
     void ExportShortcuts(string path);
+    List<GroupShortcut> GetGroups();
+    void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys);
 }
