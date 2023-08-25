@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
@@ -8,6 +9,11 @@ public static class ResultExtensions
     public static List<Result> InitializedResult()
     {
         return SingleResult(Resources.ShortcutsManager_Init_Plugin_initialized);
+    }
+
+    public static List<Result> NotImplementedResult()
+    {
+        return SingleResult("Not implemented yet", "Please wait for the next release");
     }
 
     public static List<Result> EmptyResult()
@@ -21,7 +27,7 @@ public static class ResultExtensions
     }
 
     public static List<Result> SingleResult(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true)
+        bool hideAfterAction = true, string autocomplete = default)
     {
         return new List<Result>
         {
@@ -29,12 +35,29 @@ public static class ResultExtensions
             {
                 Title = title,
                 SubTitle = subtitle,
-                IcoPath = "images\\icon.png",
+                IcoPath = Constants.IconPath,
+                AutoCompleteText = autocomplete,
                 Action = _ =>
                 {
                     action?.Invoke();
                     return hideAfterAction;
                 }
+            }
+        };
+    }
+
+    public static Result Result(string title, string subtitle = "", Action action = default,
+        bool hideAfterAction = true)
+    {
+        return new Result
+        {
+            Title = title,
+            SubTitle = subtitle,
+            IcoPath = "images\\icon.png",
+            Action = _ =>
+            {
+                action?.Invoke();
+                return hideAfterAction;
             }
         };
     }

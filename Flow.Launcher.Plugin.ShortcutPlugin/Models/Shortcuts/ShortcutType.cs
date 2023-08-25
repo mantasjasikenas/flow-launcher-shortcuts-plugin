@@ -7,5 +7,6 @@ public enum ShortcutType
     Url,
     Plugin,
     Program,
+    Group,
     Unspecified
 }

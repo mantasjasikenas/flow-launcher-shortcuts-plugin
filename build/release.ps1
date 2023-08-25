@@ -1,37 +1,69 @@
-# Variables
-$version = "1.0.2"
-$publishDest = "C:\Users\tutta\Storage\Dev\Projects\ShortcutPlugin\Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish"
-$pluginsDest = "C:\Users\tutta\AppData\Roaming\FlowLauncher\Plugins\ShortcutManager-$version"
-$desktopDest = "C:\Users\tutta\Desktop\ShortcutManager-$version"
+param (
+    [string]$userProfileDir = $env:USERPROFILE,
+    [bool]$copyToDesktop = $false,
+    [string]$pluginName = "ShortcutManager"
+)
 
-$saveToDesktop = $false
+function Get-PropertyFromJson {
+    param (
+        [string]$jsonFilePath,
+        [string]$propertyName
+    )
 
-taskkill /im Flow.Launcher.exe /F
+    # Read the JSON file content
+    $jsonContent = Get-Content -Path $pluginJson -Raw
 
-if (Test-Path $publishDest)
-{
-    Remove-Item -Path $publishDest -Force -Recurse
+    # Parse the JSON content
+    $jsonObject = ConvertFrom-Json -InputObject $jsonContent
+
+    # Return the extracted property
+    return $jsonObject.$propertyName
 }
-dotnet publish Flow.Launcher.Plugin.ShortcutPlugin -c Release -r win-x64 --no-self-contained -o $publishDest
 
-if (Test-Path $pluginsDest)
-{
-    Remove-Item -Path $pluginsDest -Force -Recurse
-}
-Copy-Item -Path $publishDest -Destination $pluginsDest -Force -Recurse
-#Copy-Item -Path "C:\Users\tutta\Storage\Dev\Resources\shortcuts.json" -Destination "$pluginsDest\Config" -Force
-
-# Processing publish to desktop
-if ($saveToDesktop)
-{
-    if (Test-Path $desktopDest)
-    {
-        Remove-Item -Path $desktopDest -Force -Recurse
+function Remove-Directory($path) {
+    if (Test-Path $path) {
+        Remove-Item -Path $path -Force -Recurse
     }
+}
 
+
+# Define variables
+$parentDirectory = Split-Path -Path $PSScriptRoot -Parent
+$pluginsDirectory = Join-Path -Path $userProfileDir -ChildPath "AppData\Roaming\FlowLauncher\Plugins"
+$pluginJson = Join-Path -Path $parentDirectory -ChildPath "Flow.Launcher.Plugin.ShortcutPlugin\plugin.json"
+$publishDest = Join-Path -Path $parentDirectory -ChildPath "Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish"
+$version = Get-PropertyFromJson -jsonFilePath $pluginJson -propertyName "Version"
+$pluginDest = Join-Path -Path $pluginsDirectory -ChildPath "$pluginName-$version"
+$desktopDest = Join-Path -Path $userProfileDir -ChildPath "Desktop\$pluginName-$version"
+
+
+# Stop Flow Launcher
+Stop-Process -Name "Flow.Launcher" -Force
+
+
+# Clean up directories
+Remove-Directory -Path $publishDest
+Remove-Directory -Path $desktopDest
+$directoriesToRemove = Get-ChildItem -Path $pluginsDirectory -Directory | Where-Object { $_.Name -like "ShortcutManager*" }
+foreach ($directory in $directoriesToRemove) {
+    Remove-Item -Path $directory.FullName -Force -Recurse
+}
+
+
+# Publish plugin
+dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Release -r win-x64 --no-self-contained -o $publishDest
+
+
+# Copy plugin to destination
+Copy-Item -Path $publishDest -Destination $pluginDest -Force -Recurse
+
+
+# Start Flow Launcher
+Start-Process (Join-Path -Path $userProfileDir -ChildPath "AppData\Local\FlowLauncher\Flow.Launcher.exe")
+
+
+# Process publish to desktop
+if ($copyToDesktop) {
     Copy-Item -Path $publishDest -Destination $desktopDest -Force -Recurse
     Compress-Archive -Path $desktopDest -DestinationPath "$desktopDest.zip" -Force
 }
-
-
-Start-Process C:\Users\tutta\AppData\Local\FlowLauncher\Flow.Launcher.exe
