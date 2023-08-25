@@ -21,145 +21,166 @@
    </div>
 </div>
 
-
-> **Warning**
+> [!WARNING]
 > This is a work-in-progress and not the finished product.
 >
 > Feel free to leave suggestions or report bugs in
 > the [issues](https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin/issues) section.
 
-# Table of contents
+## Features
 
-- [Features](#features)
-- [Commands](#commands)
-- [Screenshots](#screnshots)
-- [Licence](#licence)
+Shortcuts plugin features include:
 
-# Features
-
-- Directories, files and urls shortcuts support. More types coming soon.
+- Multiple shortcut types support
 - System and user defined variables support
 - Import and export shortcuts
 - Duplicate shortcuts
-- Open shortcuts configuration or helpers file
+- Open configuration files
 - Show list of commands
 - Show or set plugin keyword
+- Allows to modify configuration files directly
 
+## Settings
 
-# Commands
+The following general options are available on the Flow Launcher settings page.
 
-## Open shortcut
+| Setting             | Description                                                       |
+|:--------------------|:------------------------------------------------------------------|
+| Activation keyword  | Define the action keyword shortcut to activate plugin             |
+| Shortcuts file path | Path to the shortcuts file. If not set, default path will be used |
+| Variables file path | Path to the variables file. If not set, default path will be used |
 
-`q <shortcut_name>` - opens shortcut with name `shortcut_name`
+## Usage
 
-## Show available commands
+The following commands are available for the Shortcuts plugin.
 
-`q help` - shows list of commands
+| Command                                                          | Description                | Example                                                                                                                                                               |
+|------------------------------------------------------------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `` q ``                                                          | Show available commands    | `` q `` to show available commands                                                                                                                                    |
+| `` q <shortcut_name> <optional_arguments> ``                     | Run shortcut               | `` q search -q "flow launcher" `` to run shortcut with name `search` and pass `-q "flow launcher"` as arguments. Arguments are optional.                              |
+| `` q add <shortcut_type> <shortcut_name> <shortcut_arguments> `` | Add new shortcut           | `` q add directory doc C:\Users\my_user\Documents `` to add a shortcut named `doc` to the `Documents` folder                                                          |
+| `` q remove <shortcut_name> ``                                   | Remove shortcut            | `` q remove doc `` to remove shortcut with name `doc`                                                                                                                 |
+| `` q var list ``                                                 | Show all variables         | `` q var list `` to show all variables                                                                                                                                |
+| `` q var add <variable_name> <variable_value> ``                 | Show or set variable       | `` q var add appdata C:\Users\my_user\AppData\Roaming `` to set value of the `appdata` variable                                                                       |
+| `` q var remove <variable_name> ``                               | Remove variable            | `` q var remove appdata `` to remove variable with name `appdata`                                                                                                     |
+| `` q keyword get ``                                              | Show plugin action keyword | `` q keyword get `` to show plugin action keyword                                                                                                                     |
+| `` q keyword set <keyword> ``                                    | Set plugin keyword         | `` q keyword set ss `` to set plugin keyword to `ss`                                                                                                                  |
+| `` q duplicate <shortcut_name> <new_shortcut_name> ``            | Duplicate shortcut         | `` q duplicate doc doc_copy `` to duplicate shortcut with name `doc` to `doc_copy`                                                                                    |
+| `` q config ``                                                   | Open configuration files   | `` q config `` to show available configuration files                                                                                                                  |
+| `` q reload ``                                                   | Reload configuration files | `` q reload `` to reload configuration files                                                                                                                          |
+| `` q import ``                                                   | Import shortcuts           | `` q import `` to import shortcuts from JSON file                                                                                                                     |
+| `` q export ``                                                   | Export shortcuts           | `` q export `` to export shortcuts to JSON file                                                                                                                       |
+| `` q settings ``                                                 | Open plugin settings       | `` q settings `` to open Flow Launcher settings page                                                                                                                  |
+| `` q group list ``                                               | Show all groups            | `` q group list `` to show all groups                                                                                                                                 |
+| `` q group add <group_name> <existing_shortcuts_keys> ``         | Add new group              | `` q group add search google bing duckduckgo `` to add a group named `search`` with shortcuts `google`, `bing` and `duckduckgo` These shortcuts should already exist. |
+| `` q group remove <group_name> ``                                | Remove group               | `` q group remove search `` to remove group with name `search`                                                                                                        |
 
-## Add new shortcut
+## Shortcuts
 
-`q add <shortcut_name> <shortcut_arguments> [shortcut_type]`
+The following shortcut types are available. More types will be added in the future.
 
-- `shortcut_name` - name of the shortcut
-- `shortcut_arguments` - arguments of the shortcut
-- `shortcut_type` - type of the shortcut (optional). Supported types: `directory`, `file`, `url`
+| Shortcut type   | Description                      | Required arguments                      |
+|:----------------|:---------------------------------|:----------------------------------------|
+| `` directory `` | Open directory in file explorer  | `` directory `` - path to the directory |
+| `` file ``      | Open file in default application | `` file `` - path to the file           |
+| `` url ``       | Open URL in default browser      | `` url `` - URL to open                 |
 
-### Examples
+## Configuration files
 
-- `q add my_shortcut C:\Users\my_user\Documents directory` - adds a shortcut to the `Documents` folder
-- `q add my_shortcut "C:\Users\my_user\Documents"` - adds a shortcut to the `Documents` folder
-- `q add my_shortcut https://www.google.com url` - adds a shortcut to the `https://www.google.com` url
+The following configuration files are available.
 
-Note: if shortcut type is not specified, it will be automatically detected based on the shortcut arguments.
+| Configuration file   | Description                                                    |
+|:---------------------|:---------------------------------------------------------------|
+| `` shortcuts.json `` | Contains all shortcuts. If not set, default path will be used. |
+| `` variables.json `` | Contains all variables. If not set, default path will be used. |
 
-Shortcut arguments can contain variables, e.g. `%appdata%` or user defined variables. For example, to add a shortcut
-to the `AppData` folder, use the following command: `q add [your__shortcut_name] %appdata%`. To use your defined
-variables, use the following syntax `${variable_name}`. For example, to add a shortcut to the `AppData` folder, use
-the following command: `q add [your__shortcut_name] ${appdata}`.
+### File structure
 
-## Show or set variable
+#### Shortcuts
 
-`q var [variable_name] [variable_value]`
+If you manually edit the shortcuts file, make sure to reload the plugin for changes to take effect. You can do that by
+running `` q reload `` command.
 
-- `variable_name` - name of the variable (optional)
-- `variable_value` - value of the variable (optional)
-- Note: if optional arguments are not specified, all variables will be shown
+> [!IMPORTANT]
+> Make sure that first attribute of the shortcut is the shortcut type.
 
-### Examples
+```json
+[
+  {
+    "Type": "Directory",
+    "Path": "C:\\Users",
+    "Key": "users"
+  },
+  {
+    "Type": "File",
+    "Path": "C:\\Users\\my_user\\Documents\\my_file.txt",
+    "Key": "my_file"
+  },
+  {
+    "Type": "Url",
+    "Path": "www.google.com",
+    "Key": "google"
+  },
+  {
+    "Type": "Group",
+    "Shortcuts": [
+      {
+        "Type": "Url",
+        "Url": "www.google.com/search?q=${q}"
+      },
+      {
+        "Type": "Url",
+        "Url": "www.bing.com/search?q=${q}"
+      },
+      {
+        "Type": "Url",
+        "Url": "www.duckduckgo.com/?q=${q}"
+      },
+      {
+        "Type": "Url",
+        "Url": "www.wikipedia.org/wiki/${q}"
+      }
+    ],
+    "Key": "search"
+  },
+  {
+    "Type": "Group",
+    "Keys": [
+      "meow",
+      "g",
+      "google"
+    ],
+    "Key": "multi"
+  }
+]
 
-- `q var` - shows all variables
-- `q var appdata` - shows value of the `appdata` variable
-- `q var appdata C:\Users\my_user\AppData\Roaming` - sets value of the `appdata` variable
-  to `C:\Users\my_user\AppData\Roaming`
+```
 
-- Note: variables can be used in shortcut arguments using the following syntax: `${variable_name}` for user defined
-  variables and `%variable_name%` for system variables.
+#### Variables
 
-## Remove shortcut
+Variables are used to store values that can be used in shortcuts. For example, you can store your user name and use it.
+Variables can be used in shortcuts by using `${variable_name}` syntax. To use system variables, use `%variable_name%`
+syntax. Valid variable object attributes are `Name` and `Value`.
 
-`q remove <shortcut_name>`
+```json
+[
+  {
+    "Name": "user",
+    "Value": "my_user"
+  },
+  {
+    "Name": "documents",
+    "Value": "C:\\Users\\my_user\\Documents"
+  }
+]
+```
 
-- `shortcut_name` - name of the shortcut
-
-### Examples
-
-- `q remove my_shortcut` - removes shortcut with name `my_shortcut`
-
-## Show path to shortcut
-
-`q path <shortcut_name>`
-
-- `shortcut_name` - name of the shortcut
-
-### Examples
-
-- `q path my_shortcut` - shows path to shortcut with name `my_shortcut`
-
-## Show or set plugin keyword
-
-`q keyword [keyword]`
-
-- `keyword` - keyword of the plugin (optional)
-
-### Examples
-
-- `q keyword` - shows current keyword of the plugin
-- `q keyword vb` - sets keyword of the plugin to `vb`
-
-## Duplicate shortcut
-
-`q duplicate <shortcut_name> <new_shortcut_name>`
-
-- `shortcut_name` - name of the shortcut
-- `new_shortcut_name` - name of the new shortcut
-
-### Examples
-
-- `q duplicate my_shortcut my_shortcut_copy` - duplicates shortcut with name `my_shortcut` to `my_shortcut_copy`
-
-## Open shortcuts configuration or helpers file
-
-- `q config` - opens shortcuts configuration file
-- `q helpers` - opens helpers file
-
-## Show list of commands
-
-- `q help` - shows list of commands
-
-## Import or export shortcuts
-
-- `q import` - imports shortcuts from a file
-- `q export` - exports shortcuts to a file
-
-## Screnshots
+## Screenshots
 
 ![Commands](assets/screenshots/commands_1.png)
 <br/>
 <br/>
 ![Commands](assets/screenshots/commands_2.png)
-<br/>
-<br/>
-![Commands](assets/screenshots/commands_3.png)
 
 # Licence
 
