@@ -27,7 +27,7 @@ public static class ResultExtensions
     }
 
     public static List<Result> SingleResult(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true, string autocomplete = default)
+        bool hideAfterAction = true, string autocomplete = default, string iconPath = default)
     {
         return new List<Result>
         {
@@ -35,7 +35,7 @@ public static class ResultExtensions
             {
                 Title = title,
                 SubTitle = subtitle,
-                IcoPath = Constants.IconPath,
+                IcoPath = iconPath ?? Icons.Logo,
                 AutoCompleteText = autocomplete,
                 Action = _ =>
                 {
@@ -47,13 +47,13 @@ public static class ResultExtensions
     }
 
     public static Result Result(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true)
+        bool hideAfterAction = true, string iconPath = default)
     {
         return new Result
         {
             Title = title,
             SubTitle = subtitle,
-            IcoPath = "images\\icon.png",
+            IcoPath = iconPath ?? Icons.Logo,
             Action = _ =>
             {
                 action?.Invoke();
