@@ -41,7 +41,7 @@ public class ShortcutsService : IShortcutsService
         return shortcuts.Select(shortcut =>
                         {
                             return ResultExtensions.Result(shortcut.Key,
-                                $"{shortcut} ({shortcut.GetDerivedType()})",
+                                $"{shortcut}", //  ({shortcut.GetDerivedType()})
                                 () => { _shortcutHandler.ExecuteShortcut(shortcut, null); },
                                 iconPath: shortcut.GetIcon()
                             );
@@ -227,17 +227,17 @@ public class ShortcutsService : IShortcutsService
 
         if (groupShortcut.Shortcuts is not null)
         {
-            results.AddRange(groupShortcut.Shortcuts.Select(groupShortcutValue =>
+            results.AddRange(groupShortcut.Shortcuts.Select(shortcut =>
                 new Result
                 {
-                    Title = $"{groupShortcutValue.Key} ({groupShortcutValue.GetDerivedType()})",
-                    SubTitle = $"{groupShortcutValue} {joinedArguments}",
+                    Title = $"{shortcut.Key ?? shortcut.GetDerivedType() }", //  ({groupShortcutValue.GetDerivedType()})
+                    SubTitle = $"{shortcut} {joinedArguments}",
                     Action = _ =>
                     {
-                        _shortcutHandler.ExecuteShortcut(groupShortcutValue, joinedArguments.Split(' ').ToList());
+                        _shortcutHandler.ExecuteShortcut(shortcut, joinedArguments.Split(' ').ToList());
                         return true;
                     },
-                    IcoPath = groupShortcutValue.GetIcon()
+                    IcoPath = shortcut.GetIcon()
                 }));
         }
 
@@ -251,20 +251,20 @@ public class ShortcutsService : IShortcutsService
                                           _shortcutsRepository.GetShortcut(key)))
                                       .Select(value =>
                                       {
-                                          var (key, item) = value;
-                                          if (item is not null)
+                                          var (key, shortcut) = value;
+                                          if (shortcut is not null)
                                           {
                                               return new Result
                                               {
-                                                  Title = $"{item} ({item.GetDerivedType()})",
-                                                  SubTitle = $"{item} {joinedArguments}",
+                                                  Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}", //  ({item.GetDerivedType()})
+                                                  SubTitle = $"{shortcut} {joinedArguments}",
                                                   Action = _ =>
                                                   {
-                                                      _shortcutHandler.ExecuteShortcut(item,
+                                                      _shortcutHandler.ExecuteShortcut(shortcut,
                                                           joinedArguments.Split(' ').ToList());
                                                       return true;
                                                   },
-                                                  IcoPath = item.GetIcon()
+                                                  IcoPath = shortcut.GetIcon()
                                               };
                                           }
 
