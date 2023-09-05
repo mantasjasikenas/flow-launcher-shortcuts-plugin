@@ -8,5 +8,6 @@ public enum ShortcutType
     Plugin,
     Program,
     Group,
-    Unspecified
+    Unspecified,
+    Shell
 }

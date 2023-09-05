@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
@@ -11,6 +11,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 [JsonDerivedType(typeof(DirectoryShortcut), nameof(ShortcutType.Directory))]
 [JsonDerivedType(typeof(FileShortcut), nameof(ShortcutType.File))]
 [JsonDerivedType(typeof(GroupShortcut), nameof(ShortcutType.Group))]
+[JsonDerivedType(typeof(ShellShortcut), nameof(ShortcutType.Shell))]
 public abstract class Shortcut : ICloneable
 {
     public string Key { get; set; }
@@ -29,12 +30,28 @@ public abstract class Shortcut : ICloneable
         };
     }
 
+    public string GetIcon()
+    {
+        return this switch
+        {
+            FileShortcut => Icons.File,
+            DirectoryShortcut => Icons.Folder,
+            UrlShortcut => Icons.Link,
+            ProgramShortcut => Icons.Terminal,
+            ShellShortcut => Icons.Terminal,
+            PluginShortcut => Icons.Logo,
+            GroupShortcut => Icons.TabGroup,
+            _ => Icons.Logo
+        };
+    }
+
     public ShortcutType GetShortcutType() => this switch
     {
         FileShortcut => ShortcutType.File,
         DirectoryShortcut => ShortcutType.Directory,
         UrlShortcut => ShortcutType.Url,
         ProgramShortcut => ShortcutType.Program,
+        ShellShortcut => ShortcutType.Shell,
         PluginShortcut => ShortcutType.Plugin,
         GroupShortcut => ShortcutType.Group,
         _ => ShortcutType.Unspecified

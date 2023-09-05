@@ -7,6 +7,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using JetBrains.Annotations;
 using Command = Flow.Launcher.Plugin.ShortcutPlugin.models.Command;
 
@@ -111,7 +112,12 @@ public class CommandsRepository : ICommandsRepository
     private List<Result> ShowAvailableCommands()
     {
         return _commands.Values
-                        .Select(c => ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2))
+                        .Select(c => new Result
+                        {
+                            Title = c.ResponseInfo.Item1,
+                            SubTitle = c.ResponseInfo.Item2,
+                            IcoPath = Icons.Logo
+                        })
                         .ToList();
     }
 

@@ -29,7 +29,7 @@ public class VariablesService : IVariablesService
                         {
                             Title = $"Variable '{variable.Name}'",
                             SubTitle = $"Value: '{variable.Value}'",
-                            IcoPath = Constants.IconPath,
+                            IcoPath = Icons.Logo,
                             Action = _ => true
                         })
                         .ToList();
