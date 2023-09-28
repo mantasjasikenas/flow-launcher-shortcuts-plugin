@@ -1,7 +1,7 @@
 param (
     [string]$userProfileDir = $env:USERPROFILE,
     [bool]$copyToDesktop = $false,
-    [string]$pluginName = "ShortcutManager"
+    [string]$pluginName = "Shortcuts"
 )
 
 function Get-PropertyFromJson {

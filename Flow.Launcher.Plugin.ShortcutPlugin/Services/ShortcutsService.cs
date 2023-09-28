@@ -221,16 +221,17 @@ public class ShortcutsService : IShortcutsService
                     return true;
                 },
                 IcoPath = groupShortcut.GetIcon(),
-                Score = 10
+                Score = 100
             }
         };
+
 
         if (groupShortcut.Shortcuts is not null)
         {
             results.AddRange(groupShortcut.Shortcuts.Select(shortcut =>
                 new Result
                 {
-                    Title = $"{shortcut.Key ?? shortcut.GetDerivedType() }", //  ({groupShortcutValue.GetDerivedType()})
+                    Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}", //  ({groupShortcutValue.GetDerivedType()})
                     SubTitle = $"{shortcut} {joinedArguments}",
                     Action = _ =>
                     {
@@ -256,7 +257,8 @@ public class ShortcutsService : IShortcutsService
                                           {
                                               return new Result
                                               {
-                                                  Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}", //  ({item.GetDerivedType()})
+                                                  Title =
+                                                      $"{shortcut.Key ?? shortcut.GetDerivedType()}", //  ({item.GetDerivedType()})
                                                   SubTitle = $"{shortcut} {joinedArguments}",
                                                   Action = _ =>
                                                   {
