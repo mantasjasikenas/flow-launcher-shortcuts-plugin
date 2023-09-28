@@ -168,6 +168,13 @@ public class ShortcutsRepository : IShortcutsRepository
         var json = JsonSerializer.Serialize(_shortcuts.Values, options);
 
         var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+
+        var directory = Path.GetDirectoryName(path);
+        if (directory != null && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
         File.WriteAllText(path, json);
     }
 }
