@@ -14,6 +14,10 @@
         <UseWpf>true</UseWpf>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
@@ -31,7 +35,7 @@
     <ItemGroup>
         <PackageReference Include="CliWrap" Version="3.6.4" />
         <PackageReference Include="Flow.Launcher.Plugin" Version="4.1.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.7.23375.6" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.2.23479.6" />
     </ItemGroup>
 
     <ItemGroup>

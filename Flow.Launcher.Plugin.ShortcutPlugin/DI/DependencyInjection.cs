@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddSingleton<ICommandsService, CommandsService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
+        services.AddScoped<ContextMenu>();
 
         return services;
     }

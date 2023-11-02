@@ -56,19 +56,37 @@ public class CommandsRepository : ICommandsRepository
         if (!_commands.TryGetValue(arguments[0], out var command))
         {
             // If user is still writing the command
-            if (arguments.Count == 1)
-            {
-                // Return possible command matches
-                return _commands.Values
-                                .Where(c => c.Key.StartsWith(arguments[0], StringComparison.InvariantCultureIgnoreCase))
-                                .Select(c => ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2))
-                                .DefaultIfEmpty(ResultExtensions.Result("Invalid command",
-                                    "Please provide valid command"))
-                                .ToList();
-            }
+            // if (arguments.Count != 1)
+            // {
+            //     return ResultExtensions.SingleResult("Invalid command", "Please provide valid command");
+            // }
+
+            // Show possible shortcuts
+            var possibleShortcuts = _shortcutsRepository.GetShortcuts()
+                                                        .Where(s => s.Key.StartsWith(arguments[0],
+                                                            StringComparison.InvariantCultureIgnoreCase))
+                                                        .Select(s => ResultExtensions.Result(s.Key, s.Key))
+                                                        .ToList();
+
+            // Return possible command matches
+            var possibleCommands = _commands.Values
+                                            .Where(c => c.Key.StartsWith(arguments[0],
+                                                StringComparison.InvariantCultureIgnoreCase))
+                                            .Select(c =>
+                                                ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2))
+                                            // .DefaultIfEmpty(ResultExtensions.Result("Invalid command",
+                                            //     "Please provide valid command"))
+                                            .ToList();
+
+            var possibleResults = possibleShortcuts
+                                  .Concat(possibleCommands)
+                                  .ToList();
+
+            return possibleResults.Count != 0
+                ? possibleResults
+                : ResultExtensions.SingleResult("Invalid input", "Please provide valid command or shortcut");
 
             // If user has already written some arguments and the first argument is invalid
-            return ResultExtensions.SingleResult("Invalid command", "Please provide valid command");
         }
 
         var level = 0;
