@@ -43,6 +43,7 @@ public class ShortcutsService : IShortcutsService
                             return ResultExtensions.Result(shortcut.Key,
                                 $"{shortcut}", //  ({shortcut.GetDerivedType()})
                                 () => { _shortcutHandler.ExecuteShortcut(shortcut, null); },
+                                contextData: shortcut,
                                 iconPath: shortcut.GetIcon()
                             );
                         })
@@ -238,7 +239,8 @@ public class ShortcutsService : IShortcutsService
                         _shortcutHandler.ExecuteShortcut(shortcut, joinedArguments.Split(' ').ToList());
                         return true;
                     },
-                    IcoPath = shortcut.GetIcon()
+                    IcoPath = shortcut.GetIcon(),
+                    ContextData = shortcut
                 }));
         }
 
@@ -266,7 +268,8 @@ public class ShortcutsService : IShortcutsService
                                                           joinedArguments.Split(' ').ToList());
                                                       return true;
                                                   },
-                                                  IcoPath = shortcut.GetIcon()
+                                                  IcoPath = shortcut.GetIcon(),
+                                                  ContextData = shortcut
                                               };
                                           }
 
@@ -288,6 +291,7 @@ public class ShortcutsService : IShortcutsService
             string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey,
             $"{shortcut} {joinedArguments}",
             () => { _shortcutHandler.ExecuteShortcut(shortcut, joinedArguments.Split(' ').ToList()); },
+            contextData: shortcut,
             iconPath: iconPath
         );
     }

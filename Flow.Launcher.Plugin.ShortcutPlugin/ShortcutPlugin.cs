@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,13 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
 // ReSharper disable once UnusedType.Global
-public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable
+public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMenu
 {
     private ICommandsService _commandsService;
     private ISettingsService _settingsService;
 
     private PluginInitContext _context;
     private SettingsUserControl _settingWindow;
+    private ContextMenu _contextMenu;
 
 
     public void Init(PluginInitContext context)
@@ -29,6 +31,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable
 
         _settingsService = serviceProvider.GetService<ISettingsService>();
         _commandsService = serviceProvider.GetService<ICommandsService>();
+        _contextMenu = serviceProvider.GetService<ContextMenu>();
     }
 
 
@@ -43,6 +46,11 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable
     public void ReloadData()
     {
         _commandsService.ReloadPluginData();
+    }
+
+    public List<Result> LoadContextMenus(Result selectedResult)
+    {
+        return _contextMenu.LoadContextMenus(selectedResult);
     }
 
     public Control CreateSettingPanel()

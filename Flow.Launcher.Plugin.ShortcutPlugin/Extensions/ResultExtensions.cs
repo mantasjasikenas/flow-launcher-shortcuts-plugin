@@ -47,13 +47,14 @@ public static class ResultExtensions
     }
 
     public static Result Result(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true, string iconPath = default)
+        bool hideAfterAction = true, string iconPath = default, object contextData = default)
     {
         return new Result
         {
             Title = title,
             SubTitle = subtitle,
             IcoPath = iconPath ?? Icons.Logo,
+            ContextData = contextData,
             Action = _ =>
             {
                 action?.Invoke();
