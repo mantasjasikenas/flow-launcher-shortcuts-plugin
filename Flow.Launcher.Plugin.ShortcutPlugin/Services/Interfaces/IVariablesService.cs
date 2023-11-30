@@ -11,4 +11,5 @@ public interface IVariablesService
     List<Result> UpdateVariable(string name, string value);
     void Reload();
     string ExpandVariables(string value);
+    string ExpandVariables(string value, IReadOnlyDictionary<string, string> arguments);
 }

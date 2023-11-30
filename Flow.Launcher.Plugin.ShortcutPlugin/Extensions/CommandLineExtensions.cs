@@ -26,17 +26,17 @@ public static class CommandLineExtensions
                     inQuotes = !inQuotes;
                     continue;
                 case ' ' when !inQuotes:
+                {
+                    if (i > argStartIndex)
                     {
-                        if (i > argStartIndex)
-                        {
-                            var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
+                        var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
 
-                            arguments.Add(argument);
-                        }
-
-                        argStartIndex = i + 1;
-                        break;
+                        arguments.Add(argument);
                     }
+
+                    argStartIndex = i + 1;
+                    break;
+                }
             }
 
             isEscaped = false;
@@ -71,6 +71,11 @@ public static class CommandLineExtensions
             arguments.Add(arg, value.Trim());
         }
 
+        // remove empty arguments or where key is -
+        arguments = arguments.Where(x => !string.IsNullOrEmpty(x.Key) && x.Key != "-" &&
+                                         !string.IsNullOrEmpty(x.Value))
+                             .ToDictionary(x => x.Key, x => x.Value);
+
         return arguments;
     }
 
@@ -97,5 +102,4 @@ public static class CommandLineExtensions
 
         return arguments;
     }*/
-
 }
