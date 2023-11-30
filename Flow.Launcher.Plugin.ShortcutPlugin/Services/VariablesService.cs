@@ -91,4 +91,23 @@ public class VariablesService : IVariablesService
     {
         return _variablesRepository.ExpandVariables(value);
     }
+
+    public string ExpandVariables(string value, IReadOnlyDictionary<string, string> arguments)
+    {
+        var expandedArguments = ExpandArguments(value, arguments);
+        return ExpandVariables(expandedArguments);
+    }
+
+    private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)
+    {
+        foreach (var (key, arg) in args)
+        {
+            var trimmedKey = key.TrimStart('-');
+            var replaceValue = string.Format(Constants.VariableFormat, trimmedKey);
+
+            value = value.Replace(replaceValue, arg);
+        }
+
+        return value;
+    }
 }

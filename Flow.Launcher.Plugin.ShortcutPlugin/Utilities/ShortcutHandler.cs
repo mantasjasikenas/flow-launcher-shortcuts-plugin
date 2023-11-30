@@ -119,42 +119,23 @@ public class ShortcutHandler : IShortcutHandler
 
     private void ExecuteUrlShortcut(UrlShortcut urlShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
-        var path = Expand(urlShortcut.Url, parsedArguments);
+        var path = _variablesService.ExpandVariables(urlShortcut.Url, parsedArguments);
         OpenUrl(path);
     }
 
     private void ExecuteDirectoryShortcut(DirectoryShortcut directoryShortcut,
         IReadOnlyDictionary<string, string> parsedArguments)
     {
-        var path = Expand(directoryShortcut.Path, parsedArguments);
+        var path = _variablesService.ExpandVariables(directoryShortcut.Path, parsedArguments);
         OpenDirectory(path);
     }
 
     private void ExecuteFileShortcut(FileShortcut fileShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
-        var path = Expand(fileShortcut.Path, parsedArguments);
+        var path = _variablesService.ExpandVariables(fileShortcut.Path, parsedArguments);
         OpenFile(path);
     }
 
-    private string Expand(string value, IReadOnlyDictionary<string, string> args)
-    {
-        var expandedArguments = ExpandArguments(value, args);
-        return _variablesService.ExpandVariables(expandedArguments);
-    }
-
-    // TODO move to variables service
-    private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)
-    {
-        foreach (var (key, arg) in args)
-        {
-            var trimmedKey = key.TrimStart('-');
-            var replaceValue = string.Format(Constants.VariableFormat, trimmedKey);
-
-            value = value.Replace(replaceValue, arg);
-        }
-
-        return value;
-    }
 
     private static void OpenFile(string path)
     {
