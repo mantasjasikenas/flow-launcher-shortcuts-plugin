@@ -29,7 +29,7 @@ public class ShortcutsService : IShortcutsService
         _context = context;
     }
 
-    public List<Result> GetShortcuts()
+    public List<Result> GetShortcuts(List<string> arguments)
     {
         var shortcuts = _shortcutsRepository.GetShortcuts();
 
@@ -41,8 +41,8 @@ public class ShortcutsService : IShortcutsService
         return shortcuts.Select(shortcut =>
                         {
                             return ResultExtensions.Result(shortcut.Key,
-                                $"{shortcut}", //  ({shortcut.GetDerivedType()})
-                                () => { _shortcutHandler.ExecuteShortcut(shortcut, null); },
+                                $"{shortcut}",
+                                () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
                                 contextData: shortcut,
                                 iconPath: shortcut.GetIcon()
                             );
@@ -113,7 +113,7 @@ public class ShortcutsService : IShortcutsService
             });
     }
 
-    public List<Result> OpenShortcut(string key, List<string> arguments)
+    public List<Result> OpenShortcut(string key, IEnumerable<string> arguments)
     {
         var shortcut = _shortcutsRepository.GetShortcut(key);
 

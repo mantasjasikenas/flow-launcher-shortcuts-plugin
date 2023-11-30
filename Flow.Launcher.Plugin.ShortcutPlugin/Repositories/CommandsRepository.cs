@@ -55,12 +55,6 @@ public class CommandsRepository : ICommandsRepository
         // If command was not found
         if (!_commands.TryGetValue(arguments[0], out var command))
         {
-            // If user is still writing the command
-            // if (arguments.Count != 1)
-            // {
-            //     return ResultExtensions.SingleResult("Invalid command", "Please provide valid command");
-            // }
-
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository.GetShortcuts()
                                                         .Where(s => s.Key.StartsWith(arguments[0],
@@ -549,13 +543,14 @@ public class CommandsRepository : ICommandsRepository
             ResponseInfo = ("list", "List all shortcuts"),
             ResponseFailure = ("Failed to show all shortcuts", "Something went wrong"),
             ResponseSuccess = ("List", "List all shortcuts"),
+            AllowsMultipleValuesForSingleArgument = true,
             Handler = ListCommandHandler
         };
     }
 
     private List<Result> ListCommandHandler(ActionContext arg1, List<string> arg2)
     {
-        return _shortcutsService.GetShortcuts();
+        return _shortcutsService.GetShortcuts(arg2);
     }
 
     private Command CreateAddCommand()

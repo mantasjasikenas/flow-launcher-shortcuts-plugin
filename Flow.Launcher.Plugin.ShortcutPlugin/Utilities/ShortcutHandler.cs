@@ -142,7 +142,7 @@ public class ShortcutHandler : IShortcutHandler
         return _variablesService.ExpandVariables(expandedArguments);
     }
 
-
+    // TODO move to variables service
     private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)
     {
         foreach (var (key, arg) in args)
