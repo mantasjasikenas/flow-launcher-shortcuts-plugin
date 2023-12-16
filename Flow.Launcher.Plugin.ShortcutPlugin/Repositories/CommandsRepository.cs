@@ -8,6 +8,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using FuzzySharp;
 using JetBrains.Annotations;
 using Command = Flow.Launcher.Plugin.ShortcutPlugin.models.Command;
 
@@ -57,10 +58,11 @@ public class CommandsRepository : ICommandsRepository
         {
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository.GetShortcuts()
-                                                        .Where(s => s.Key.StartsWith(arguments[0],
-                                                            StringComparison.InvariantCultureIgnoreCase))
-                                                        .Select(s => ResultExtensions.Result(s.Key, s.Key))
-                                                        .ToList();
+                .Where(s => Fuzz.PartialRatio(s.Key, arguments[0]) > 90)
+                .Select(s => s is GroupShortcut
+                    ? ResultExtensions.Result(s.Key, s.Key)
+                    : _shortcutsService.OpenShortcut(s.Key, arguments.Skip(1).ToList()).First())
+                .ToList();
 
             // Return possible command matches
             var possibleCommands = _commands.Values

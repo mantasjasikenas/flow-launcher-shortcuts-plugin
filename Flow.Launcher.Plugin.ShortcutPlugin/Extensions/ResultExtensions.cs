@@ -47,7 +47,8 @@ public static class ResultExtensions
     }
 
     public static Result Result(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true, string iconPath = default, object contextData = default)
+        bool hideAfterAction = true, string iconPath = default, object contextData = default,
+        string autoCompleteText = null)
     {
         return new Result
         {
@@ -59,7 +60,8 @@ public static class ResultExtensions
             {
                 action?.Invoke();
                 return hideAfterAction;
-            }
+            },
+            AutoCompleteText = autoCompleteText ?? title
         };
     }
 }
