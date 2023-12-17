@@ -132,7 +132,10 @@ public class ShortcutsService : IShortcutsService
 
         return new List<Result>
         {
-            BuildResult(shortcut, args, $"Open {shortcut.GetDerivedType().ToLower()} shortcut",
+            BuildResult(
+                shortcut, 
+                args,
+                $"Open {shortcut.GetDerivedType().ToLower()} {shortcut.Key}",
                 shortcut.GetIcon())
         };
     }
@@ -335,7 +338,14 @@ public class ShortcutsService : IShortcutsService
             expandedShortcut, // $"{shortcut} {joinedArguments}"
             () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
             contextData: shortcut,
-            iconPath: iconPath
+            iconPath: iconPath,
+            autoCompleteText: shortcut switch
+                {
+                    FileShortcut fileShortcut => fileShortcut.Path,
+                    DirectoryShortcut directoryShortcut => directoryShortcut.Path,
+                    UrlShortcut urlShortcut => urlShortcut.Url,
+                    _ => null
+                }
         );
     }
 }
