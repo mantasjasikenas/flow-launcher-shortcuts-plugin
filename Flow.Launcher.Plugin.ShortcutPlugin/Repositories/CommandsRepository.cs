@@ -58,11 +58,13 @@ public class CommandsRepository : ICommandsRepository
         {
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository.GetShortcuts()
-                .Where(s => Fuzz.PartialRatio(s.Key, arguments[0]) > 90)
-                .Select(s => s is GroupShortcut
-                    ? ResultExtensions.Result(s.Key, s.Key)
-                    : _shortcutsService.OpenShortcut(s.Key, arguments.Skip(1).ToList()).First())
-                .ToList();
+                                                        .Where(s => Fuzz.PartialRatio(s.Key, arguments[0]) > 90)
+                                                        .Select(s => s is GroupShortcut
+                                                            ? ResultExtensions.Result(s.Key, s.Key)
+                                                            : _shortcutsService.OpenShortcut(s.Key,
+                                                                                   arguments.Skip(1).ToList())
+                                                                               .First())
+                                                        .ToList();
 
             // Return possible command matches
             var possibleCommands = _commands.Values
@@ -293,8 +295,16 @@ public class CommandsRepository : ICommandsRepository
             {
                 new ArgumentLiteral
                 {
+                    Key = "get",
+                    ResponseInfo = ("keyword get", "Shows all plugin keywords"),
+                    ResponseFailure = ("Failed to get plugin keyword", "Something went wrong"),
+                    ResponseSuccess = ("Get", "Get plugin keyword"),
+                    Handler = GetKeywordCommandHandler
+                },
+                new ArgumentLiteral
+                {
                     Key = "set",
-                    ResponseInfo = ("keyword set", "Set plugin keyword"),
+                    ResponseInfo = ("keyword set", "Set plugin keyword. Other keywords will be removed"),
                     ResponseFailure = ("Failed to set plugin keyword", "Something went wrong"),
                     Arguments = new List<IQueryExecutor>
                     {
@@ -308,11 +318,33 @@ public class CommandsRepository : ICommandsRepository
                 },
                 new ArgumentLiteral
                 {
-                    Key = "get",
-                    ResponseInfo = ("keyword get", "Get plugin keyword"),
-                    ResponseFailure = ("Failed to get plugin keyword", "Something went wrong"),
-                    ResponseSuccess = ("Get", "Get plugin keyword"),
-                    Handler = GetKeywordCommandHandler
+                    Key = "add",
+                    ResponseInfo = ("keyword add", "Add additional plugin keyword"),
+                    ResponseFailure = ("Failed to add plugin keyword", "Something went wrong"),
+                    Arguments = new List<IQueryExecutor>
+                    {
+                        new Argument
+                        {
+                            ResponseInfo = ("Enter new keyword", "How should your plugin be called?"),
+                            ResponseSuccess = ("Add", "Your plugin keyword will be added"),
+                            Handler = AddKeywordCommandHandler
+                        }
+                    }
+                },
+                new ArgumentLiteral
+                {
+                    Key = "remove",
+                    ResponseInfo = ("keyword remove", "Remove plugin keyword"),
+                    ResponseFailure = ("Failed to remove plugin keyword", "Something went wrong"),
+                    Arguments = new List<IQueryExecutor>
+                    {
+                        new Argument
+                        {
+                            ResponseInfo = ("Enter keyword", "Which keyword should be removed?"),
+                            ResponseSuccess = ("Remove", "Your plugin keyword will be removed"),
+                            Handler = RemoveKeywordCommandHandler
+                        }
+                    }
                 }
             }
         };
@@ -320,26 +352,58 @@ public class CommandsRepository : ICommandsRepository
 
     private List<Result> GetKeywordCommandHandler(ActionContext arg1, List<string> arg2)
     {
-        return ResultExtensions.SingleResult("Plugin keyword", _context.CurrentPluginMetadata.ActionKeyword);
+        return ResultExtensions.SingleResult("Plugin keywords",
+            string.Join(", ", _context.CurrentPluginMetadata.ActionKeywords));
     }
 
     private List<Result> SetKeywordCommandHandler(ActionContext arg1, List<string> arg2)
     {
-        return ResultExtensions.SingleResult("Setting plugin keyword", $"New keyword will be `{arg2[2]}`", () =>
-        {
-            var newKeyword = arg2[2];
-            var oldKeyword = _context.CurrentPluginMetadata.ActionKeyword;
+        var newKeyword = arg2[2];
 
-            _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword);
-            _context.CurrentPluginMetadata.ActionKeyword = newKeyword;
-
-            if (newKeyword.Equals(oldKeyword, StringComparison.InvariantCultureIgnoreCase))
+        return ResultExtensions.SingleResult("Setting plugin keyword (other will be removed)",
+            $"New keyword will be `{newKeyword}`", () =>
             {
-                return;
-            }
+                _context.CurrentPluginMetadata.ActionKeywords
+                        .ToList()
+                        .ForEach(oldKeyword =>
+                        {
+                            _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, oldKeyword);
+                        });
 
-            _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, oldKeyword);
-        });
+                _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword);
+            });
+    }
+
+    private List<Result> AddKeywordCommandHandler(ActionContext arg1, List<string> arg2)
+    {
+        var actionKeywords = _context.CurrentPluginMetadata.ActionKeywords;
+        var newKeyword = arg2[2];
+
+        if (actionKeywords.Contains(newKeyword))
+        {
+            return ResultExtensions.SingleResult("Add plugin keyword", $"Keyword `{newKeyword}` already exists");
+        }
+
+        return ResultExtensions.SingleResult("Add plugin keyword", $"New keyword added will be `{newKeyword}`",
+            () => { _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword); });
+    }
+
+    private List<Result> RemoveKeywordCommandHandler(ActionContext arg1, List<string> arg2)
+    {
+        var actionKeywords = _context.CurrentPluginMetadata.ActionKeywords;
+
+        if (actionKeywords.Count == 1)
+        {
+            return ResultExtensions.SingleResult("Remove plugin keyword", "You can't remove the only keyword");
+        }
+
+        if (!actionKeywords.Contains(arg2[2]))
+        {
+            return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{arg2[2]}` doesn't exist");
+        }
+
+        return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{arg2[2]}` will be removed",
+            () => { _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, arg2[2]); });
     }
 
     private Command CreateDuplicateCommand()
