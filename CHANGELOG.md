@@ -6,11 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.1] - 2024-01-18
 
-- Multiple plugin keywords support. Now you can use `q keyword add <keyword>` to add additional keywords for the plugin.
-  For example, if you want to use `q` and `quick` as keywords for the plugin, you can use `q keyword add quick` to
-  add `quick` as a keyword for the plugin. You can also use `q keyword remove <keyword>` to remove a keyword from the
-  plugin.
-- Argument name is now optional if only one argument is defined for the shortcut.
+- Multiple plugin keywords support. Now you can use:
+    - `q keyword get` to list all plugin keywords for the plugin.
+    - `q keyword set <keyword>` to set the plugin keyword. This will override any existing keywords for the plugin.
+    - `q keyword add <keyword>` to add additional keyword for the plugin.
+    - `q keyword remove <keyword>` to remove a keyword from the plugin.
+- Provided argument without name will be assigned to the first argument of the shortcut.
 
 ## [1.1.0] - 2023-12-17
 

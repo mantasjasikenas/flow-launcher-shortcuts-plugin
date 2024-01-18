@@ -29,7 +29,7 @@ public class ShortcutHandler : IShortcutHandler
     public void ExecuteShortcut(Shortcut shortcut, [CanBeNull] List<string> arguments)
     {
         var parsedArguments = arguments != null && arguments.Any()
-            ? CommandLineExtensions.ParseArguments(arguments)
+            ? CommandLineExtensions.ParseArguments(shortcut.ToString(), arguments)
             : new Dictionary<string, string>();
 
         ExecuteShortcut(shortcut, parsedArguments);

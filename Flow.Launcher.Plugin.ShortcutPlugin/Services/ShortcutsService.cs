@@ -133,7 +133,7 @@ public class ShortcutsService : IShortcutsService
         return new List<Result>
         {
             BuildResult(
-                shortcut, 
+                shortcut,
                 args,
                 $"Open {shortcut.GetDerivedType().ToLower()} {shortcut.Key}",
                 shortcut.GetIcon())
@@ -215,7 +215,7 @@ public class ShortcutsService : IShortcutsService
     private bool IsArgumentsProvidedCorrectly(string value, IReadOnlyList<string> arguments,
         out Dictionary<string, string> parsedArguments)
     {
-        parsedArguments = CommandLineExtensions.ParseArguments(arguments);
+        parsedArguments = CommandLineExtensions.ParseArguments(value, arguments);
 
         if (parsedArguments.Count == 0)
         {
@@ -335,17 +335,17 @@ public class ShortcutsService : IShortcutsService
 
         return ResultExtensions.Result(
             string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey,
-            expandedShortcut, // $"{shortcut} {joinedArguments}"
+            expandedShortcut,
             () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
             contextData: shortcut,
             iconPath: iconPath,
             autoCompleteText: shortcut switch
-                {
-                    FileShortcut fileShortcut => fileShortcut.Path,
-                    DirectoryShortcut directoryShortcut => directoryShortcut.Path,
-                    UrlShortcut urlShortcut => urlShortcut.Url,
-                    _ => null
-                }
+            {
+                FileShortcut fileShortcut => fileShortcut.Path,
+                DirectoryShortcut directoryShortcut => directoryShortcut.Path,
+                UrlShortcut urlShortcut => urlShortcut.Url,
+                _ => null
+            }
         );
     }
 }
