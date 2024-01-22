@@ -34,7 +34,7 @@ public class VariablesRepository : IVariablesRepository
 
     public Variable GetVariable(string name)
     {
-        return _variables.TryGetValue(name, out var variable) ? variable : null;
+        return _variables.GetValueOrDefault(name);
     }
 
     public void AddVariable(string name, string value)

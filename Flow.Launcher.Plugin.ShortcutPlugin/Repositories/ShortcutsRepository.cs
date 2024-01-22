@@ -24,7 +24,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public Shortcut GetShortcut(string key)
     {
-        return _shortcuts.TryGetValue(key, out var shortcut) ? shortcut : null;
+        return _shortcuts.GetValueOrDefault(key);
     }
 
     public IList<Shortcut> GetShortcuts()

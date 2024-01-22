@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.2] - 2024-01-22
+
+- Fix group shortcut invocation
+
 ## [1.1.1] - 2024-01-18
 
 - Multiple plugin keywords support. Now you can use:

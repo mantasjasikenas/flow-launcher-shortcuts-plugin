@@ -273,11 +273,11 @@ public class ShortcutsService : IShortcutsService
 
                 return new Result
                 {
-                    Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}", //  ({groupShortcutValue.GetDerivedType()})
-                    SubTitle = expandedShortcut, //$"{shortcut} {joinedArguments}",
+                    Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}",
+                    SubTitle = expandedShortcut,
                     Action = _ =>
                     {
-                        _shortcutHandler.ExecuteShortcut(shortcut, joinedArguments.Split(' ').ToList());
+                        _shortcutHandler.ExecuteShortcut(shortcut, arguments);
                         return true;
                     },
                     IcoPath = shortcut.GetIcon(),
@@ -312,12 +312,11 @@ public class ShortcutsService : IShortcutsService
                                           return new Result
                                           {
                                               Title =
-                                                  $"{shortcut.Key ?? shortcut.GetDerivedType()}", //  ({item.GetDerivedType()})
-                                              SubTitle = expandedShortcut, //$"{shortcut} {joinedArguments}",
+                                                  $"{shortcut.Key ?? shortcut.GetDerivedType()}",
+                                              SubTitle = expandedShortcut,
                                               Action = _ =>
                                               {
-                                                  _shortcutHandler.ExecuteShortcut(shortcut,
-                                                      joinedArguments.Split(' ').ToList());
+                                                  _shortcutHandler.ExecuteShortcut(shortcut, arguments);
                                                   return true;
                                               },
                                               IcoPath = shortcut.GetIcon(),
