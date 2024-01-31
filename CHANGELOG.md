@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.3] - 2024-01-31
 
-- New shortcut type: `shell'. This type allows you to execute commands in command prompt or powershell.
+- New shortcut type: `shell`. This type allows you to execute commands in command prompt or powershell.
 - Improved auto completion for commands.
 
 ## [1.1.2] - 2024-01-22
