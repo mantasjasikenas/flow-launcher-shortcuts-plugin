@@ -25,9 +25,20 @@ public class CommandsService : ICommandsService
         _commandsRepository = commandsRepository;
     }
 
-    public List<Result> ResolveCommand(List<string> arguments, string query)
+    public List<Result> ResolveCommand(List<string> arguments, Query query)
     {
-        return _commandsRepository.ResolveCommand(arguments, query);
+        var results = _commandsRepository.ResolveCommand(arguments, query.Search);
+
+        //TODO: Move this to different place?
+        results.ForEach(result =>
+        {
+            result.AutoCompleteText = string.IsNullOrEmpty(result.AutoCompleteText)
+                ? $"{query.ActionKeyword} {result.Title}"
+                : $"{query.ActionKeyword} {result.AutoCompleteText}";
+        });
+
+
+        return results;
     }
 
     public void ReloadPluginData()

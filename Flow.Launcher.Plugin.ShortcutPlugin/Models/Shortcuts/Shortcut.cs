@@ -26,7 +26,8 @@ public abstract class Shortcut : ICloneable
             ProgramShortcut => "Program",
             PluginShortcut => "Plugin",
             GroupShortcut => "Group",
-            _ => "Unspecified"
+            ShellShortcut => "Shell",
+            _ => "Unspecified shortcut type"
         };
     }
 

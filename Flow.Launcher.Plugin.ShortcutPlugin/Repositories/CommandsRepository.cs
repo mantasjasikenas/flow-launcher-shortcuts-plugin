@@ -676,28 +676,29 @@ public class CommandsRepository : ICommandsRepository
             CreateShortcutType("directory", CreateDirectoryShortcutHandler),
             CreateShortcutType("file", CreateFileShortcutHandler),
             CreateShortcutType("url", CreateUrlShortcutHandler),
-            //CreateShellShortcut()
+            CreateShellShortcut()
         };
     }
 
     private List<Result> CreateUrlShortcutHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Creating url shortcut", string.Join(" ", arguments.Skip(3)), () =>
-        {
-            var key = arguments[2];
-            var url = arguments[3];
-
-            _shortcutsRepository.AddShortcut(new UrlShortcut
+        return ResultExtensions.SingleResult("Creating url shortcut", $"Url: {arguments[3]}",
+            () =>
             {
-                Key = key,
-                Url = url
+                var key = arguments[2];
+                var url = arguments[3];
+
+                _shortcutsRepository.AddShortcut(new UrlShortcut
+                {
+                    Key = key,
+                    Url = url
+                });
             });
-        });
     }
 
     private List<Result> CreateFileShortcutHandler(ActionContext arg1, List<string> arg2)
     {
-        return ResultExtensions.SingleResult("Creating file shortcut", "", () =>
+        return ResultExtensions.SingleResult("Creating file shortcut", $"File path: {arg2[3]}", () =>
         {
             var key = arg2[2];
             var filePath = arg2[3];
@@ -712,32 +713,62 @@ public class CommandsRepository : ICommandsRepository
 
     private List<Result> CreateDirectoryShortcutHandler(ActionContext arg1, List<string> arg2)
     {
-        return ResultExtensions.SingleResult("Creating directory shortcut", "", () =>
-        {
-            var key = arg2[2];
-            var directoryPath = arg2[3];
-
-            _shortcutsRepository.AddShortcut(new DirectoryShortcut
+        return ResultExtensions.SingleResult("Creating directory shortcut", $"Directory path: {arg2[3]}",
+            () =>
             {
-                Key = key,
-                Path = directoryPath
+                var key = arg2[2];
+                var directoryPath = arg2[3];
+
+                _shortcutsRepository.AddShortcut(new DirectoryShortcut
+                {
+                    Key = key,
+                    Path = directoryPath
+                });
             });
-        });
     }
 
     private List<Result> CreateShellShortcutHandler(ActionContext context, List<string> arguments)
     {
-        _shortcutsRepository.AddShortcut(new ShellShortcut
+        if (arguments.Count < 6)
         {
-            Key = arguments[2],
-            TargetFilePath = arguments[3],
-            Command = arguments[4],
-            Silent = arguments[5]
-                .Equals("true",
-                    StringComparison.InvariantCultureIgnoreCase)
-        });
+            return ResultExtensions.SingleResult("Invalid shell shortcut arguments",
+                "Please provide valid shell shortcut arguments");
+        }
 
-        throw new NotImplementedException();
+        if (!Enum.TryParse<ShellType>(arguments[2], true, out var shellType))
+        {
+            return ResultExtensions.SingleResult("Invalid shell type",
+                "Please provide valid shell type (cmd/powershell)");
+        }
+
+        if (!bool.TryParse(arguments[4], out var silent))
+        {
+            return ResultExtensions.SingleResult("Invalid silent argument",
+                "Please provide valid silent argument (true/false)");
+        }
+
+        var key = arguments[3];
+        var shellArguments = string.Join(" ", arguments.Skip(5));
+
+        var subtitles = new List<string>
+        {
+            $"Type: {shellType.ToString().ToLower()}",
+            $"key: {key}",
+            $"silent: {silent.ToString().ToLower()}",
+            $"command: {shellArguments}"
+        };
+        var subtitle = string.Join(", ", subtitles);
+
+        return ResultExtensions.SingleResult("Creating shell shortcut", subtitle, () =>
+        {
+            _shortcutsRepository.AddShortcut(new ShellShortcut
+            {
+                Key = key,
+                ShellType = shellType,
+                Silent = silent,
+                Arguments = shellArguments
+            });
+        });
     }
 
 
@@ -774,32 +805,31 @@ public class CommandsRepository : ICommandsRepository
         return new ArgumentLiteral
         {
             Key = "shell",
-            ResponseInfo = ("add shell", "<Directory/File/Url/Plugin/Program>"),
+            ResponseInfo = ("add shell", ""),
             Arguments = new List<IQueryExecutor>
             {
                 new Argument
                 {
-                    ResponseInfo = ("Enter shortcut name", "How should your shortcut be named?"),
+                    ResponseInfo = ("Enter shell type", "Which shell should be used? (cmd/powershell)"),
                     Arguments = new List<IQueryExecutor>
                     {
                         new Argument
                         {
-                            ResponseInfo = ("Enter target file path", "This is where your shell will point to"),
+                            ResponseInfo = ("Enter shortcut name", "How should your shortcut be named?"),
                             Arguments = new List<IQueryExecutor>
                             {
                                 new Argument
                                 {
-                                    ResponseInfo = ("Enter shell command",
-                                        "This is what your shell will execute"),
+                                    ResponseInfo = ("Should execution be silent?",
+                                        "Should execution be silent? (true/false)"),
                                     Arguments = new List<IQueryExecutor>
                                     {
                                         new Argument
                                         {
-                                            ResponseSuccess = ("Add",
-                                                "Your new shortcut will be added to the list"),
-                                            ResponseInfo = ("Enter shell silent",
-                                                "Should your shell be silent?"),
-                                            Handler = CreateShellShortcutHandler
+                                            ResponseInfo = ("Enter shell arguments",
+                                                "What should your shell arguments be?"),
+                                            Handler = CreateShellShortcutHandler,
+                                            AllowsMultipleValuesForSingleArgument = true
                                         }
                                     }
                                 }

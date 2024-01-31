@@ -59,6 +59,11 @@ public class ShortcutHandler : IShortcutHandler
                 ExecuteFileShortcut(fileShortcut, parsedArguments);
                 break;
             }
+            case ShellShortcut shellShortcut:
+            {
+                ExecuteShellShortcut(shellShortcut, parsedArguments);
+                break;
+            }
             default:
             {
                 _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
@@ -136,6 +141,72 @@ public class ShortcutHandler : IShortcutHandler
         OpenFile(path);
     }
 
+    private void ExecuteShellShortcut(ShellShortcut shortcut,
+        IReadOnlyDictionary<string, string> parsedArguments)
+    {
+        var arguments = _variablesService.ExpandVariables(shortcut.Arguments, parsedArguments);
+
+        switch (shortcut.ShellType)
+        {
+            case ShellType.Cmd:
+            {
+                OpenCmd(arguments, shortcut.Silent);
+                break;
+            }
+            case ShellType.Powershell:
+            {
+                OpenPowershell(arguments, shortcut.Silent);
+                break;
+            }
+            default:
+            {
+                _context.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
+                break;
+            }
+        }
+    }
+
+    private static void OpenPowershell(string arguments, bool silent)
+    {
+        if (silent)
+        {
+            Cli.Wrap("powershell.exe")
+               .WithArguments(arguments)
+               .ExecuteAsync();
+            return;
+        }
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "powershell.exe",
+            Arguments = $"-NoExit -Command \"{arguments}\"",
+            UseShellExecute = true,
+            CreateNoWindow = true
+        };
+        Process.Start(processStartInfo);
+    }
+
+    private static void OpenCmd(string arguments, bool silent)
+    {
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            CreateNoWindow = silent
+        };
+
+        if (silent)
+        {
+            processStartInfo.Arguments = "/c " + arguments;
+        }
+        else
+        {
+            processStartInfo.Arguments = "/K " + arguments;
+            processStartInfo.UseShellExecute = true;
+        }
+
+        Process.Start(processStartInfo);
+    }
+
 
     private static void OpenFile(string path)
     {
@@ -160,7 +231,7 @@ public class ShortcutHandler : IShortcutHandler
         var processStartInfo = new ProcessStartInfo
         {
             UseShellExecute = true,
-            FileName = url
+            FileName = url.Replace(" ", "%20")
         };
         Process.Start(processStartInfo);
     }
@@ -180,25 +251,5 @@ public class ShortcutHandler : IShortcutHandler
             var results = plugin.Plugin.QueryAsync(query, CancellationToken.None).Result;
             results.First().Action.Invoke(null);
         }
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private List<Result> ExecuteShellShortcut(ShellShortcut shortcut)
-    {
-        return ResultExtensions.SingleResult("Executing shell shortcut", shortcut.Command, () =>
-        {
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = shortcut.TargetFilePath,
-                    Arguments = "/c " + shortcut.Command,
-                    UseShellExecute = false,
-                    CreateNoWindow = shortcut.Silent
-                }
-            };
-
-            process.Start();
-        });
     }
 }

@@ -81,11 +81,12 @@ The following commands are available for the Shortcuts plugin.
 
 The following shortcut types are available. More types will be added in the future.
 
-| Shortcut type   | Description                      | Required arguments                      |
-|:----------------|:---------------------------------|:----------------------------------------|
-| `` directory `` | Open directory in file explorer  | `` directory `` - path to the directory |
-| `` file ``      | Open file in default application | `` file `` - path to the file           |
-| `` url ``       | Open URL in default browser      | `` url `` - URL to open                 |
+| Shortcut type   | Description                      | Required arguments                                                                                                                              |
+|:----------------|:---------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------|
+| `` directory `` | Open directory in file explorer  | `` directory `` - path to the directory                                                                                                         |
+| `` file ``      | Open file in default application | `` file `` - path to the file                                                                                                                   |
+| `` url ``       | Open URL in default browser      | `` url `` - URL to open                                                                                                                         |
+| `` shell ``     | Run shell command                | ``type`` - shell type (``cmd`` or ``powershell``), ``command`` - shell command arguments, ``silent`` - run command without opening shell window |
 
 ## Configuration files
 

@@ -36,7 +36,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
     public List<Result> Query(Query query)
     {
         var args = CommandLineExtensions.SplitArguments(query.Search);
-        var results = _commandsService.ResolveCommand(args, query.Search);
+        var results = _commandsService.ResolveCommand(args, query);
 
         return results;
     }

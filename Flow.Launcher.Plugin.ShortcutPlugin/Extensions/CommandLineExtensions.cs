@@ -9,7 +9,7 @@ public static partial class CommandLineExtensions
     [GeneratedRegex("\\$\\{(.*?)\\}")]
     private static partial Regex ArgumentRegex();
 
-    public static List<string> SplitArguments(string commandLine)
+    /*public static List<string> SplitArguments(string commandLine)
     {
         var arguments = new List<string>();
 
@@ -54,7 +54,78 @@ public static partial class CommandLineExtensions
         arguments = arguments.Select(x => x.Replace("\"", "")).Where(x => !string.IsNullOrEmpty(x)).ToList();
 
         return arguments;
+    }*/
+
+    public static List<string> SplitArguments(string commandLine)
+    {
+        var arguments = new List<string>();
+
+        var inQuotes = false;
+        var isEscaped = false;
+        var argStartIndex = 0;
+
+        for (var i = 0; i < commandLine.Length; i++)
+        {
+            var currentChar = commandLine[i];
+
+            switch (currentChar)
+            {
+                case '\\' when !isEscaped:
+                    isEscaped = true;
+                    continue;
+                case '\"':
+                    if (isEscaped)
+                    {
+                        isEscaped = false; // reset the flag if the quote is escaped
+                    }
+                    else
+                    {
+                        inQuotes = !inQuotes;
+                    }
+
+                    continue;
+                case ' ' when !inQuotes:
+                {
+                    if (i > argStartIndex)
+                    {
+                        var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
+
+                        arguments.Add(argument);
+                    }
+
+                    argStartIndex = i + 1;
+                    break;
+                }
+            }
+
+            if (currentChar != '\\')
+            {
+                isEscaped = false; // reset the flag if the current character is not a backslash
+            }
+        }
+
+        if (commandLine.Length > argStartIndex)
+        {
+            var lastArgument = commandLine[argStartIndex..];
+            arguments.Add(lastArgument);
+        }
+
+        arguments = arguments
+                    .Select(x =>
+                        {
+                            var input = x.Replace("\\\"", "\"");
+
+                            return input.StartsWith("\"") && input.EndsWith("\"") && input.Length > 1
+                                ? input[1..^1]
+                                : input;
+                        }
+                    )
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .ToList();
+
+        return arguments;
     }
+
 
     public static Dictionary<string, string> ParseArguments(string shortcut, IReadOnlyList<string> args)
     {
