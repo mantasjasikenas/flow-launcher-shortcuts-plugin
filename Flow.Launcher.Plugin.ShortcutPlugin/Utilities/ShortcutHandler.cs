@@ -40,35 +40,35 @@ public class ShortcutHandler : IShortcutHandler
         switch (shortcut)
         {
             case GroupShortcut groupShortcut:
-            {
-                ExecuteGroupShortcut(groupShortcut, parsedArguments);
-                break;
-            }
+                {
+                    ExecuteGroupShortcut(groupShortcut, parsedArguments);
+                    break;
+                }
             case UrlShortcut urlShortcut:
-            {
-                ExecuteUrlShortcut(urlShortcut, parsedArguments);
-                break;
-            }
+                {
+                    ExecuteUrlShortcut(urlShortcut, parsedArguments);
+                    break;
+                }
             case DirectoryShortcut directoryShortcut:
-            {
-                ExecuteDirectoryShortcut(directoryShortcut, parsedArguments);
-                break;
-            }
+                {
+                    ExecuteDirectoryShortcut(directoryShortcut, parsedArguments);
+                    break;
+                }
             case FileShortcut fileShortcut:
-            {
-                ExecuteFileShortcut(fileShortcut, parsedArguments);
-                break;
-            }
+                {
+                    ExecuteFileShortcut(fileShortcut, parsedArguments);
+                    break;
+                }
             case ShellShortcut shellShortcut:
-            {
-                ExecuteShellShortcut(shellShortcut, parsedArguments);
-                break;
-            }
+                {
+                    ExecuteShellShortcut(shellShortcut, parsedArguments);
+                    break;
+                }
             default:
-            {
-                _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
-                break;
-            }
+                {
+                    _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
+                    break;
+                }
         }
     }
 
@@ -125,7 +125,7 @@ public class ShortcutHandler : IShortcutHandler
     private void ExecuteUrlShortcut(UrlShortcut urlShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
         var path = _variablesService.ExpandVariables(urlShortcut.Url, parsedArguments);
-        OpenUrl(path);
+        OpenUrl(path, urlShortcut.App);
     }
 
     private void ExecuteDirectoryShortcut(DirectoryShortcut directoryShortcut,
@@ -138,7 +138,7 @@ public class ShortcutHandler : IShortcutHandler
     private void ExecuteFileShortcut(FileShortcut fileShortcut, IReadOnlyDictionary<string, string> parsedArguments)
     {
         var path = _variablesService.ExpandVariables(fileShortcut.Path, parsedArguments);
-        OpenFile(path);
+        OpenFile(path, fileShortcut.App);
     }
 
     private void ExecuteShellShortcut(ShellShortcut shortcut,
@@ -149,20 +149,20 @@ public class ShortcutHandler : IShortcutHandler
         switch (shortcut.ShellType)
         {
             case ShellType.Cmd:
-            {
-                OpenCmd(arguments, shortcut.Silent);
-                break;
-            }
+                {
+                    OpenCmd(arguments, shortcut.Silent);
+                    break;
+                }
             case ShellType.Powershell:
-            {
-                OpenPowershell(arguments, shortcut.Silent);
-                break;
-            }
+                {
+                    OpenPowershell(arguments, shortcut.Silent);
+                    break;
+                }
             default:
-            {
-                _context.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
-                break;
-            }
+                {
+                    _context.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
+                    break;
+                }
         }
     }
 
@@ -208,9 +208,23 @@ public class ShortcutHandler : IShortcutHandler
     }
 
 
-    private static void OpenFile(string path)
+    private static void OpenFile(string path, string app = null)
     {
-        var processStartInfo = new ProcessStartInfo
+        ProcessStartInfo processStartInfo;
+
+        if (!string.IsNullOrEmpty(app))
+        {
+            processStartInfo = new ProcessStartInfo
+            {
+                UseShellExecute = true,
+                FileName = app,
+                Arguments = path
+            };
+            Process.Start(processStartInfo);
+            return;
+        }
+
+        processStartInfo = new ProcessStartInfo
         {
             FileName = path,
             UseShellExecute = true
@@ -226,9 +240,23 @@ public class ShortcutHandler : IShortcutHandler
            .ExecuteAsync();
     }
 
-    private static void OpenUrl(string url)
+    private static void OpenUrl(string url, string app = null)
     {
-        var processStartInfo = new ProcessStartInfo
+        ProcessStartInfo processStartInfo;
+
+        if (!string.IsNullOrEmpty(app))
+        {
+            processStartInfo = new ProcessStartInfo
+            {
+                UseShellExecute = true,
+                FileName = app,
+                Arguments = url.Replace(" ", "%20")
+            };
+            Process.Start(processStartInfo);
+            return;
+        }
+
+        processStartInfo = new ProcessStartInfo
         {
             UseShellExecute = true,
             FileName = url.Replace(" ", "%20")

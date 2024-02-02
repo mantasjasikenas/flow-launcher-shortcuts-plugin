@@ -4,6 +4,8 @@ public class FileShortcut : Shortcut
 {
     public string Path { get; set; }
 
+    public string App { get; set; }
+
     public override object Clone()
     {
         return new FileShortcut

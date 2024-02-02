@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -36,20 +37,71 @@ public class ConfigCommand : ICommand
         var shortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
         var variablesPath = _settingsService.GetSetting(x => x.VariablesPath);
 
+        /* TODO rethink this logic 
+        var results = new List<Result>();
+
+        if (!File.Exists(shortcutsPath))
+        {
+            results.Add(ResultExtensions.Result("Shortcuts file not found", "Click to create", () =>
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(shortcutsPath));
+                File.WriteAllText(shortcutsPath, "[]");
+            }));
+        }
+
+        if (!File.Exists(variablesPath))
+        {
+            results.Add(ResultExtensions.Result("Variables file not found", "Click to create", () =>
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(variablesPath));
+                File.WriteAllText(variablesPath, "[]");
+            }));
+        }
+
+        if (results.Count > 0)
+        {
+            return results;
+        } */
+
         return new List<Result>
         {
             ResultExtensions.Result("Open shortcuts config", shortcutsPath, () =>
             {
-                Cli.Wrap("powershell")
-                    .WithArguments(shortcutsPath)
-                    .ExecuteAsync();
+                if (!File.Exists(shortcutsPath))
+                {
+                    CreateConfigFile(shortcutsPath);
+                }
+
+                OpenConfig(shortcutsPath);
             }),
             ResultExtensions.Result("Open variables config", variablesPath, () =>
             {
-                Cli.Wrap("powershell")
-                    .WithArguments(variablesPath)
-                    .ExecuteAsync();
+                if (!File.Exists(variablesPath))
+                {
+                    CreateConfigFile(variablesPath);
+                }
+
+                OpenConfig(variablesPath);
             })
         };
+    }
+
+    private static void OpenConfig(string path)
+    {
+        Cli.Wrap("powershell")
+            .WithArguments(path)
+            .ExecuteAsync();
+    }
+
+    private static void CreateConfigFile(string path)
+    {
+        var directory = Path.GetDirectoryName(path);
+
+        if (directory != null && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        File.WriteAllText(path, "[]");
     }
 }
