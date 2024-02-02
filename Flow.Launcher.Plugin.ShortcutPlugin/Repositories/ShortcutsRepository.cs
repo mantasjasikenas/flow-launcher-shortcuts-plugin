@@ -14,11 +14,13 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
+    private readonly PluginInitContext _context;
     private Dictionary<string, Shortcut> _shortcuts;
 
-    public ShortcutsRepository(ISettingsService settingsService)
+    public ShortcutsRepository(ISettingsService settingsService, PluginInitContext context)
     {
         _settingsService = settingsService;
+        _context = context;
         _shortcuts = ReadShortcuts(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
@@ -84,7 +86,7 @@ public class ShortcutsRepository : IShortcutsRepository
             return;
         }
 
-        var newShortcut = (Shortcut) value.Clone();
+        var newShortcut = (Shortcut)value.Clone();
 
         newShortcut.Key = duplicateKey;
         _shortcuts[duplicateKey] = newShortcut;
@@ -106,7 +108,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
             if (shortcuts.Count == 0)
             {
-                throw new Exception("No shortcuts found in file");
+                throw new Exception();
             }
 
             _shortcuts = shortcuts;
@@ -114,9 +116,10 @@ public class ShortcutsRepository : IShortcutsRepository
             SaveShortcuts();
             ReloadShortcuts();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            MessageBox.Show(Resources.Failed_to_import_shortcuts_file);
+            _context.API.ShowMsg("Error while importing shortcuts");
+            _context.API.LogException(nameof(ShortcutsRepository), "Error importing shortcuts", ex);
         }
     }
 
@@ -124,7 +127,7 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         if (!File.Exists(_settingsService.GetSetting(x => x.ShortcutsPath)))
         {
-            MessageBox.Show(Resources.Shortcuts_file_not_found);
+            _context.API.ShowMsg("No shortcuts to export");
             return;
         }
 
@@ -132,13 +135,14 @@ public class ShortcutsRepository : IShortcutsRepository
         {
             File.Copy(_settingsService.GetSetting(x => x.ShortcutsPath), path);
         }
-        catch
+        catch (Exception ex)
         {
-            MessageBox.Show(Resources.Error_while_exporting_shortcuts);
+            _context.API.ShowMsg("Error while exporting shortcuts");
+            _context.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
         }
     }
 
-    private static Dictionary<string, Shortcut> ReadShortcuts(string path)
+    private Dictionary<string, Shortcut> ReadShortcuts(string path)
     {
         if (!File.Exists(path))
         {
@@ -149,11 +153,14 @@ public class ShortcutsRepository : IShortcutsRepository
         {
             var json = File.ReadAllText(path);
             var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
+
             return shortcuts.ToDictionary(shortcut => shortcut.Key);
         }
         catch (Exception e)
         {
-            MessageBox.Show("Error while reading shortcuts file: " + e.Message);
+            _context.API.ShowMsg("Error while reading shortcuts");
+            _context.API.LogException(nameof(ShortcutsRepository), "Error reading shortcuts", e);
+
             return new Dictionary<string, Shortcut>();
         }
     }
@@ -165,11 +172,11 @@ public class ShortcutsRepository : IShortcutsRepository
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
+
         var json = JsonSerializer.Serialize(_shortcuts.Values, options);
-
         var path = _settingsService.GetSetting(x => x.ShortcutsPath);
-
         var directory = Path.GetDirectoryName(path);
+
         if (directory != null && !Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);

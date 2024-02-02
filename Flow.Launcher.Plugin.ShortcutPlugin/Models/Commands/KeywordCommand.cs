@@ -6,7 +6,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
-public class KeywordCommand : ICommandBuilder
+public class KeywordCommand : ICommand
 {
     private readonly PluginInitContext _context;
 

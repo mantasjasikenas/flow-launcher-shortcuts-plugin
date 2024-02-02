@@ -25,4 +25,23 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static IServiceCollection RegisterCommands(this IServiceCollection services)
+    {
+        services.AddSingleton<ICommand, AddCommand>();
+        services.AddSingleton<ICommand, ListCommand>();
+        services.AddSingleton<ICommand, ReloadCommand>();
+        services.AddSingleton<ICommand, SettingsCommand>();
+        services.AddSingleton<ICommand, ConfigCommand>();
+        services.AddSingleton<ICommand, ImportCommand>();
+        services.AddSingleton<ICommand, ExportCommand>();
+        services.AddSingleton<ICommand, VariablesCommand>();
+        services.AddSingleton<ICommand, RemoveCommand>();
+        services.AddSingleton<ICommand, DuplicateCommand>();
+        services.AddSingleton<ICommand, KeywordCommand>();
+        services.AddSingleton<ICommand, GroupCommand>();
+
+        return services;
+    }
+
 }

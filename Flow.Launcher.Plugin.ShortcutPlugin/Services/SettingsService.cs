@@ -4,7 +4,6 @@ using System.IO;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
@@ -57,18 +56,24 @@ public class SettingsService : ISettingsService
         var (isValid, invalidProperties) = Validate(_settings);
 
         if (!isValid)
+        {
             LoadDefaultSettings(invalidProperties);
+        }
     }
 
     private void LoadDefaultSettings(ICollection<string> invalidProperties)
     {
         if (invalidProperties.Contains(nameof(Settings.ShortcutsPath)))
+        {
             _settings.ShortcutsPath =
                 Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.ShortcutsFileName);
+        }
 
         if (invalidProperties.Contains(nameof(Settings.VariablesPath)))
+        {
             _settings.VariablesPath =
-                Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.VariablesFileName);
+             Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.VariablesFileName);
+        }
 
 
         SaveSettings();

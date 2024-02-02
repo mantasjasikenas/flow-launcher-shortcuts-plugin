@@ -2,7 +2,7 @@
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
-public interface ICommandBuilder
+public interface ICommand
 {
     Command Create();
 }

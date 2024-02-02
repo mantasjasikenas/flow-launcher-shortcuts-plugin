@@ -36,7 +36,7 @@ public class ShortcutsService : IShortcutsService
 
         if (shortcuts.Count == 0)
         {
-            return ResultExtensions.EmptyResult();
+            return ResultExtensions.EmptyResult("No shortcuts found.");
         }
 
         return shortcuts.Select(shortcut =>
