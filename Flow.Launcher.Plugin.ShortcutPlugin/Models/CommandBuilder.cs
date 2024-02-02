@@ -1,0 +1,87 @@
+﻿using System;
+using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.models;
+
+namespace Flow.Launcher.Plugin.ShortcutPlugin;
+
+public class CommandBuilder : BaseQueryBuilder<Command>
+{
+}
+
+public class ArgumentBuilder : BaseQueryBuilder<Argument>
+{
+}
+
+public class ArgumentLiteralBuilder : BaseQueryBuilder<ArgumentLiteral>
+{
+}
+
+public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
+{
+    protected readonly T _instance = new();
+
+    public BaseQueryBuilder<T> WithKey(string key)
+    {
+        _instance.Key = key;
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithMultipleValuesForSingleArgument(bool value = true)
+    {
+        _instance.AllowsMultipleValuesForSingleArgument = value;
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithResponseInfo((string, string) responseInfo)
+    {
+        _instance.ResponseInfo = responseInfo;
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithResponseFailure((string, string) responseFailure)
+    {
+        _instance.ResponseFailure = responseFailure;
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithResponseSuccess((string, string) responseSuccess)
+    {
+        _instance.ResponseSuccess = responseSuccess;
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithHandler(Func<ActionContext, List<string>, List<Result>> handler)
+    {
+        _instance.Handler = handler;
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithArgument(IQueryExecutor argument)
+    {
+        _instance.Arguments ??= new List<IQueryExecutor>();
+        _instance.Arguments.Add(argument);
+
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithArguments(List<IQueryExecutor> arguments)
+    {
+        _instance.Arguments ??= new List<IQueryExecutor>();
+        _instance.Arguments.AddRange(arguments);
+
+        return this;
+    }
+
+    public BaseQueryBuilder<T> WithArguments(params IQueryExecutor[] arguments)
+    {
+        _instance.Arguments ??= new List<IQueryExecutor>();
+        _instance.Arguments.AddRange(arguments);
+
+        return this;
+    }
+
+    public T Build()
+    {
+        return _instance;
+    }
+}

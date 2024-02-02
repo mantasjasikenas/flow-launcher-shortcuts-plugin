@@ -17,7 +17,6 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 public class CommandsRepository : ICommandsRepository
 {
     private readonly Dictionary<string, Command> _commands;
-
     private readonly PluginInitContext _context;
     private readonly ISettingsService _settingsService;
     private readonly IShortcutsRepository _shortcutsRepository;
@@ -38,7 +37,6 @@ public class CommandsRepository : ICommandsRepository
 
         RegisterCommands();
     }
-
 
     public List<Result> ResolveCommand(List<string> arguments, string query)
     {
@@ -62,8 +60,8 @@ public class CommandsRepository : ICommandsRepository
                                                         .Select(s => s is GroupShortcut
                                                             ? ResultExtensions.Result(s.Key, s.Key)
                                                             : _shortcutsService.OpenShortcut(s.Key,
-                                                                                   arguments.Skip(1).ToList())
-                                                                               .First())
+                                                                                    arguments.Skip(1).ToList())
+                                                                                .First())
                                                         .ToList();
 
             // Return possible command matches
@@ -77,8 +75,8 @@ public class CommandsRepository : ICommandsRepository
                                             .ToList();
 
             var possibleResults = possibleShortcuts
-                                  .Concat(possibleCommands)
-                                  .ToList();
+                                    .Concat(possibleCommands)
+                                    .ToList();
 
             return possibleResults.Count != 0
                 ? possibleResults
@@ -114,11 +112,11 @@ public class CommandsRepository : ICommandsRepository
             } */
 
             return executor.Arguments
-                           .Cast<Argument>()
-                           .Select(a =>
-                               ResultExtensions.Result(a.ResponseInfo.Item1, a.ResponseInfo.Item2,
-                                   () => { _context.API.ChangeQuery($"{a.Key} "); }))
-                           .ToList();
+                            .Cast<Argument>()
+                            .Select(a =>
+                                ResultExtensions.Result(a.ResponseInfo.Item1, a.ResponseInfo.Item2,
+                                    () => { _context.API.ChangeQuery($"{a.Key} "); }))
+                            .ToList();
         }
 
 
@@ -179,8 +177,8 @@ public class CommandsRepository : ICommandsRepository
         var argument = arguments[level];
 
         var argumentsLiteral = executors
-                               .OfType<ArgumentLiteral>()
-                               .ToList();
+                                .OfType<ArgumentLiteral>()
+                                .ToList();
 
         var argExecutor =
             argumentsLiteral.FirstOrDefault(a => a.Key.Equals(argument, StringComparison.InvariantCultureIgnoreCase))
@@ -207,60 +205,52 @@ public class CommandsRepository : ICommandsRepository
 
     private Command CreateGroupCommand()
     {
-        return new Command
-        {
-            Key = "group",
-            ResponseInfo = ("group", "Manage shortcuts group"),
-            ResponseFailure = ("Failed to manage shortcuts group", "Something went wrong"),
-            Arguments = new List<IQueryExecutor>
-            {
-                new ArgumentLiteral
-                {
-                    Key = "add",
-                    ResponseInfo = ("group add", "Add shortcuts group"),
-                    ResponseFailure = ("Failed to add shortcuts group", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter group name", "How should your group be named?"),
-                            Arguments = new List<IQueryExecutor>
-                            {
-                                new Argument
-                                {
-                                    ResponseInfo = ("Enter shortcuts keys", "Which shortcuts should be in the group?"),
-                                    Handler = AddGroupCommandHandler,
-                                    AllowsMultipleValuesForSingleArgument = true
-                                }
-                            }
-                        }
-                    }
-                },
-                new ArgumentLiteral
-                {
-                    Key = "remove",
-                    ResponseInfo = ("group remove", "Remove shortcuts group"),
-                    ResponseFailure = ("Failed to remove shortcuts group", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter group name", "Which group should be removed?"),
-                            ResponseSuccess = ("Remove", "Your group will be removed"),
-                            Handler = RemoveGroupCommandHandler
-                        }
-                    }
-                },
-                new ArgumentLiteral
-                {
-                    Key = "list",
-                    ResponseInfo = ("group list", "List all shortcuts groups"),
-                    ResponseFailure = ("Failed to list shortcuts groups", "Something went wrong"),
-                    ResponseSuccess = ("List", "List all shortcuts groups"),
-                    Handler = ListGroupsCommandHandler
-                }
-            }
-        };
+        var addGroupKeysArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter shortcuts keys", "Which shortcuts should be in the group?"))
+            .WithHandler(AddGroupCommandHandler)
+            .WithMultipleValuesForSingleArgument()
+            .Build();
+
+        var addGroupNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter group name", "How should your group be named?"))
+            .WithResponseSuccess(("Add", "Your group will be added"))
+            .WithArguments(addGroupKeysArgument)
+            .Build();
+
+        var addSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("add")
+            .WithResponseInfo(("group add", "Add shortcuts group"))
+            .WithResponseFailure(("Failed to add shortcuts group", "Something went wrong"))
+            .WithArgument(addGroupNameArgument)
+            .Build();
+
+        var removeGroupNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter group name", "Which group should be removed?"))
+            .WithResponseSuccess(("Remove", "Your group will be removed"))
+            .WithHandler(RemoveGroupCommandHandler)
+            .Build();
+
+        var removeSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("remove")
+            .WithResponseInfo(("group remove", "Remove shortcuts group"))
+            .WithResponseFailure(("Failed to remove shortcuts group", "Something went wrong"))
+            .WithArgument(removeGroupNameArgument)
+            .Build();
+
+        var listSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("list")
+            .WithResponseInfo(("group list", "List all shortcuts groups"))
+            .WithResponseFailure(("Failed to list shortcuts groups", "Something went wrong"))
+            .WithResponseSuccess(("List", "List all shortcuts groups"))
+            .WithHandler(ListGroupsCommandHandler)
+            .Build();
+
+        return new CommandBuilder()
+            .WithKey("group")
+            .WithResponseInfo(("group", "Manage shortcuts group"))
+            .WithResponseFailure(("Failed to manage shortcuts group", "Something went wrong"))
+            .WithArguments(addSubCommand, removeSubCommand, listSubCommand)
+            .Build();
     }
 
     private List<Result> ListGroupsCommandHandler(ActionContext context, List<string> arguments)
@@ -286,79 +276,70 @@ public class CommandsRepository : ICommandsRepository
 
     private Command CreateKeywordCommand()
     {
-        return new Command
-        {
-            Key = "keyword",
-            ResponseInfo = ("keyword", "Manage plugin keyword"),
-            ResponseFailure = ("Failed to manage plugin keyword", "Something went wrong"),
-            Arguments = new List<IQueryExecutor>
-            {
-                new ArgumentLiteral
-                {
-                    Key = "get",
-                    ResponseInfo = ("keyword get", "Shows all plugin keywords"),
-                    ResponseFailure = ("Failed to get plugin keyword", "Something went wrong"),
-                    ResponseSuccess = ("Get", "Get plugin keyword"),
-                    Handler = GetKeywordCommandHandler
-                },
-                new ArgumentLiteral
-                {
-                    Key = "set",
-                    ResponseInfo = ("keyword set", "Set plugin keyword. Other keywords will be removed"),
-                    ResponseFailure = ("Failed to set plugin keyword", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter new keyword", "How should your plugin be called?"),
-                            ResponseSuccess = ("Set", "Your plugin keyword will be set"),
-                            Handler = SetKeywordCommandHandler
-                        }
-                    }
-                },
-                new ArgumentLiteral
-                {
-                    Key = "add",
-                    ResponseInfo = ("keyword add", "Add additional plugin keyword"),
-                    ResponseFailure = ("Failed to add plugin keyword", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter new keyword", "How should your plugin be called?"),
-                            ResponseSuccess = ("Add", "Your plugin keyword will be added"),
-                            Handler = AddKeywordCommandHandler
-                        }
-                    }
-                },
-                new ArgumentLiteral
-                {
-                    Key = "remove",
-                    ResponseInfo = ("keyword remove", "Remove plugin keyword"),
-                    ResponseFailure = ("Failed to remove plugin keyword", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter keyword", "Which keyword should be removed?"),
-                            ResponseSuccess = ("Remove", "Your plugin keyword will be removed"),
-                            Handler = RemoveKeywordCommandHandler
-                        }
-                    }
-                }
-            }
-        };
+        var getSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("get")
+            .WithResponseInfo(("keyword get", "Shows all plugin keywords"))
+            .WithResponseFailure(("Failed to get plugin keyword", "Something went wrong"))
+            .WithResponseSuccess(("Get", "Get plugin keyword"))
+            .WithHandler(GetKeywordCommandHandler)
+            .Build();
+
+        var setArgumentKeyword = new ArgumentBuilder()
+            .WithResponseInfo(("Enter new keyword", "How should your plugin be called?"))
+            .WithResponseSuccess(("Set", "Your plugin keyword will be set"))
+            .WithHandler(SetKeywordCommandHandler)
+            .Build();
+
+        var setSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("set")
+            .WithResponseInfo(("keyword set", "Set plugin keyword. Other keywords will be removed"))
+            .WithResponseFailure(("Failed to set plugin keyword", "Something went wrong"))
+            .WithArgument(setArgumentKeyword)
+            .Build();
+
+        var addArgumentKeyword = new ArgumentBuilder()
+            .WithResponseInfo(("Enter new keyword", "How should your plugin be called?"))
+            .WithResponseSuccess(("Add", "Your plugin keyword will be added"))
+            .WithHandler(AddKeywordCommandHandler)
+            .Build();
+
+        var addSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("add")
+            .WithResponseInfo(("keyword add", "Add additional plugin keyword"))
+            .WithResponseFailure(("Failed to add plugin keyword", "Something went wrong"))
+            .WithArgument(addArgumentKeyword)
+            .Build();
+
+        var removeArgumentKeyword = new ArgumentBuilder()
+            .WithResponseInfo(("Enter keyword", "Which keyword should be removed?"))
+            .WithResponseSuccess(("Remove", "Your plugin keyword will be removed"))
+            .WithHandler(RemoveKeywordCommandHandler)
+            .Build();
+
+        var removeSubCommand = new ArgumentLiteralBuilder()
+            .WithKey("remove")
+            .WithResponseInfo(("keyword remove", "Remove plugin keyword"))
+            .WithResponseFailure(("Failed to remove plugin keyword", "Something went wrong"))
+            .WithArgument(removeArgumentKeyword)
+            .Build();
+
+        return new CommandBuilder()
+            .WithKey("keyword")
+            .WithResponseInfo(("keyword", "Manage plugin keyword"))
+            .WithResponseFailure(("Failed to manage plugin keyword", "Something went wrong"))
+            .WithArguments(getSubCommand, setSubCommand, addSubCommand, removeSubCommand)
+            .Build();
     }
 
-    private List<Result> GetKeywordCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> GetKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
         return ResultExtensions.SingleResult("Plugin keywords",
             string.Join(", ", _context.CurrentPluginMetadata.ActionKeywords));
     }
 
-    private List<Result> SetKeywordCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> SetKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
-        var newKeyword = arg2[2];
+        var newKeyword = arguments[2];
 
         return ResultExtensions.SingleResult("Setting plugin keyword (other will be removed)",
             $"New keyword will be `{newKeyword}`", () =>
@@ -374,10 +355,10 @@ public class CommandsRepository : ICommandsRepository
             });
     }
 
-    private List<Result> AddKeywordCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> AddKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
         var actionKeywords = _context.CurrentPluginMetadata.ActionKeywords;
-        var newKeyword = arg2[2];
+        var newKeyword = arguments[2];
 
         if (actionKeywords.Contains(newKeyword))
         {
@@ -388,198 +369,166 @@ public class CommandsRepository : ICommandsRepository
             () => { _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword); });
     }
 
-    private List<Result> RemoveKeywordCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> RemoveKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
         var actionKeywords = _context.CurrentPluginMetadata.ActionKeywords;
+        var newKeyword = arguments[2];
+
+        if (!actionKeywords.Contains(newKeyword))
+        {
+            return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{newKeyword}` doesn't exist");
+        }
 
         if (actionKeywords.Count == 1)
         {
             return ResultExtensions.SingleResult("Remove plugin keyword", "You can't remove the only keyword");
         }
 
-        if (!actionKeywords.Contains(arg2[2]))
-        {
-            return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{arg2[2]}` doesn't exist");
-        }
-
-        return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{arg2[2]}` will be removed",
-            () => { _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, arg2[2]); });
+        return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{newKeyword}` will be removed",
+            () => { _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword); });
     }
 
     private Command CreateDuplicateCommand()
     {
-        return new Command
-        {
-            Key = "duplicate",
-            ResponseInfo = ("duplicate", "Duplicate shortcut"),
-            ResponseFailure = ("Failed to duplicate shortcut", "Something went wrong"),
-            Arguments = new List<IQueryExecutor>
-            {
-                new Argument
-                {
-                    ResponseInfo = ("Enter shortcut name", "Which shortcut should be duplicated?"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter new shortcut name", "How should your shortcut be named?"),
-                            ResponseSuccess = ("Duplicate", "Your shortcut will be duplicated"),
-                            Handler = DuplicateCommandHandler
-                        }
-                    }
-                }
-            }
-        };
+        var duplicateNewNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter new shortcut name", "How should your shortcut be named?"))
+            .WithResponseSuccess(("Duplicate", "Your shortcut will be duplicated"))
+            .WithHandler(DuplicateCommandHandler)
+            .Build();
+
+        var duplicateCurrentNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter shortcut name", "Which shortcut should be duplicated?"))
+            .WithArguments(duplicateNewNameArgument)
+            .Build();
+
+        return new CommandBuilder()
+            .WithKey("duplicate")
+            .WithResponseInfo(("duplicate", "Duplicate shortcut"))
+            .WithResponseFailure(("Failed to duplicate shortcut", "Something went wrong"))
+            .WithArgument(duplicateCurrentNameArgument)
+            .Build();
     }
 
-    private List<Result> DuplicateCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> DuplicateCommandHandler(ActionContext context, List<string> arguments)
     {
-        return _shortcutsService.DuplicateShortcut(arg2[1], arg2[2]);
+        return _shortcutsService.DuplicateShortcut(arguments[1], arguments[2]);
     }
 
     private Command CreateRemoveCommand()
     {
-        return new Command
-        {
-            Key = "remove",
-            ResponseInfo = ("remove", "Remove shortcuts from the list"),
-            ResponseFailure = ("Enter shortcut name", "Which shortcut should be removed?"),
-            Arguments = new List<IQueryExecutor>
-            {
-                new Argument
-                {
-                    ResponseInfo = ("Enter shortcut name", "Which shortcut should be removed?"),
-                    ResponseSuccess = ("Remove", "Your shortcut will be removed from the list"),
-                    Handler = RemoveCommandHandler
-                }
-            }
-        };
+        var shortcutNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter shortcut name", "Which shortcut should be removed?"))
+            .WithResponseSuccess(("Remove", "Your shortcut will be removed from the list"))
+            .WithHandler(RemoveCommandHandler)
+            .Build();
+
+        return new CommandBuilder()
+            .WithKey("remove")
+            .WithResponseInfo(("remove", "Remove shortcuts from the list"))
+            .WithResponseFailure(("Enter shortcut name", "Which shortcut should be removed?"))
+            .WithArgument(shortcutNameArgument)
+            .Build();
     }
 
-    private List<Result> RemoveCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> RemoveCommandHandler(ActionContext context, List<string> arguments)
     {
-        return _shortcutsService.RemoveShortcut(arg2[1]);
+        return _shortcutsService.RemoveShortcut(arguments[1]);
     }
 
     private Command CreateVariablesCommand()
     {
-        return new Command
-        {
-            Key = "var",
-            ResponseInfo = ("var", "Manage variables"),
-            ResponseFailure = ("Failed to manage variables", "Something went wrong"),
-            Arguments = new List<IQueryExecutor>
-            {
-                new ArgumentLiteral
-                {
-                    Key = "add",
-                    ResponseInfo = ("var add", "Add variable"),
-                    ResponseFailure = ("Failed to add variable", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter variable name", "How should your variable be named?"),
-                            Arguments = new List<IQueryExecutor>
-                            {
-                                new Argument
-                                {
-                                    ResponseInfo = ("Enter variable value", "What should your variable value be?"),
-                                    Handler = AddVariableCommandHandler
-                                }
-                            }
-                        }
-                    }
-                },
-                new ArgumentLiteral
-                {
-                    Key = "remove",
-                    ResponseInfo = ("var remove", "Remove variable"),
-                    ResponseFailure = ("Failed to remove variable", "Something went wrong"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter variable name", "Which variable should be removed?"),
-                            ResponseSuccess = ("Remove", "Your variable will be removed from the list"),
-                            Handler = RemoveVariableCommandHandler
-                        }
-                    }
-                },
-                new ArgumentLiteral
-                {
-                    Key = "list",
-                    ResponseInfo = ("var list", "List all variables"),
-                    ResponseFailure = ("Failed to list variables", "Something went wrong"),
-                    ResponseSuccess = ("List", "List all variables"),
-                    Handler = ListVariablesCommandHandler
-                }
-            }
-        };
+        var addVariableValueArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter variable value", "What should your variable value be?"))
+            .WithHandler(AddVariableCommandHandler)
+            .Build();
+
+        var addVariableNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter variable name", "How should your variable be named?"))
+            .WithArgument(addVariableValueArgument)
+            .Build();
+
+        var addVariable = new ArgumentLiteralBuilder()
+            .WithKey("add")
+            .WithResponseInfo(("var add", "Add variable"))
+            .WithResponseFailure(("Failed to add variable", "Something went wrong"))
+            .WithArgument(addVariableNameArgument)
+            .Build();
+
+        var removeVariableArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter variable name", "Which variable should be removed?"))
+            .WithResponseSuccess(("Remove", "Your variable will be removed from the list"))
+            .WithHandler(RemoveVariableCommandHandler)
+            .Build();
+
+        var removeVariable = new ArgumentLiteralBuilder()
+            .WithKey("remove")
+            .WithResponseInfo(("var remove", "Remove variable"))
+            .WithResponseFailure(("Failed to remove variable", "Something went wrong"))
+            .WithArgument(removeVariableArgument)
+            .Build();
+
+        var listVariables = new ArgumentLiteralBuilder()
+            .WithKey("list")
+            .WithResponseInfo(("var list", "List all variables"))
+            .WithResponseFailure(("Failed to list variables", "Something went wrong"))
+            .WithResponseSuccess(("List", "List all variables"))
+            .WithHandler(ListVariablesCommandHandler)
+            .Build();
+
+        return new CommandBuilder()
+            .WithKey("var")
+            .WithResponseInfo(("var", "Manage variables"))
+            .WithResponseFailure(("Failed to manage variables", "Something went wrong"))
+            .WithArguments(addVariable, removeVariable, listVariables)
+            .Build();
     }
 
-    private List<Result> ListVariablesCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> ListVariablesCommandHandler(ActionContext context, List<string> arguments)
     {
         return _variablesService.GetVariables();
     }
 
-    private List<Result> RemoveVariableCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> RemoveVariableCommandHandler(ActionContext context, List<string> arguments)
     {
-        // q var remove <name>
-        return _variablesService.RemoveVariable(arg2[2]);
+        return _variablesService.RemoveVariable(arguments[2]);
     }
 
-    private List<Result> AddVariableCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> AddVariableCommandHandler(ActionContext context, List<string> arguments)
     {
-        // q var add <name> <value>
-        return _variablesService.AddVariable(arg2[2], arg2[3]);
+        return _variablesService.AddVariable(arguments[2], arguments[3]);
     }
-
 
     private Command CreateExportCommand()
     {
-        return new Command
-        {
-            Key = "export",
-            ResponseInfo = ("export", "Export shortcuts"),
-            ResponseFailure = ("Failed to export shortcuts", "Something went wrong"),
-            Handler = ExportCommandHandler
-        };
-    }
-
-    private List<Result> ExportCommandHandler(ActionContext arg1, List<string> arg2)
-    {
-        return _shortcutsService.ExportShortcuts();
+        return new CommandBuilder()
+            .WithKey("export")
+            .WithResponseInfo(("export", "Export shortcuts"))
+            .WithResponseFailure(("Failed to export shortcuts", "Something went wrong"))
+            .WithHandler((_, _) => _shortcutsService.ExportShortcuts())
+            .Build();
     }
 
     private Command CreateImportCommand()
     {
-        return new Command
-        {
-            Key = "import",
-            ResponseInfo = ("import", "Import shortcuts"),
-            ResponseFailure = ("Failed to import shortcuts", "Something went wrong"),
-            Handler = ImportCommandHandler
-        };
-    }
-
-    private List<Result> ImportCommandHandler(ActionContext arg1, List<string> arg2)
-    {
-        return _shortcutsService.ImportShortcuts();
+        return new CommandBuilder()
+            .WithKey("import")
+            .WithResponseInfo(("import", "Import shortcuts"))
+            .WithResponseFailure(("Failed to import shortcuts", "Something went wrong"))
+            .WithHandler((_, _) => _shortcutsService.ImportShortcuts())
+            .Build();
     }
 
     private Command CreateConfigCommand()
     {
-        return new Command
-        {
-            Key = "config",
-            ResponseInfo = ("config", "Configure plugin"),
-            ResponseFailure = ("Failed to open config", "Something went wrong"),
-            Handler = ConfigCommandHandler
-        };
+        return new CommandBuilder()
+            .WithKey("config")
+            .WithResponseInfo(("config", "Configure plugin"))
+            .WithResponseFailure(("Failed to open config", "Something went wrong"))
+            .WithHandler(ConfigCommandHandler)
+            .Build();
     }
 
-    private List<Result> ConfigCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> ConfigCommandHandler(ActionContext context, List<string> arguments)
     {
         var shortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
         var variablesPath = _settingsService.GetSetting(x => x.VariablesPath);
@@ -589,57 +538,49 @@ public class CommandsRepository : ICommandsRepository
             ResultExtensions.Result("Open shortcuts config", shortcutsPath, () =>
             {
                 Cli.Wrap("powershell")
-                   .WithArguments(shortcutsPath)
-                   .ExecuteAsync();
+                    .WithArguments(shortcutsPath)
+                    .ExecuteAsync();
             }),
             ResultExtensions.Result("Open variables config", variablesPath, () =>
             {
                 Cli.Wrap("powershell")
-                   .WithArguments(variablesPath)
-                   .ExecuteAsync();
+                    .WithArguments(variablesPath)
+                    .ExecuteAsync();
             })
         };
     }
 
     private Command CreateListCommand()
     {
-        return new Command
-        {
-            Key = "list",
-            ResponseInfo = ("list", "List all shortcuts"),
-            ResponseFailure = ("Failed to show all shortcuts", "Something went wrong"),
-            ResponseSuccess = ("List", "List all shortcuts"),
-            AllowsMultipleValuesForSingleArgument = true,
-            Handler = ListCommandHandler
-        };
-    }
-
-    private List<Result> ListCommandHandler(ActionContext arg1, List<string> arg2)
-    {
-        return _shortcutsService.GetShortcuts(arg2);
+        return new CommandBuilder()
+            .WithKey("list")
+            .WithResponseInfo(("list", "List all shortcuts"))
+            .WithResponseFailure(("Failed to show all shortcuts", "Something went wrong"))
+            .WithResponseSuccess(("List", "List all shortcuts"))
+            .WithMultipleValuesForSingleArgument()
+            .WithHandler((_, arguments) => _shortcutsService.GetShortcuts(arguments))
+            .Build();
     }
 
     private Command CreateAddCommand()
     {
-        return new Command
-        {
-            Key = "add",
-            ResponseInfo = ("add", "Add shortcuts to the list"),
-            ResponseFailure = ("Enter shortcut type", "Which type of shortcut do you want to add?"),
-            Arguments = GetShortcutTypes()
-        };
+        return new CommandBuilder()
+            .WithKey("add")
+            .WithResponseInfo(("add", "Add shortcuts to the list"))
+            .WithResponseFailure(("Enter shortcut type", "Which type of shortcut do you want to add?"))
+            .WithArguments(GetShortcutTypes())
+            .Build();
     }
 
     private Command CreateReloadCommand()
     {
-        return new Command
-        {
-            Key = "reload",
-            ResponseInfo = ("reload", "Reload plugin data"),
-            ResponseSuccess = ("Reload", "Reload plugin data"),
-            ResponseFailure = ("Failed to reload", "Something went wrong"),
-            Handler = ReloadCommandHandler
-        };
+        return new CommandBuilder()
+            .WithKey("reload")
+            .WithResponseInfo(("reload", "Reload plugin data"))
+            .WithResponseSuccess(("Reload", "Reload plugin data"))
+            .WithResponseFailure(("Failed to reload", "Something went wrong"))
+            .WithHandler(ReloadCommandHandler)
+            .Build();
     }
 
     private List<Result> ReloadCommandHandler(ActionContext context, List<string> arguments)
@@ -654,19 +595,18 @@ public class CommandsRepository : ICommandsRepository
 
     private Command CreateSettingsCommand()
     {
-        return new Command
-        {
-            Key = "settings",
-            ResponseInfo = ("settings", "Open settings"),
-            ResponseFailure = ("Failed to open settings", "Something went wrong"),
-            Handler = SettingsCommandHandler
-        };
+        return new CommandBuilder()
+            .WithKey("settings")
+            .WithResponseInfo(("settings", "Open settings"))
+            .WithResponseFailure(("Failed to open settings", "Something went wrong"))
+            .WithHandler(SettingsCommandHandler)
+            .Build();
     }
 
-    private List<Result> SettingsCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> SettingsCommandHandler(ActionContext context, List<string> arguments)
     {
         return ResultExtensions.SingleResult("Open Flow Launcher settings", "",
-            () => { _context.API.OpenSettingDialog(); });
+            _context.API.OpenSettingDialog);
     }
 
     private List<IQueryExecutor> GetShortcutTypes()
@@ -682,7 +622,7 @@ public class CommandsRepository : ICommandsRepository
 
     private List<Result> CreateUrlShortcutHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Creating url shortcut", $"Url: {arguments[3]}",
+        return ResultExtensions.SingleResult("Create url shortcut", $"Url: {arguments[3]}",
             () =>
             {
                 var key = arguments[2];
@@ -696,12 +636,12 @@ public class CommandsRepository : ICommandsRepository
             });
     }
 
-    private List<Result> CreateFileShortcutHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> CreateFileShortcutHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Creating file shortcut", $"File path: {arg2[3]}", () =>
+        return ResultExtensions.SingleResult("Create file shortcut", $"File path: {arguments[3]}", () =>
         {
-            var key = arg2[2];
-            var filePath = arg2[3];
+            var key = arguments[2];
+            var filePath = arguments[3];
 
             _shortcutsRepository.AddShortcut(new FileShortcut
             {
@@ -711,13 +651,13 @@ public class CommandsRepository : ICommandsRepository
         });
     }
 
-    private List<Result> CreateDirectoryShortcutHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> CreateDirectoryShortcutHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Creating directory shortcut", $"Directory path: {arg2[3]}",
+        return ResultExtensions.SingleResult("Create directory shortcut", $"Directory path: {arguments[3]}",
             () =>
             {
-                var key = arg2[2];
-                var directoryPath = arg2[3];
+                var key = arguments[2];
+                var directoryPath = arguments[3];
 
                 _shortcutsRepository.AddShortcut(new DirectoryShortcut
                 {
@@ -751,15 +691,15 @@ public class CommandsRepository : ICommandsRepository
         var shellArguments = string.Join(" ", arguments.Skip(5));
 
         var subtitles = new List<string>
-        {
-            $"Type: {shellType.ToString().ToLower()}",
-            $"key: {key}",
-            $"silent: {silent.ToString().ToLower()}",
-            $"command: {shellArguments}"
-        };
+    {
+        $"Type: {shellType.ToString().ToLower()}",
+        $"key: {key}",
+        $"silent: {silent.ToString().ToLower()}",
+        $"command: {shellArguments}"
+    };
         var subtitle = string.Join(", ", subtitles);
 
-        return ResultExtensions.SingleResult("Creating shell shortcut", subtitle, () =>
+        return ResultExtensions.SingleResult("Create shell shortcut", subtitle, () =>
         {
             _shortcutsRepository.AddShortcut(new ShellShortcut
             {
@@ -771,73 +711,56 @@ public class CommandsRepository : ICommandsRepository
         });
     }
 
-
-    private IQueryExecutor CreateShortcutType(string type,
+    private static IQueryExecutor CreateShortcutType(string type,
         Func<ActionContext, List<string>, List<Result>> createShortcutHandler)
     {
-        return new ArgumentLiteral
-        {
-            Key = type,
-            ResponseFailure = ("Enter shortcut name", "How should your shortcut be named?"),
-            ResponseInfo = ($"add {type}", ""),
-            Arguments = new List<IQueryExecutor>
-            {
-                new Argument
-                {
-                    ResponseFailure = ("Enter shortcut path", "This is where your shortcut will point to"),
-                    ResponseInfo = ("Enter shortcut name", "How should your shortcut be named?"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseSuccess = ("Add", "Your new shortcut will be addded to the list"),
-                            ResponseInfo = ("Enter shortcut path", "This is where your shortcut will point to"),
-                            Handler = createShortcutHandler
-                        }
-                    }
-                }
-            }
-        };
+        var createShortcutHandlerArgument = new ArgumentBuilder()
+            .WithResponseSuccess(("Add", "Your new shortcut will be added to the list"))
+            .WithResponseInfo(("Enter shortcut path", "This is where your shortcut will point to"))
+            .WithHandler(createShortcutHandler)
+            .Build();
+
+        var shortcutNameArgument = new ArgumentBuilder()
+            .WithResponseFailure(("Enter shortcut path", "This is where your shortcut will point to"))
+            .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
+            .WithArgument(createShortcutHandlerArgument)
+            .Build();
+
+        return new ArgumentLiteralBuilder()
+            .WithKey(type)
+            .WithResponseFailure(("Enter shortcut name", "How should your shortcut be named?"))
+            .WithResponseInfo(($"add {type}", ""))
+            .WithArgument(shortcutNameArgument)
+            .Build();
     }
 
     private IQueryExecutor CreateShellShortcut()
     {
-        return new ArgumentLiteral
-        {
-            Key = "shell",
-            ResponseInfo = ("add shell", ""),
-            Arguments = new List<IQueryExecutor>
-            {
-                new Argument
-                {
-                    ResponseInfo = ("Enter shell type", "Which shell should be used? (cmd/powershell)"),
-                    Arguments = new List<IQueryExecutor>
-                    {
-                        new Argument
-                        {
-                            ResponseInfo = ("Enter shortcut name", "How should your shortcut be named?"),
-                            Arguments = new List<IQueryExecutor>
-                            {
-                                new Argument
-                                {
-                                    ResponseInfo = ("Should execution be silent?",
-                                        "Should execution be silent? (true/false)"),
-                                    Arguments = new List<IQueryExecutor>
-                                    {
-                                        new Argument
-                                        {
-                                            ResponseInfo = ("Enter shell arguments",
-                                                "What should your shell arguments be?"),
-                                            Handler = CreateShellShortcutHandler,
-                                            AllowsMultipleValuesForSingleArgument = true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
+        var shellArgumentsArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter shell arguments", "What should your shell arguments be?"))
+            .WithHandler(CreateShellShortcutHandler)
+            .WithMultipleValuesForSingleArgument()
+            .Build();
+
+        var silentExecutionArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Should execution be silent?", "Should execution be silent? (true/false)"))
+            .WithArgument(shellArgumentsArgument)
+            .Build();
+
+        var shortcutNameArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
+            .WithArgument(silentExecutionArgument)
+            .Build();
+
+        var shellTypeArgument = new ArgumentBuilder()
+            .WithResponseInfo(("Enter shell type", "Which shell should be used? (cmd/powershell)"))
+            .WithArgument(shortcutNameArgument)
+            .Build();
+
+        return new ArgumentLiteralBuilder()
+            .WithKey("shell")
+            .WithResponseInfo(("add shell", ""))
+            .WithArgument(shellTypeArgument)
+            .Build();
     }
 }
