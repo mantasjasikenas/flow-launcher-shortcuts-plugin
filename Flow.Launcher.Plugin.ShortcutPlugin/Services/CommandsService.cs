@@ -11,7 +11,6 @@ public class CommandsService : ICommandsService
     private readonly IVariablesService _variablesService;
     private readonly ICommandsRepository _commandsRepository;
 
-
     public CommandsService(
         IShortcutsService shortcutsService,
         ISettingsService settingsService,
@@ -36,7 +35,6 @@ public class CommandsService : ICommandsService
                 ? $"{query.ActionKeyword} {result.Title}"
                 : $"{query.ActionKeyword} {result.AutoCompleteText}";
         });
-
 
         return results;
     }

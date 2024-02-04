@@ -19,10 +19,12 @@ public class ShortcutsService : IShortcutsService
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
-
-    public ShortcutsService(IShortcutsRepository shortcutsRepository,
+    public ShortcutsService(
+        IShortcutsRepository shortcutsRepository,
         IShortcutHandler shortcutHandler,
-        PluginInitContext context, IVariablesService variablesService)
+        PluginInitContext context,
+        IVariablesService variablesService
+    )
     {
         _shortcutsRepository = shortcutsRepository;
         _shortcutHandler = shortcutHandler;
@@ -39,16 +41,21 @@ public class ShortcutsService : IShortcutsService
             return ResultExtensions.EmptyResult("No shortcuts found.");
         }
 
-        return shortcuts.Select(shortcut =>
-                        {
-                            return ResultExtensions.Result(shortcut.Key,
-                                $"{shortcut}",
-                                () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
-                                contextData: shortcut,
-                                iconPath: shortcut.GetIcon()
-                            );
-                        })
-                        .ToList();
+        return shortcuts
+            .Select(shortcut =>
+            {
+                return ResultExtensions.Result(
+                    shortcut.Key,
+                    $"{shortcut}",
+                    () =>
+                    {
+                        _shortcutHandler.ExecuteShortcut(shortcut, arguments);
+                    },
+                    contextData: shortcut,
+                    iconPath: shortcut.GetIcon()
+                );
+            })
+            .ToList();
     }
 
     public List<Result> GetGroups()
@@ -60,21 +67,34 @@ public class ShortcutsService : IShortcutsService
             return ResultExtensions.EmptyResult();
         }
 
-        return groups.Select(group =>
-                     {
-                         return ResultExtensions.Result(group.Key,
-                             $"{group}",
-                             () => { _shortcutHandler.ExecuteShortcut(group, null); });
-                     })
-                     .ToList();
+        return groups
+            .Select(group =>
+            {
+                return ResultExtensions.Result(
+                    group.Key,
+                    $"{group}",
+                    () =>
+                    {
+                        _shortcutHandler.ExecuteShortcut(group, null);
+                    }
+                );
+            })
+            .ToList();
     }
 
     public List<Result> AddShortcut(Shortcut shortcut)
     {
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_AddShortcut_Add_shortcut, shortcut.Key.ToUpper()),
+            string.Format(
+                Resources.ShortcutsManager_AddShortcut_Add_shortcut,
+                shortcut.Key.ToUpper()
+            ),
             shortcut.ToString(),
-            () => { _shortcutsRepository.AddShortcut(shortcut); });
+            () =>
+            {
+                _shortcutsRepository.AddShortcut(shortcut);
+            }
+        );
     }
 
     public List<Result> RemoveShortcut(string key)
@@ -89,7 +109,11 @@ public class ShortcutsService : IShortcutsService
         return ResultExtensions.SingleResult(
             string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut, key.ToUpper()),
             shortcut.ToString(),
-            () => { _shortcutsRepository.RemoveShortcut(key); });
+            () =>
+            {
+                _shortcutsRepository.RemoveShortcut(key);
+            }
+        );
     }
 
     public List<Result> GetShortcutDetails(string key)
@@ -102,7 +126,10 @@ public class ShortcutsService : IShortcutsService
         }
 
         return ResultExtensions.SingleResult(
-            string.Format(Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path, key.ToUpper()),
+            string.Format(
+                Resources.ShortcutsManager_GetShortcutPath_Copy_shortcut_path,
+                key.ToUpper()
+            ),
             shortcut.ToString(),
             () =>
             {
@@ -111,7 +138,8 @@ public class ShortcutsService : IShortcutsService
                 {
                     Clipboard.SetText(details);
                 }
-            });
+            }
+        );
     }
 
     public List<Result> OpenShortcut(string key, IEnumerable<string> arguments)
@@ -130,13 +158,19 @@ public class ShortcutsService : IShortcutsService
             return GetGroupShortcutResults(groupShortcut, args);
         }
 
+        var temp = $"Open {shortcut.GetDerivedType().ToLower()} ";
+        var defaultKey = $"{temp}{shortcut.Key}";
+        var highlightIndexes = Enumerable.Range(temp.Length, shortcut.Key.Length).ToList();
+
         return new List<Result>
         {
             BuildResult(
                 shortcut,
                 args,
-                $"Open {shortcut.GetDerivedType().ToLower()} {shortcut.Key}",
-                shortcut.GetIcon())
+                defaultKey,
+                shortcut.GetIcon(),
+                titleHighlightData: highlightIndexes
+            )
         };
     }
 
@@ -150,12 +184,18 @@ public class ShortcutsService : IShortcutsService
         return ResultExtensions.SingleResult(
             $"Duplicate shortcut '{key}' to '{newKey}'",
             "",
-            () => { _shortcutsRepository.DuplicateShortcut(key, newKey); });
+            () =>
+            {
+                _shortcutsRepository.DuplicateShortcut(key, newKey);
+            }
+        );
     }
 
     public List<Result> ImportShortcuts()
     {
-        return ResultExtensions.SingleResult(Resources.Import_shortcuts, "",
+        return ResultExtensions.SingleResult(
+            Resources.Import_shortcuts,
+            "",
             () =>
             {
                 var openFileDialog = new OpenFileDialog
@@ -176,12 +216,15 @@ public class ShortcutsService : IShortcutsService
                 }
 
                 _shortcutsRepository.ImportShortcuts(openFileDialog.FileName);
-            });
+            }
+        );
     }
 
     public List<Result> ExportShortcuts()
     {
-        return ResultExtensions.SingleResult(Resources.Export_shortcuts, "",
+        return ResultExtensions.SingleResult(
+            Resources.Export_shortcuts,
+            "",
             () =>
             {
                 var dialog = new SaveFileDialog
@@ -204,7 +247,8 @@ public class ShortcutsService : IShortcutsService
                 var exportPath = dialog.FileName;
 
                 _shortcutsRepository.ExportShortcuts(exportPath);
-            });
+            }
+        );
     }
 
     public void Reload()
@@ -212,8 +256,11 @@ public class ShortcutsService : IShortcutsService
         _shortcutsRepository.ReloadShortcuts();
     }
 
-    private bool IsArgumentsProvidedCorrectly(string value, IReadOnlyList<string> arguments,
-        out Dictionary<string, string> parsedArguments)
+    private static bool IsArgumentsProvidedCorrectly(
+        string value,
+        IReadOnlyList<string> arguments,
+        out Dictionary<string, string> parsedArguments
+    )
     {
         parsedArguments = CommandLineExtensions.ParseArguments(value, arguments);
 
@@ -235,8 +282,14 @@ public class ShortcutsService : IShortcutsService
 
     private string ExpandShortcut(Shortcut shortcut, IReadOnlyList<string> arguments)
     {
-        if (!arguments.Any() || !IsArgumentsProvidedCorrectly(shortcut.ToString(), arguments,
-                out var parsedArguments))
+        if (
+            !arguments.Any()
+            || !IsArgumentsProvidedCorrectly(
+                shortcut.ToString(),
+                arguments,
+                out var parsedArguments
+            )
+        )
         {
             return shortcut.ToString();
         }
@@ -244,15 +297,22 @@ public class ShortcutsService : IShortcutsService
         return _variablesService.ExpandVariables(shortcut.ToString(), parsedArguments);
     }
 
-    private List<Result> GetGroupShortcutResults(GroupShortcut groupShortcut, List<string> arguments)
+    private List<Result> GetGroupShortcutResults(
+        GroupShortcut groupShortcut,
+        List<string> arguments
+    )
     {
         var joinedArguments = string.Join(" ", arguments);
+
+        var title = $"Open group ";
+        var highlightIndexes = Enumerable.Range(title.Length, groupShortcut.Key.Length).ToList();
+        title += groupShortcut.Key;
 
         var results = new List<Result>
         {
             new()
             {
-                Title = "Open group shortcut",
+                Title = title,
                 SubTitle = $"{groupShortcut} {joinedArguments}",
                 Action = _ =>
                 {
@@ -260,30 +320,32 @@ public class ShortcutsService : IShortcutsService
                     return true;
                 },
                 IcoPath = groupShortcut.GetIcon(),
+                TitleHighlightData = highlightIndexes,
                 Score = 100
             }
         };
 
-
         if (groupShortcut.Shortcuts is not null)
         {
-            results.AddRange(groupShortcut.Shortcuts.Select(shortcut =>
-            {
-                var expandedShortcut = ExpandShortcut(shortcut, arguments);
-
-                return new Result
+            results.AddRange(
+                groupShortcut.Shortcuts.Select(shortcut =>
                 {
-                    Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}",
-                    SubTitle = expandedShortcut,
-                    Action = _ =>
+                    var expandedShortcut = ExpandShortcut(shortcut, arguments);
+
+                    return new Result
                     {
-                        _shortcutHandler.ExecuteShortcut(shortcut, arguments);
-                        return true;
-                    },
-                    IcoPath = shortcut.GetIcon(),
-                    ContextData = shortcut
-                };
-            }));
+                        Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}",
+                        SubTitle = expandedShortcut,
+                        Action = _ =>
+                        {
+                            _shortcutHandler.ExecuteShortcut(shortcut, arguments);
+                            return true;
+                        },
+                        IcoPath = shortcut.GetIcon(),
+                        ContextData = shortcut
+                    };
+                })
+            );
         }
 
         if (groupShortcut.Keys is null)
@@ -291,53 +353,62 @@ public class ShortcutsService : IShortcutsService
             return results;
         }
 
-        results.AddRange(groupShortcut.Keys
-                                      .Select(key => (groupShortcutKey: key,
-                                          _shortcutsRepository.GetShortcut(key)))
-                                      .Select(value =>
-                                      {
-                                          var (key, shortcut) = value;
-                                          if (shortcut is null)
-                                          {
-                                              return new Result
-                                              {
-                                                  Title = "Missing shortcut.",
-                                                  SubTitle = $"Shortcut '{key}' not found.",
-                                                  IcoPath = Icons.PriorityHigh
-                                              };
-                                          }
+        results.AddRange(
+            groupShortcut
+                .Keys.Select(key => (groupShortcutKey: key, _shortcutsRepository.GetShortcut(key)))
+                .Select(value =>
+                {
+                    var (key, shortcut) = value;
+                    if (shortcut is null)
+                    {
+                        return new Result
+                        {
+                            Title = "Missing shortcut.",
+                            SubTitle = $"Shortcut '{key}' not found.",
+                            IcoPath = Icons.PriorityHigh
+                        };
+                    }
 
-                                          var expandedShortcut = ExpandShortcut(shortcut, arguments);
+                    var expandedShortcut = ExpandShortcut(shortcut, arguments);
 
-                                          return new Result
-                                          {
-                                              Title =
-                                                  $"{shortcut.Key ?? shortcut.GetDerivedType()}",
-                                              SubTitle = expandedShortcut,
-                                              Action = _ =>
-                                              {
-                                                  _shortcutHandler.ExecuteShortcut(shortcut, arguments);
-                                                  return true;
-                                              },
-                                              IcoPath = shortcut.GetIcon(),
-                                              ContextData = shortcut
-                                          };
-                                      }));
+                    return new Result
+                    {
+                        Title = $"{shortcut.Key ?? shortcut.GetDerivedType()}",
+                        SubTitle = expandedShortcut,
+                        Action = _ =>
+                        {
+                            _shortcutHandler.ExecuteShortcut(shortcut, arguments);
+                            return true;
+                        },
+                        IcoPath = shortcut.GetIcon(),
+                        ContextData = shortcut
+                    };
+                })
+        );
 
         return results;
     }
 
-    private Result BuildResult(Shortcut shortcut, List<string> arguments, string defaultKey = null,
-        string iconPath = null)
+    private Result BuildResult(
+        Shortcut shortcut,
+        List<string> arguments,
+        string defaultKey = null,
+        string iconPath = null,
+        IList<int> titleHighlightData = default
+    )
     {
         var expandedShortcut = ExpandShortcut(shortcut, arguments);
 
         return ResultExtensions.Result(
             string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey,
             expandedShortcut,
-            () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
+            () =>
+            {
+                _shortcutHandler.ExecuteShortcut(shortcut, arguments);
+            },
             contextData: shortcut,
             iconPath: iconPath,
+            titleHighlightData: titleHighlightData,
             autoCompleteText: shortcut switch
             {
                 FileShortcut fileShortcut => fileShortcut.Path,

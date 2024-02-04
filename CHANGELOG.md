@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.4] - 2024-02-04
 
+- Shorcut name highlighting in the search results
 - Ability to set a specific application to open file or URL shortcuts. Add "App" field in the shortcut JSON file. Provide application name (works only for registered applications in the system) or full path to the executable file. If the application is not defined, the default application will be used to open the file or URL. Example:
 
   ```json
@@ -16,7 +17,19 @@ All notable changes to this project will be documented in this file.
     "Url": "https://www.youtube.com/playlist?list=WL",
     "App": "msedge.exe",
     "Key": "wl2"
-  }
+  },
+    {
+    "Type": "File",
+    "App": "C:\\Program Files\\WindowsApps\\Microsoft.WindowsNotepad_11.2312.18.0_x64__8wekyb3d8bbwe\\Notepad\\Notepad.exe",
+    "Path": "C:\\Users\\tutta\\Storage\\Motion Picture\\labas.txt",
+    "Key": "t1"
+  },
+  {
+    "Type": "File",
+    "App": "notepad",
+    "Path": "C:\\Users\\tutta\\Storage\\Motion Picture\\labas.txt",
+    "Key": "t2"
+  },
   ```
 
 ## [1.1.3] - 2024-01-31
