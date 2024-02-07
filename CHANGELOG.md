@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 - Add quotes escaping
 
+## [1.1.5] - 2024-02-0*
+
+- Invoking command from command list will change query text to the command name
+- Report command to open Github issues
+- Show count of shortcuts in list command
+
 ## [1.1.4] - 2024-02-04
 
 - Shorcut name highlighting in the search results

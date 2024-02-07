@@ -26,7 +26,7 @@ public class CommandsService : ICommandsService
 
     public List<Result> ResolveCommand(List<string> arguments, Query query)
     {
-        var results = _commandsRepository.ResolveCommand(arguments, query.Search);
+        var results = _commandsRepository.ResolveCommand(arguments, query);
 
         //TODO: Move this to different place?
         results.ForEach(result =>

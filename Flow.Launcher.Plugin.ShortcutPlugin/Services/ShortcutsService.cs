@@ -13,8 +13,6 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
 public class ShortcutsService : IShortcutsService
 {
-    // ReSharper disable once NotAccessedField.Local
-    private readonly PluginInitContext _context;
     private readonly IShortcutHandler _shortcutHandler;
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
@@ -22,13 +20,11 @@ public class ShortcutsService : IShortcutsService
     public ShortcutsService(
         IShortcutsRepository shortcutsRepository,
         IShortcutHandler shortcutHandler,
-        PluginInitContext context,
         IVariablesService variablesService
     )
     {
         _shortcutsRepository = shortcutsRepository;
         _shortcutHandler = shortcutHandler;
-        _context = context;
         _variablesService = variablesService;
     }
 
@@ -41,7 +37,7 @@ public class ShortcutsService : IShortcutsService
             return ResultExtensions.EmptyResult("No shortcuts found.");
         }
 
-        return shortcuts
+        var results = shortcuts
             .Select(shortcut =>
             {
                 return ResultExtensions.Result(
@@ -56,6 +52,16 @@ public class ShortcutsService : IShortcutsService
                 );
             })
             .ToList();
+
+        var headerResult = ResultExtensions.Result(
+            "Shortcut List",
+            "Found " + shortcuts.Count + (results.Count > 1 ? " shortcuts." : " shortcut."),
+            score: 100000
+        );
+
+        results.Insert(0, headerResult);
+
+        return results;
     }
 
     public List<Result> GetGroups()
@@ -150,6 +156,16 @@ public class ShortcutsService : IShortcutsService
         {
             return ResultExtensions.EmptyResult();
         }
+
+        // TODO: add group shortcut validation need to expand variables/arguments
+        // if (!Validators.Validators.IsValidShortcut(shortcut))
+        // {
+        //     return ResultExtensions.SingleResult(
+        //         $"Shortcut with key '{key}' is not valid.",
+        //         "Please check the shortcut and try again.",
+        //         titleHighlightData: Enumerable.Range(19, key.Length).ToList()
+        //     );
+        // }
 
         var args = arguments.ToList();
 
@@ -414,6 +430,7 @@ public class ShortcutsService : IShortcutsService
                 FileShortcut fileShortcut => fileShortcut.Path,
                 DirectoryShortcut directoryShortcut => directoryShortcut.Path,
                 UrlShortcut urlShortcut => urlShortcut.Url,
+                ShellShortcut shellShortcut => shellShortcut.Arguments,
                 _ => null
             }
         );

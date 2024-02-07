@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
-using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
@@ -39,11 +38,11 @@ public class CommandsRepository : ICommandsRepository
         commands.Select(c => c.Create()).ToList().ForEach(c => _commands.Add(c.Key, c));
     }
 
-    public List<Result> ResolveCommand(List<string> arguments, string query)
+    public List<Result> ResolveCommand(List<string> arguments, Query query)
     {
         if (arguments.Count == 0)
         {
-            return ShowAvailableCommands();
+            return ShowAvailableCommands(query.ActionKeyword);
         }
 
         // In case this is a shortcut command, let's open shortcut
@@ -70,7 +69,16 @@ public class CommandsRepository : ICommandsRepository
                     c.Key.StartsWith(arguments[0], StringComparison.InvariantCultureIgnoreCase)
                 )
                 .Select(c =>
-                    ResultExtensions.Result(c.ResponseInfo.Item1, c.ResponseInfo.Item2, score: 1000)
+                    ResultExtensions.Result(
+                        c.ResponseInfo.Item1,
+                        c.ResponseInfo.Item2,
+                        score: 1000,
+                        hideAfterAction: false,
+                        action: () =>
+                        {
+                            _context.API.ChangeQuery($"{query.ActionKeyword} {c.Key}");
+                        }
+                    )
                 )
                 .ToList();
 
@@ -132,15 +140,20 @@ public class CommandsRepository : ICommandsRepository
         return Map(executor, executor.ResponseFailure, arguments);
     }
 
-    private List<Result> ShowAvailableCommands()
+    private List<Result> ShowAvailableCommands(string actionKeyword)
     {
         return _commands
             .Values.Select(c => new Result
             {
-                Title = c.ResponseInfo.Item1 + " ", // FIXME: Wrong order without space
+                Title = c.ResponseInfo.Item1 + "  ", // FIXME: Wrong order without space
                 SubTitle = c.ResponseInfo.Item2,
                 IcoPath = Icons.Logo,
-                Score = 1000 - _commands.Count
+                Score = 1000 - _commands.Count,
+                Action = _ =>
+                {
+                    _context.API.ChangeQuery($"{actionKeyword} {c.Key}");
+                    return false;
+                }
             })
             .ToList();
     }

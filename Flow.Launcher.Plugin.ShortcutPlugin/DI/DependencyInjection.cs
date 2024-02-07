@@ -9,7 +9,10 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.DI;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection ConfigureServices(this IServiceCollection services, PluginInitContext context)
+    public static IServiceCollection ConfigureServices(
+        this IServiceCollection services,
+        PluginInitContext context
+    )
     {
         services.AddSingleton(context);
         services.AddSingleton<ISettingsService, SettingsService>();
@@ -40,8 +43,8 @@ public static class DependencyInjection
         services.AddSingleton<ICommand, DuplicateCommand>();
         services.AddSingleton<ICommand, KeywordCommand>();
         services.AddSingleton<ICommand, GroupCommand>();
+        services.AddSingleton<ICommand, ReportCommand>();
 
         return services;
     }
-
 }

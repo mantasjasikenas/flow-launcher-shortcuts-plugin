@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
@@ -14,26 +13,23 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 {
     private ICommandsService _commandsService;
     private ISettingsService _settingsService;
-
     private PluginInitContext _context;
     private SettingsUserControl _settingWindow;
     private ContextMenu _contextMenu;
-
 
     public void Init(PluginInitContext context)
     {
         _context = context;
 
         var serviceProvider = new ServiceCollection()
-                                .ConfigureServices(context)
-                                .RegisterCommands()
-                                .BuildServiceProvider();
+            .ConfigureServices(context)
+            .RegisterCommands()
+            .BuildServiceProvider();
 
         _settingsService = serviceProvider.GetService<ISettingsService>();
         _commandsService = serviceProvider.GetService<ICommandsService>();
-        _contextMenu = serviceProvider.GetService<ContextMenu>();          
+        _contextMenu = serviceProvider.GetService<ContextMenu>();
     }
-
 
     public List<Result> Query(Query query)
     {

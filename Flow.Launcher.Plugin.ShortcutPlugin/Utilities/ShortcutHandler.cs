@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utils;
 using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
@@ -18,8 +15,11 @@ public class ShortcutHandler : IShortcutHandler
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
-    public ShortcutHandler(IVariablesService variablesService, PluginInitContext context,
-        IShortcutsRepository shortcutsRepository)
+    public ShortcutHandler(
+        IVariablesService variablesService,
+        PluginInitContext context,
+        IShortcutsRepository shortcutsRepository
+    )
     {
         _variablesService = variablesService;
         _context = context;
@@ -28,51 +28,58 @@ public class ShortcutHandler : IShortcutHandler
 
     public void ExecuteShortcut(Shortcut shortcut, [CanBeNull] List<string> arguments)
     {
-        var parsedArguments = arguments != null && arguments.Any()
-            ? CommandLineExtensions.ParseArguments(shortcut.ToString(), arguments)
-            : new Dictionary<string, string>();
+        var parsedArguments =
+            arguments != null && arguments.Any()
+                ? CommandLineExtensions.ParseArguments(shortcut.ToString(), arguments)
+                : new Dictionary<string, string>();
 
         ExecuteShortcut(shortcut, parsedArguments);
     }
 
-    private void ExecuteShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> parsedArguments)
+    private void ExecuteShortcut(
+        Shortcut shortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
     {
         switch (shortcut)
         {
             case GroupShortcut groupShortcut:
-                {
-                    ExecuteGroupShortcut(groupShortcut, parsedArguments);
-                    break;
-                }
+            {
+                ExecuteGroupShortcut(groupShortcut, parsedArguments);
+                break;
+            }
             case UrlShortcut urlShortcut:
-                {
-                    ExecuteUrlShortcut(urlShortcut, parsedArguments);
-                    break;
-                }
+            {
+                ExecuteUrlShortcut(urlShortcut, parsedArguments);
+                break;
+            }
             case DirectoryShortcut directoryShortcut:
-                {
-                    ExecuteDirectoryShortcut(directoryShortcut, parsedArguments);
-                    break;
-                }
+            {
+                ExecuteDirectoryShortcut(directoryShortcut, parsedArguments);
+                break;
+            }
             case FileShortcut fileShortcut:
-                {
-                    ExecuteFileShortcut(fileShortcut, parsedArguments);
-                    break;
-                }
+            {
+                ExecuteFileShortcut(fileShortcut, parsedArguments);
+                break;
+            }
             case ShellShortcut shellShortcut:
-                {
-                    ExecuteShellShortcut(shellShortcut, parsedArguments);
-                    break;
-                }
+            {
+                ExecuteShellShortcut(shellShortcut, parsedArguments);
+                break;
+            }
             default:
-                {
-                    _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
-                    break;
-                }
+            {
+                _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
+                break;
+            }
         }
     }
 
-    private void ExecuteGroupShortcut(GroupShortcut groupShortcut, IReadOnlyDictionary<string, string> parsedArguments)
+    private void ExecuteGroupShortcut(
+        GroupShortcut groupShortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
     {
         if (groupShortcut.Shortcuts != null)
         {
@@ -122,152 +129,68 @@ public class ShortcutHandler : IShortcutHandler
         }
     }
 
-    private void ExecuteUrlShortcut(UrlShortcut urlShortcut, IReadOnlyDictionary<string, string> parsedArguments)
+    private void ExecuteUrlShortcut(
+        UrlShortcut urlShortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
     {
         var path = _variablesService.ExpandVariables(urlShortcut.Url, parsedArguments);
-        OpenUrl(path, urlShortcut.App);
+        ShortcutUtilities.OpenUrl(path, urlShortcut.App);
     }
 
-    private void ExecuteDirectoryShortcut(DirectoryShortcut directoryShortcut,
-        IReadOnlyDictionary<string, string> parsedArguments)
+    private void ExecuteDirectoryShortcut(
+        DirectoryShortcut directoryShortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
     {
         var path = _variablesService.ExpandVariables(directoryShortcut.Path, parsedArguments);
-        OpenDirectory(path);
+        ShortcutUtilities.OpenDirectory(path);
     }
 
-    private void ExecuteFileShortcut(FileShortcut fileShortcut, IReadOnlyDictionary<string, string> parsedArguments)
+    private void ExecuteFileShortcut(
+        FileShortcut fileShortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
     {
         var path = _variablesService.ExpandVariables(fileShortcut.Path, parsedArguments);
-        OpenFile(path, fileShortcut.App);
+        ShortcutUtilities.OpenFile(path, fileShortcut.App);
     }
 
-    private void ExecuteShellShortcut(ShellShortcut shortcut,
-        IReadOnlyDictionary<string, string> parsedArguments)
+    private void ExecuteShellShortcut(
+        ShellShortcut shortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
     {
         var arguments = _variablesService.ExpandVariables(shortcut.Arguments, parsedArguments);
 
         switch (shortcut.ShellType)
         {
             case ShellType.Cmd:
-                {
-                    OpenCmd(arguments, shortcut.Silent);
-                    break;
-                }
+            {
+                ShortcutUtilities.OpenCmd(arguments, shortcut.Silent);
+                break;
+            }
             case ShellType.Powershell:
-                {
-                    OpenPowershell(arguments, shortcut.Silent);
-                    break;
-                }
+            {
+                ShortcutUtilities.OpenPowershell(arguments, shortcut.Silent);
+                break;
+            }
             default:
-                {
-                    _context.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
-                    break;
-                }
-        }
-    }
-
-    private static void OpenPowershell(string arguments, bool silent)
-    {
-        if (silent)
-        {
-            Cli.Wrap("powershell.exe")
-               .WithArguments(arguments)
-               .ExecuteAsync();
-            return;
-        }
-
-        var processStartInfo = new ProcessStartInfo
-        {
-            FileName = "powershell.exe",
-            Arguments = $"-NoExit -Command \"{arguments}\"",
-            UseShellExecute = true,
-            CreateNoWindow = true
-        };
-        Process.Start(processStartInfo);
-    }
-
-    private static void OpenCmd(string arguments, bool silent)
-    {
-        var processStartInfo = new ProcessStartInfo
-        {
-            FileName = "cmd.exe",
-            CreateNoWindow = silent
-        };
-
-        if (silent)
-        {
-            processStartInfo.Arguments = "/c " + arguments;
-        }
-        else
-        {
-            processStartInfo.Arguments = "/K " + arguments;
-            processStartInfo.UseShellExecute = true;
-        }
-
-        Process.Start(processStartInfo);
-    }
-
-
-    private static void OpenFile(string path, string app = null)
-    {
-        ProcessStartInfo processStartInfo;
-
-        if (!string.IsNullOrEmpty(app))
-        {
-            processStartInfo = new ProcessStartInfo
             {
-                UseShellExecute = true,
-                FileName = app,
-                Arguments = path
-            };
-            Process.Start(processStartInfo);
-            return;
+                _context.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
+                break;
+            }
         }
-
-        processStartInfo = new ProcessStartInfo
-        {
-            FileName = path,
-            UseShellExecute = true
-        };
-        Process.Start(processStartInfo);
-    }
-
-
-    private static void OpenDirectory(string path)
-    {
-        Cli.Wrap("explorer.exe")
-           .WithArguments(path)
-           .ExecuteAsync();
-    }
-
-    private static void OpenUrl(string url, string app = null)
-    {
-        ProcessStartInfo processStartInfo;
-
-        if (!string.IsNullOrEmpty(app))
-        {
-            processStartInfo = new ProcessStartInfo
-            {
-                UseShellExecute = true,
-                FileName = app,
-                Arguments = url.Replace(" ", "%20")
-            };
-            Process.Start(processStartInfo);
-            return;
-        }
-
-        processStartInfo = new ProcessStartInfo
-        {
-            UseShellExecute = true,
-            FileName = url.Replace(" ", "%20")
-        };
-        Process.Start(processStartInfo);
     }
 
     // ReSharper disable once UnusedMember.Local
     private List<Result> ExecutePluginShortcut(PluginInitContext context, PluginShortcut shortcut)
     {
-        return ResultExtensions.SingleResult("Executing plugin shortcut", shortcut.RawQuery, Action);
+        return ResultExtensions.SingleResult(
+            "Executing plugin shortcut",
+            shortcut.RawQuery,
+            Action
+        );
 
         void Action()
         {
