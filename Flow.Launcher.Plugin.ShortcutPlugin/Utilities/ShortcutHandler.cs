@@ -184,6 +184,7 @@ public class ShortcutHandler : IShortcutHandler
     }
 
     // ReSharper disable once UnusedMember.Local
+    [System.Obsolete]
     private List<Result> ExecutePluginShortcut(PluginInitContext context, PluginShortcut shortcut)
     {
         return ResultExtensions.SingleResult(

@@ -1,7 +1,8 @@
 param (
     [string]$userProfileDir = $env:USERPROFILE,
     [bool]$copyToDesktop = $false,
-    [string]$pluginName = "Shortcuts"
+    [string]$pluginName = "Shortcuts",
+    [string]$configuration = "Release"
 )
 
 function Get-PropertyFromJson
@@ -62,8 +63,17 @@ foreach ($directory in $directoriesToRemove)
 
 
 # Publish plugin
-Write-Host "Building and publishing plugin..." -ForegroundColor Yellow
-$publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Release -r win-x64 --no-self-contained -o $publishDest
+if ($configuration -eq "Debug")
+{
+    Write-Host "Building and publishing plugin in Debug mode..." -ForegroundColor Yellow
+    $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Debug -r win-x64 --no-self-contained -o $publishDest
+}
+else
+{
+    Write-Host "Building and publishing plugin in Release mode..." -ForegroundColor Yellow
+    $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Release -r win-x64 --no-self-contained -o $publishDest
+}
+
 $publish_result = $LASTEXITCODE
 
 if ($publish_result -ne 0)
