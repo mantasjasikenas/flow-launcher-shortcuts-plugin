@@ -60,7 +60,7 @@ public static class ShortcutUtilities
             return;
         }
 
-        processStartInfo = new ProcessStartInfo { FileName = path, UseShellExecute = true };
+        processStartInfo = new ProcessStartInfo {FileName = path, UseShellExecute = true};
         Process.Start(processStartInfo);
     }
 

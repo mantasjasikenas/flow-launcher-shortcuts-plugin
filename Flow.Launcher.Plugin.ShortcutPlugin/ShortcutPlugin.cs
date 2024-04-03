@@ -22,9 +22,9 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
         _context = context;
 
         var serviceProvider = new ServiceCollection()
-            .ConfigureServices(context)
-            .RegisterCommands()
-            .BuildServiceProvider();
+                              .ConfigureServices(context)
+                              .RegisterCommands()
+                              .BuildServiceProvider();
 
         _settingsService = serviceProvider.GetService<ISettingsService>();
         _commandsService = serviceProvider.GetService<ICommandsService>();

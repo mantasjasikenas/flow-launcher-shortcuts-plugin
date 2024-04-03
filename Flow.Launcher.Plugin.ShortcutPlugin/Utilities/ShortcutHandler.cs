@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
@@ -83,19 +84,19 @@ public class ShortcutHandler : IShortcutHandler
     {
         if (groupShortcut.Shortcuts != null)
         {
-            foreach (var shortcut in groupShortcut.Shortcuts)
+            Parallel.ForEach(groupShortcut.Shortcuts, shortcut =>
             {
                 if (shortcut is GroupShortcut groupShortcutValue)
                 {
                     if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
                     {
                         _context.API.ShowMsg("Shortcut cannot contain itself.");
-                        continue;
+                        return;
                     }
                 }
 
                 ExecuteShortcut(shortcut, parsedArguments);
-            }
+            });
         }
 
         if (groupShortcut.Keys == null)
@@ -103,12 +104,12 @@ public class ShortcutHandler : IShortcutHandler
             return;
         }
 
-        foreach (var key in groupShortcut.Keys)
+        Parallel.ForEach(groupShortcut.Keys, key =>
         {
             if (key.Equals(groupShortcut.Key))
             {
                 _context.API.ShowMsg("Shortcut cannot contain itself.");
-                continue;
+                return;
             }
 
             var value = _shortcutsRepository.GetShortcut(key);
@@ -118,7 +119,7 @@ public class ShortcutHandler : IShortcutHandler
                 if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
                 {
                     _context.API.ShowMsg("Shortcut cannot contain itself.");
-                    continue;
+                    return;
                 }
             }
 
@@ -126,7 +127,7 @@ public class ShortcutHandler : IShortcutHandler
             {
                 ExecuteShortcut(value, parsedArguments);
             }
-        }
+        });
     }
 
     private void ExecuteUrlShortcut(
