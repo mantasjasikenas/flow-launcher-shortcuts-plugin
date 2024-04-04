@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32414.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flow.Launcher.Plugin.ShortcutPlugin", "Flow.Launcher.Plugin.ShortcutPlugin\Flow.Launcher.Plugin.ShortcutPlugin.csproj", "{392F3078-5578-4E12-AC33-66D373240F20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flow.Launcher.Plugin.ShortcutPlugin.Tests", "Flow.Launcher.Plugin.ShortcutPlugin.Tests\Flow.Launcher.Plugin.ShortcutPlugin.Tests.csproj", "{049A6A70-3D4D-4A0B-BCED-A471A6B804C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{392F3078-5578-4E12-AC33-66D373240F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{392F3078-5578-4E12-AC33-66D373240F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{392F3078-5578-4E12-AC33-66D373240F20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{049A6A70-3D4D-4A0B-BCED-A471A6B804C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049A6A70-3D4D-4A0B-BCED-A471A6B804C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049A6A70-3D4D-4A0B-BCED-A471A6B804C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049A6A70-3D4D-4A0B-BCED-A471A6B804C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

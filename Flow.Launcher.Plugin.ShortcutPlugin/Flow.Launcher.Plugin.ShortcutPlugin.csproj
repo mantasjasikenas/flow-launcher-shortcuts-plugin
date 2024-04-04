@@ -33,10 +33,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CliWrap" Version="3.6.4" />
-        <PackageReference Include="Flow.Launcher.Plugin" Version="4.1.1" />
-        <PackageReference Include="FuzzySharp" Version="2.0.2" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="CliWrap" Version="3.6.4"/>
+        <PackageReference Include="Flow.Launcher.Plugin" Version="4.1.1"/>
+        <PackageReference Include="FuzzySharp" Version="2.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -53,12 +53,11 @@
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
-
-
-
     </ItemGroup>
 
-
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).Tests"/>
+    </ItemGroup>
 
 
 </Project>

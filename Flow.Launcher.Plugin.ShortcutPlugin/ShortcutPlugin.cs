@@ -11,6 +11,8 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 // ReSharper disable once UnusedType.Global
 public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMenu
 {
+    internal ServiceProvider ServiceProvider { get; private set; }
+
     private ICommandsService _commandsService;
     private ISettingsService _settingsService;
 
@@ -27,6 +29,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
         _settingsService = serviceProvider.GetService<ISettingsService>();
         _commandsService = serviceProvider.GetService<ICommandsService>();
         _contextMenu = serviceProvider.GetService<ContextMenu>();
+
+        ServiceProvider = serviceProvider;
     }
 
     public List<Result> Query(Query query)
