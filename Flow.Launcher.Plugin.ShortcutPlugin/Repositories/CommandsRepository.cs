@@ -7,7 +7,6 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
-using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -192,7 +191,6 @@ public class CommandsRepository : ICommandsRepository
         }
     }
 
-    [CanBeNull]
     private static IQueryExecutor GetExecutorFromArguments(
         IReadOnlyCollection<IQueryExecutor> executors,
         IReadOnlyList<string> arguments,

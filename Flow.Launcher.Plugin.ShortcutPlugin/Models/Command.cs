@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.models;
 
@@ -19,7 +18,7 @@ public class ArgumentLiteral : Argument
 
 public class BaseQueryExecutor : IQueryExecutor
 {
-    [NotNull] public string Key { get; set; }
+    public string Key { get; set; }
 
     public List<IQueryExecutor> Arguments { get; set; }
 

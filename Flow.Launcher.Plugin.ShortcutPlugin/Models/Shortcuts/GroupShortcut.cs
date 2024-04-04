@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
 public class GroupShortcut : Shortcut
 {
-    [CanBeNull] public List<Shortcut> Shortcuts { get; init; }
+    public List<Shortcut>? Shortcuts { get; init; }
 
-    [CanBeNull] public List<string> Keys { get; init; }
+    public List<string>? Keys { get; init; }
 
     public override object Clone()
     {

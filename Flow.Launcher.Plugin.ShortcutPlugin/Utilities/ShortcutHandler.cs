@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
@@ -27,7 +27,7 @@ public class ShortcutHandler : IShortcutHandler
         _shortcutsRepository = shortcutsRepository;
     }
 
-    public void ExecuteShortcut(Shortcut shortcut, [CanBeNull] List<string> arguments)
+    public void ExecuteShortcut(Shortcut shortcut, List<string>? arguments)
     {
         var parsedArguments =
             arguments != null && arguments.Any()
@@ -114,6 +114,11 @@ public class ShortcutHandler : IShortcutHandler
 
             var values = _shortcutsRepository.GetShortcuts(key);
 
+            if (values == null)
+            {
+                return;
+            }
+
             foreach (var value in values)
             {
                 if (value is GroupShortcut groupShortcutValue)
@@ -125,13 +130,8 @@ public class ShortcutHandler : IShortcutHandler
                     }
                 }
 
-                if (value is not null)
-                {
-                    ExecuteShortcut(value, parsedArguments);
-                }
+                ExecuteShortcut(value, parsedArguments);
             }
-
-
         });
     }
 
