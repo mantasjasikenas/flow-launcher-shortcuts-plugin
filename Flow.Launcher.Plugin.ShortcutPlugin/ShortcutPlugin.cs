@@ -13,14 +13,12 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 {
     private ICommandsService _commandsService;
     private ISettingsService _settingsService;
-    private PluginInitContext _context;
+
     private SettingsUserControl _settingWindow;
     private ContextMenu _contextMenu;
 
     public void Init(PluginInitContext context)
     {
-        _context = context;
-
         var serviceProvider = new ServiceCollection()
                               .ConfigureServices(context)
                               .RegisterCommands()
@@ -51,7 +49,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public Control CreateSettingPanel()
     {
-        _settingWindow = new SettingsUserControl(_context, _settingsService, _commandsService);
+        _settingWindow = new SettingsUserControl(_settingsService, _commandsService);
         return _settingWindow;
     }
 }

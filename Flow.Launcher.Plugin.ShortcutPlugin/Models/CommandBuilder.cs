@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Models;
 
 public class CommandBuilder : BaseQueryBuilder<Command>
 {
@@ -18,7 +18,7 @@ public class ArgumentLiteralBuilder : BaseQueryBuilder<ArgumentLiteral>
 
 public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
 {
-    protected readonly T _instance = new();
+    private readonly T _instance = new();
 
     public BaseQueryBuilder<T> WithKey(string key)
     {
@@ -64,7 +64,7 @@ public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
         return this;
     }
 
-    public BaseQueryBuilder<T> WithArguments(List<IQueryExecutor> arguments)
+    public BaseQueryBuilder<T> WithArguments(IEnumerable<IQueryExecutor> arguments)
     {
         _instance.Arguments ??= new List<IQueryExecutor>();
         _instance.Arguments.AddRange(arguments);

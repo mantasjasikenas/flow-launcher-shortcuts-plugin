@@ -1,29 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
-using Flow.Launcher.Plugin.ShortcutPlugin.Services;
+﻿using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Views;
 
-public partial class SettingsUserControl : UserControl
+public partial class SettingsUserControl
 {
     private readonly ICommandsService _commandsService;
     private readonly ISettingsService _settingsService;
-    private PluginInitContext _context;
 
     public string ShortcutsPath { get; set; }
 
     public string VariablesPath { get; set; }
 
 
-    public SettingsUserControl(PluginInitContext context,
+    public SettingsUserControl(
         ISettingsService settingsService,
         ICommandsService commandsService)
     {
-        _context = context;
         _commandsService = commandsService;
         _settingsService = settingsService;
 
@@ -50,6 +43,8 @@ public partial class SettingsUserControl : UserControl
         }
 
         if (isModified)
+        {
             _commandsService.ReloadPluginData();
+        }
     }
 }

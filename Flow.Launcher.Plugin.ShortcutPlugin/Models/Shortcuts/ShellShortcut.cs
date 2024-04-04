@@ -2,19 +2,13 @@
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
-public enum ShellType
-{
-    Cmd,
-    Powershell
-}
-
 public class ShellShortcut : Shortcut
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public ShellType ShellType { get; set; }
+    public ShellType ShellType { get; init; }
 
-    public string Arguments { get; set; }
-    public bool Silent { get; set; } = true;
+    public string Arguments { get; init; }
+    public bool Silent { get; init; } = true;
 
     public override object Clone()
     {

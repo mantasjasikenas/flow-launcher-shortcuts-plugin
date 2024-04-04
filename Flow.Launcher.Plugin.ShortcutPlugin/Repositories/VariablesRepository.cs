@@ -12,15 +12,13 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public class VariablesRepository : IVariablesRepository
 {
-    private readonly PluginInitContext _context;
     private readonly ISettingsService _settingsService;
 
     private Dictionary<string, Variable> _variables;
 
 
-    public VariablesRepository(PluginInitContext context, ISettingsService settingsService)
+    public VariablesRepository(ISettingsService settingsService)
     {
-        _context = context;
         _settingsService = settingsService;
         _variables = ReadVariables(VariablesPath);
     }

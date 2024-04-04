@@ -50,8 +50,8 @@ public class ShortcutsService : IShortcutsService
                       .ToList();
 
         var headerResult = ResultExtensions.Result(
-            "Shortcut List",
-            "Found " + shortcuts.Count + (results.Count > 1 ? " shortcuts." : " shortcut."),
+            "Shortcuts list",
+            "Found " + shortcuts.Count + (results.Count > 1 ? " shortcuts" : " shortcut"),
             score: 100000
         );
 
@@ -161,7 +161,7 @@ public class ShortcutsService : IShortcutsService
         return results;
     }
 
-    public List<Result> OpenShortcut(Shortcut shortcut, IEnumerable<string> arguments)
+    public IEnumerable<Result> OpenShortcut(Shortcut shortcut, IEnumerable<string> arguments)
     {
         if (shortcut is null)
         {

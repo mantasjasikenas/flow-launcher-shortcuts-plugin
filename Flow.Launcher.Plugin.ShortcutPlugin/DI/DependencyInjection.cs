@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
+using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;

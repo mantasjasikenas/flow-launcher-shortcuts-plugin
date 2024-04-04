@@ -1,12 +1,8 @@
-
-using System;
 using System.Collections.Generic;
-using Flow.Launcher.Plugin;
-using Flow.Launcher.Plugin.ShortcutPlugin;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class RemoveCommand : ICommand
 {
@@ -25,17 +21,17 @@ public class RemoveCommand : ICommand
     private Command CreateRemoveCommand()
     {
         var shortcutNameArgument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter shortcut name", "Which shortcut should be removed?"))
-            .WithResponseSuccess(("Remove", "Your shortcut will be removed from the list"))
-            .WithHandler(RemoveCommandHandler)
-            .Build();
+                                   .WithResponseInfo(("Enter shortcut name", "Which shortcut should be removed?"))
+                                   .WithResponseSuccess(("Remove", "Your shortcut will be removed from the list"))
+                                   .WithHandler(RemoveCommandHandler)
+                                   .Build();
 
         return new CommandBuilder()
-            .WithKey("remove")
-            .WithResponseInfo(("remove", "Remove shortcuts from the list"))
-            .WithResponseFailure(("Enter shortcut name", "Which shortcut should be removed?"))
-            .WithArgument(shortcutNameArgument)
-            .Build();
+               .WithKey("remove")
+               .WithResponseInfo(("remove", "Remove shortcuts from the list"))
+               .WithResponseFailure(("Enter shortcut name", "Which shortcut should be removed?"))
+               .WithArgument(shortcutNameArgument)
+               .Build();
     }
 
     private List<Result> RemoveCommandHandler(ActionContext context, List<string> arguments)

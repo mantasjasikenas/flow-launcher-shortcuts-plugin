@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class KeywordCommand : ICommand
 {
@@ -23,70 +22,70 @@ public class KeywordCommand : ICommand
         var removeArgument = CreateRemoveArgument();
 
         return new CommandBuilder()
-            .WithKey("keyword")
-            .WithResponseInfo(("keyword", "Manage plugin keyword"))
-            .WithResponseFailure(("Failed to manage plugin keyword", "Something went wrong"))
-            .WithArguments(getArgument, setArgument, addArgument, removeArgument)
-            .Build();
+               .WithKey("keyword")
+               .WithResponseInfo(("keyword", "Manage plugin keyword"))
+               .WithResponseFailure(("Failed to manage plugin keyword", "Something went wrong"))
+               .WithArguments(getArgument, setArgument, addArgument, removeArgument)
+               .Build();
     }
 
     private ArgumentLiteral CreateGetArgument()
     {
         return new ArgumentLiteralBuilder()
-            .WithKey("get")
-            .WithResponseInfo(("keyword get", "Shows all plugin keywords"))
-            .WithResponseFailure(("Failed to get plugin keyword", "Something went wrong"))
-            .WithResponseSuccess(("Get", "Get plugin keyword"))
-            .WithHandler(GetKeywordCommandHandler)
-            .Build();
+               .WithKey("get")
+               .WithResponseInfo(("keyword get", "Shows all plugin keywords"))
+               .WithResponseFailure(("Failed to get plugin keyword", "Something went wrong"))
+               .WithResponseSuccess(("Get", "Get plugin keyword"))
+               .WithHandler(GetKeywordCommandHandler)
+               .Build();
     }
 
     private ArgumentLiteral CreateSetArgument()
     {
         var argument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter new keyword", "How should your plugin be called?"))
-            .WithResponseSuccess(("Set", "Your plugin keyword will be set"))
-            .WithHandler(SetKeywordCommandHandler)
-            .Build();
+                       .WithResponseInfo(("Enter new keyword", "How should your plugin be called?"))
+                       .WithResponseSuccess(("Set", "Your plugin keyword will be set"))
+                       .WithHandler(SetKeywordCommandHandler)
+                       .Build();
 
         return new ArgumentLiteralBuilder()
-            .WithKey("set")
-            .WithResponseInfo(("keyword set", "Set plugin keyword. Other keywords will be removed"))
-            .WithResponseFailure(("Failed to set plugin keyword", "Something went wrong"))
-            .WithArgument(argument)
-            .Build();
+               .WithKey("set")
+               .WithResponseInfo(("keyword set", "Set plugin keyword. Other keywords will be removed"))
+               .WithResponseFailure(("Failed to set plugin keyword", "Something went wrong"))
+               .WithArgument(argument)
+               .Build();
     }
 
     private ArgumentLiteral CreateAddArgument()
     {
         var argument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter new keyword", "How should your plugin be called?"))
-            .WithResponseSuccess(("Add", "Your plugin keyword will be added"))
-            .WithHandler(AddKeywordCommandHandler)
-            .Build();
+                       .WithResponseInfo(("Enter new keyword", "How should your plugin be called?"))
+                       .WithResponseSuccess(("Add", "Your plugin keyword will be added"))
+                       .WithHandler(AddKeywordCommandHandler)
+                       .Build();
 
         return new ArgumentLiteralBuilder()
-            .WithKey("add")
-            .WithResponseInfo(("keyword add", "Add additional plugin keyword"))
-            .WithResponseFailure(("Failed to add plugin keyword", "Something went wrong"))
-            .WithArgument(argument)
-            .Build();
+               .WithKey("add")
+               .WithResponseInfo(("keyword add", "Add additional plugin keyword"))
+               .WithResponseFailure(("Failed to add plugin keyword", "Something went wrong"))
+               .WithArgument(argument)
+               .Build();
     }
 
     private ArgumentLiteral CreateRemoveArgument()
     {
         var argument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter keyword", "Which keyword should be removed?"))
-            .WithResponseSuccess(("Remove", "Your plugin keyword will be removed"))
-            .WithHandler(RemoveKeywordCommandHandler)
-            .Build();
+                       .WithResponseInfo(("Enter keyword", "Which keyword should be removed?"))
+                       .WithResponseSuccess(("Remove", "Your plugin keyword will be removed"))
+                       .WithHandler(RemoveKeywordCommandHandler)
+                       .Build();
 
         return new ArgumentLiteralBuilder()
-            .WithKey("remove")
-            .WithResponseInfo(("keyword remove", "Remove plugin keyword"))
-            .WithResponseFailure(("Failed to remove plugin keyword", "Something went wrong"))
-            .WithArgument(argument)
-            .Build();
+               .WithKey("remove")
+               .WithResponseInfo(("keyword remove", "Remove plugin keyword"))
+               .WithResponseFailure(("Failed to remove plugin keyword", "Something went wrong"))
+               .WithArgument(argument)
+               .Build();
     }
 
     private List<Result> GetKeywordCommandHandler(ActionContext context, List<string> arguments)
@@ -144,5 +143,4 @@ public class KeywordCommand : ICommand
         return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{arguments[2]}` will be removed",
             () => { _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, arguments[2]); });
     }
-
 }

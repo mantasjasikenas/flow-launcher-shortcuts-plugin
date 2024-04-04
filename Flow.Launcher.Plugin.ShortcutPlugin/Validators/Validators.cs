@@ -6,46 +6,34 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Validators;
 
 public static class Validators
 {
-    public static bool IsValidFile(string path)
+    private static bool IsValidFile(string path)
     {
         return File.Exists(path);
     }
 
-    public static bool IsValidDirectory(string path)
+    private static bool IsValidDirectory(string path)
     {
         return Directory.Exists(path);
     }
 
-    public static bool IsValidUrl(string path)
+    private static bool IsValidUrl(string path)
     {
         return Uri.IsWellFormedUriString(path, UriKind.RelativeOrAbsolute);
     }
 
-    public static bool IsValidShortcut(Shortcut shortcut)
+    public static bool ValidateShortcut(Shortcut shortcut)
     {
         if (shortcut is null)
         {
             return false;
         }
 
-        switch (shortcut)
+        return shortcut switch
         {
-            case UrlShortcut urlShortcut:
-            {
-                return IsValidUrl(urlShortcut.Url);
-            }
-            case DirectoryShortcut directoryShortcut:
-            {
-                return IsValidDirectory(directoryShortcut.Path);
-            }
-            case FileShortcut fileShortcut:
-            {
-                return IsValidFile(fileShortcut.Path);
-            }
-            default:
-            {
-                return false;
-            }
-        }
+            UrlShortcut urlShortcut => IsValidUrl(urlShortcut.Url),
+            DirectoryShortcut directoryShortcut => IsValidDirectory(directoryShortcut.Path),
+            FileShortcut fileShortcut => IsValidFile(fileShortcut.Path),
+            _ => false
+        };
     }
 }

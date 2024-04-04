@@ -77,15 +77,17 @@ internal class ContextMenu : IContextMenu
             {
                 var path = Path.GetDirectoryName(filePath);
 
-                if (path != null)
+                if (path == null)
                 {
-                    var processStartInfo = new ProcessStartInfo
-                    {
-                        FileName = path,
-                        UseShellExecute = true
-                    };
-                    Process.Start(processStartInfo);
+                    return;
                 }
+
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                };
+                Process.Start(processStartInfo);
             },
             iconPath: Icons.FolderOpen
         ));
@@ -237,12 +239,14 @@ internal class ContextMenu : IContextMenu
                 return true;
             }
 
-            if (File.Exists(Path.Combine(folder, "code.cmd")))
+            if (!File.Exists(Path.Combine(folder, "code.cmd")))
             {
-                version = "code";
-                icon = Icons.VisualCode;
-                return true;
+                continue;
             }
+
+            version = "code";
+            icon = Icons.VisualCode;
+            return true;
         }
 
         return false;

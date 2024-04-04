@@ -38,7 +38,7 @@ public class ShortcutsRepository : IShortcutsRepository
                          .ToList();
     }
 
-    public IList<Shortcut> GetPossibleShortcuts(string query)
+    public IEnumerable<Shortcut> GetPossibleShortcuts(string query)
     {
         return GetShortcuts()
                .Where(s => Fuzz.PartialRatio(s.Key, query) > 90)

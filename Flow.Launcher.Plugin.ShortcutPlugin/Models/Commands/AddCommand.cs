@@ -5,20 +5,15 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class AddCommand : ICommand
 {
-    private readonly IShortcutsService _shortcutsService;
-    private readonly ISettingsService _settingsService;
     private readonly IShortcutsRepository _shortcutsRepository;
 
-    public AddCommand(IShortcutsService shortcutsService, ISettingsService settingsService, IShortcutsRepository shortcutsRepository)
+    public AddCommand(IShortcutsRepository shortcutsRepository)
     {
-        _shortcutsService = shortcutsService;
-        _settingsService = settingsService;
         _shortcutsRepository = shortcutsRepository;
     }
 
@@ -30,14 +25,14 @@ public class AddCommand : ICommand
     private Command CreateAddCommand()
     {
         return new CommandBuilder()
-            .WithKey("add")
-            .WithResponseInfo(("add", "Add shortcuts to the list"))
-            .WithResponseFailure(("Enter shortcut type", "Which type of shortcut do you want to add?"))
-            .WithArguments(GetShortcutTypes())
-            .Build();
+               .WithKey("add")
+               .WithResponseInfo(("add", "Add shortcuts to the list"))
+               .WithResponseFailure(("Enter shortcut type", "Which type of shortcut do you want to add?"))
+               .WithArguments(GetShortcutTypes())
+               .Build();
     }
 
-    private List<IQueryExecutor> GetShortcutTypes()
+    private IEnumerable<IQueryExecutor> GetShortcutTypes()
     {
         return new List<IQueryExecutor>
         {
@@ -119,12 +114,12 @@ public class AddCommand : ICommand
         var shellArguments = string.Join(" ", arguments.Skip(5));
 
         var subtitles = new List<string>
-    {
-        $"Type: {shellType.ToString().ToLower()}",
-        $"key: {key}",
-        $"silent: {silent.ToString().ToLower()}",
-        $"command: {shellArguments}"
-    };
+        {
+            $"Type: {shellType.ToString().ToLower()}",
+            $"key: {key}",
+            $"silent: {silent.ToString().ToLower()}",
+            $"command: {shellArguments}"
+        };
         var subtitle = string.Join(", ", subtitles);
 
         return ResultExtensions.SingleResult("Create shell shortcut", subtitle, () =>
@@ -143,52 +138,56 @@ public class AddCommand : ICommand
         Func<ActionContext, List<string>, List<Result>> createShortcutHandler)
     {
         var createShortcutHandlerArgument = new ArgumentBuilder()
-            .WithResponseSuccess(("Add", "Your new shortcut will be added to the list"))
-            .WithResponseInfo(("Enter shortcut path", "This is where your shortcut will point to"))
-            .WithHandler(createShortcutHandler)
-            .Build();
+                                            .WithResponseSuccess(("Add", "Your new shortcut will be added to the list"))
+                                            .WithResponseInfo(("Enter shortcut path",
+                                                "This is where your shortcut will point to"))
+                                            .WithHandler(createShortcutHandler)
+                                            .Build();
 
         var shortcutNameArgument = new ArgumentBuilder()
-            .WithResponseFailure(("Enter shortcut path", "This is where your shortcut will point to"))
-            .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
-            .WithArgument(createShortcutHandlerArgument)
-            .Build();
+                                   .WithResponseFailure(("Enter shortcut path",
+                                       "This is where your shortcut will point to"))
+                                   .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
+                                   .WithArgument(createShortcutHandlerArgument)
+                                   .Build();
 
         return new ArgumentLiteralBuilder()
-            .WithKey(type)
-            .WithResponseFailure(("Enter shortcut name", "How should your shortcut be named?"))
-            .WithResponseInfo(($"add {type}", ""))
-            .WithArgument(shortcutNameArgument)
-            .Build();
+               .WithKey(type)
+               .WithResponseFailure(("Enter shortcut name", "How should your shortcut be named?"))
+               .WithResponseInfo(($"add {type}", ""))
+               .WithArgument(shortcutNameArgument)
+               .Build();
     }
 
     private IQueryExecutor CreateShellShortcut()
     {
         var shellArgumentsArgument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter shell arguments", "What should your shell arguments be?"))
-            .WithHandler(CreateShellShortcutHandler)
-            .WithMultipleValuesForSingleArgument()
-            .Build();
+                                     .WithResponseInfo(
+                                         ("Enter shell arguments", "What should your shell arguments be?"))
+                                     .WithHandler(CreateShellShortcutHandler)
+                                     .WithMultipleValuesForSingleArgument()
+                                     .Build();
 
         var silentExecutionArgument = new ArgumentBuilder()
-            .WithResponseInfo(("Should execution be silent?", "Should execution be silent? (true/false)"))
-            .WithArgument(shellArgumentsArgument)
-            .Build();
+                                      .WithResponseInfo(("Should execution be silent?",
+                                          "Should execution be silent? (true/false)"))
+                                      .WithArgument(shellArgumentsArgument)
+                                      .Build();
 
         var shortcutNameArgument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
-            .WithArgument(silentExecutionArgument)
-            .Build();
+                                   .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
+                                   .WithArgument(silentExecutionArgument)
+                                   .Build();
 
         var shellTypeArgument = new ArgumentBuilder()
-            .WithResponseInfo(("Enter shell type", "Which shell should be used? (cmd/powershell)"))
-            .WithArgument(shortcutNameArgument)
-            .Build();
+                                .WithResponseInfo(("Enter shell type", "Which shell should be used? (cmd/powershell)"))
+                                .WithArgument(shortcutNameArgument)
+                                .Build();
 
         return new ArgumentLiteralBuilder()
-            .WithKey("shell")
-            .WithResponseInfo(("add shell", ""))
-            .WithArgument(shellTypeArgument)
-            .Build();
+               .WithKey("shell")
+               .WithResponseInfo(("add shell", ""))
+               .WithArgument(shellTypeArgument)
+               .Build();
     }
 }

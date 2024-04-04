@@ -2,9 +2,9 @@
 
 public class FileShortcut : Shortcut
 {
-    public string Path { get; set; }
+    public string Path { get; init; }
 
-    public string App { get; set; }
+    public string App { get; init; }
 
     public override object Clone()
     {

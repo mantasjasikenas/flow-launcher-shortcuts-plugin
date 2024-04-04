@@ -1,18 +1,15 @@
-using System;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class ImportCommand : ICommand
 {
     private readonly IShortcutsService _shortcutsService;
-    private readonly ISettingsService _settingsService;
 
-    public ImportCommand(IShortcutsService shortcutsService, ISettingsService settingsService)
+    public ImportCommand(IShortcutsService shortcutsService)
     {
         _shortcutsService = shortcutsService;
-        _settingsService = settingsService;
     }
 
     public Command Create()
@@ -23,10 +20,10 @@ public class ImportCommand : ICommand
     private Command CreateImportCommand()
     {
         return new CommandBuilder()
-            .WithKey("import")
-            .WithResponseInfo(("import", "Import shortcuts"))
-            .WithResponseFailure(("Failed to import shortcuts", "Something went wrong"))
-            .WithHandler((_, _) => _shortcutsService.ImportShortcuts())
-            .Build();
+               .WithKey("import")
+               .WithResponseInfo(("import", "Import shortcuts"))
+               .WithResponseFailure(("Failed to import shortcuts", "Something went wrong"))
+               .WithHandler((_, _) => _shortcutsService.ImportShortcuts())
+               .Build();
     }
 }

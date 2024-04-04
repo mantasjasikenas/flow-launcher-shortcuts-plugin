@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class ReloadCommand : ICommand
 {
@@ -12,7 +11,8 @@ public class ReloadCommand : ICommand
     private readonly ISettingsService _settingsService;
     private readonly IVariablesService _variablesService;
 
-    public ReloadCommand(IShortcutsService shortcutsService, ISettingsService settingsService, IVariablesService variablesService)
+    public ReloadCommand(IShortcutsService shortcutsService, ISettingsService settingsService,
+        IVariablesService variablesService)
     {
         _shortcutsService = shortcutsService;
         _settingsService = settingsService;
@@ -27,12 +27,12 @@ public class ReloadCommand : ICommand
     private Command CreateReloadCommand()
     {
         return new CommandBuilder()
-            .WithKey("reload")
-            .WithResponseInfo(("reload", "Reload plugin data"))
-            .WithResponseSuccess(("Reload", "Reload plugin data"))
-            .WithResponseFailure(("Failed to reload", "Something went wrong"))
-            .WithHandler(ReloadCommandHandler)
-            .Build();
+               .WithKey("reload")
+               .WithResponseInfo(("reload", "Reload plugin data"))
+               .WithResponseSuccess(("Reload", "Reload plugin data"))
+               .WithResponseFailure(("Failed to reload", "Something went wrong"))
+               .WithHandler(ReloadCommandHandler)
+               .Build();
     }
 
     private List<Result> ReloadCommandHandler(ActionContext context, List<string> arguments)
