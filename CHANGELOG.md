@@ -6,16 +6,20 @@ All notable changes to this project will be documented in this file.
 
 - Add quotes escaping
 
-## [1.1.5] - 2024-02-0*
+## [1.1.5] - 2024-04-05
 
 - Invoking command from command list will change query text to the command name
 - Report command to open GitHub issues
 - Show count of shortcuts in list command
+- Multiple shortcuts with the same key support
+- Improved group shortcuts invocation
 
 ## [1.1.4] - 2024-02-04
 
 - Shortcut name highlighting in the search results
-- Ability to set a specific application to open file or URL shortcuts. Add "App" field in the shortcut JSON file. Provide application name (works only for registered applications in the system) or full path to the executable file. If the application is not defined, the default application will be used to open the file or URL. Example:
+- Ability to set a specific application to open file or URL shortcuts. Add "App" field in the shortcut JSON file.
+  Provide application name (works only for registered applications in the system) or full path to the executable file.
+  If the application is not defined, the default application will be used to open the file or URL. Example:
 
   ```json
   {
@@ -50,10 +54,10 @@ All notable changes to this project will be documented in this file.
 ## [1.1.1] - 2024-01-18
 
 - Multiple plugin keywords support. Now you can use:
-  - `q keyword get` to list all plugin keywords for the plugin.
-  - `q keyword set <keyword>` to set the plugin keyword. This will override any existing keywords for the plugin.
-  - `q keyword add <keyword>` to add additional keyword for the plugin.
-  - `q keyword remove <keyword>` to remove a keyword from the plugin.
+    - `q keyword get` to list all plugin keywords for the plugin.
+    - `q keyword set <keyword>` to set the plugin keyword. This will override any existing keywords for the plugin.
+    - `q keyword add <keyword>` to add additional keyword for the plugin.
+    - `q keyword remove <keyword>` to remove a keyword from the plugin.
 - Provided argument without name will be assigned to the first argument of the shortcut.
 
 ## [1.1.0] - 2023-12-17
