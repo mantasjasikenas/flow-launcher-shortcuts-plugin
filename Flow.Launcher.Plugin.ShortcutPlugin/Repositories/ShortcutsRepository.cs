@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using FuzzySharp;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -15,44 +15,79 @@ public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
     private readonly PluginInitContext _context;
-    private Dictionary<string, Shortcut> _shortcuts;
+
+    private Dictionary<string, List<Shortcut>> _shortcuts;
 
     public ShortcutsRepository(ISettingsService settingsService, PluginInitContext context)
     {
         _settingsService = settingsService;
         _context = context;
+
         _shortcuts = ReadShortcuts(settingsService.GetSetting(x => x.ShortcutsPath));
     }
 
-    public Shortcut GetShortcut(string key)
+    public IList<Shortcut> GetShortcuts(string key)
     {
         return _shortcuts.GetValueOrDefault(key);
     }
 
     public IList<Shortcut> GetShortcuts()
     {
-        return _shortcuts.Values.ToList();
+        return _shortcuts.Values
+                         .SelectMany(x => x)
+                         .ToList();
+    }
+
+    public IList<Shortcut> GetPossibleShortcuts(string query)
+    {
+        return GetShortcuts()
+               .Where(s => Fuzz.PartialRatio(s.Key, query) > 90)
+               .ToList();
     }
 
     public void AddShortcut(Shortcut shortcut)
     {
-        _shortcuts[shortcut.Key] = shortcut;
+        var result = _shortcuts.TryGetValue(shortcut.Key, out var value);
+
+        if (!result)
+        {
+            value = new List<Shortcut>();
+            _shortcuts.Add(shortcut.Key, value);
+        }
+
+        value.Add(shortcut);
+
         SaveShortcuts();
     }
 
-    public void RemoveShortcut(string key)
+    public void RemoveShortcut(Shortcut shortcut)
     {
-        var result = _shortcuts.Remove(key);
-
-        if (result)
+        if (!_shortcuts.TryGetValue(shortcut.Key, out var value))
         {
-            SaveShortcuts();
+            return;
         }
+
+        var result = value.Remove(shortcut);
+
+        if (!result)
+        {
+            return;
+        }
+
+        if (value.Count == 0)
+        {
+            _shortcuts.Remove(shortcut.Key);
+        }
+
+        SaveShortcuts();
     }
 
-    public List<GroupShortcut> GetGroups()
+    public IList<GroupShortcut> GetGroups()
     {
-        return _shortcuts.Values.OfType<GroupShortcut>().ToList();
+        return _shortcuts.Values
+                         .SelectMany(x => x)
+                         .OfType<GroupShortcut>()
+                         .ToList();
     }
 
     public void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys)
@@ -63,40 +98,27 @@ public class ShortcutsRepository : IShortcutsRepository
             Keys = shortcutKeys.ToList()
         };
 
-        _shortcuts[groupKey] = group;
-        SaveShortcuts();
-    }
+        _shortcuts.TryGetValue(groupKey, out var value);
 
-    public void ReplaceShortcut(Shortcut shortcut)
-    {
-        if (!_shortcuts.ContainsKey(shortcut.Key))
-        {
-            return;
-        }
-
-        _shortcuts[shortcut.Key] = shortcut;
+        value ??= new List<Shortcut>();
+        value.Add(group);
 
         SaveShortcuts();
     }
 
-    public void DuplicateShortcut(string existingKey, string duplicateKey)
+    public void DuplicateShortcut(Shortcut shortcut, string duplicateKey)
     {
-        if (!_shortcuts.TryGetValue(existingKey, out var value))
-        {
-            return;
-        }
+        var duplicateShortcut = (Shortcut) shortcut.Clone();
 
-        var newShortcut = (Shortcut)value.Clone();
+        duplicateShortcut.Key = duplicateKey;
 
-        newShortcut.Key = duplicateKey;
-        _shortcuts[duplicateKey] = newShortcut;
-
-        SaveShortcuts();
+        AddShortcut(duplicateShortcut);
     }
 
     public void ReloadShortcuts()
     {
         var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+
         _shortcuts = ReadShortcuts(path);
     }
 
@@ -142,11 +164,11 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    private Dictionary<string, Shortcut> ReadShortcuts(string path)
+    private Dictionary<string, List<Shortcut>> ReadShortcuts(string path)
     {
         if (!File.Exists(path))
         {
-            return new Dictionary<string, Shortcut>();
+            return new Dictionary<string, List<Shortcut>>();
         }
 
         try
@@ -154,14 +176,15 @@ public class ShortcutsRepository : IShortcutsRepository
             var json = File.ReadAllText(path);
             var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
 
-            return shortcuts.ToDictionary(shortcut => shortcut.Key);
+            return shortcuts.GroupBy(x => x.Key)
+                            .ToDictionary(x => x.Key, x => x.ToList());
         }
         catch (Exception e)
         {
-            _context.API.ShowMsg("Error while reading shortcuts");
+            _context.API.ShowMsg("Error while reading shortcuts. Please check the shortcuts config file.");
             _context.API.LogException(nameof(ShortcutsRepository), "Error reading shortcuts", e);
 
-            return new Dictionary<string, Shortcut>();
+            return new Dictionary<string, List<Shortcut>>();
         }
     }
 
@@ -173,7 +196,11 @@ public class ShortcutsRepository : IShortcutsRepository
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
-        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
+        var flattenShortcuts = _shortcuts.Values
+                                         .SelectMany(x => x)
+                                         .ToList();
+
+        var json = JsonSerializer.Serialize(flattenShortcuts, options);
         var path = _settingsService.GetSetting(x => x.ShortcutsPath);
         var directory = Path.GetDirectoryName(path);
 

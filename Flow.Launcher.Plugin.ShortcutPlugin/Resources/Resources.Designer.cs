@@ -96,7 +96,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open plugin config..
+        ///   Looks up a localized string similar to Open plugin config.
         /// </summary>
         internal static string SettingsManager_OpenConfigCommand_Open_plugin_config {
             get {
@@ -105,7 +105,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open plugin helpers..
+        ///   Looks up a localized string similar to Open plugin helpers.
         /// </summary>
         internal static string SettingsManager_OpenHelpersCommand_Open_plugin_helpers {
             get {
@@ -114,7 +114,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reload plugin..
+        ///   Looks up a localized string similar to Reload plugin.
         /// </summary>
         internal static string SettingsManager_ReloadCommand_Reload_plugin {
             get {
@@ -150,7 +150,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add {0} shortcut &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Add {0} shortcut &apos;{1}&apos;.
         /// </summary>
         internal static string ShortcutsManager_AddShortcut_Add_shortcut {
             get {
@@ -159,7 +159,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Change shortcut &apos;{0}&apos; path..
+        ///   Looks up a localized string similar to Change shortcut &apos;{0}&apos; path.
         /// </summary>
         internal static string ShortcutsManager_ChangeShortcutPath_Change_shortcut_path {
             get {
@@ -168,7 +168,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copy shortcut {0} path..
+        ///   Looks up a localized string similar to Copy shortcut {0} path.
         /// </summary>
         internal static string ShortcutsManager_GetShortcutPath_Copy_shortcut_path {
             get {
@@ -186,7 +186,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open shortcut &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Open shortcut &apos;{0}&apos;.
         /// </summary>
         internal static string ShortcutsManager_OpenShortcut_Open_shortcut {
             get {
@@ -195,7 +195,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove shortcut &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Remove shortcut &apos;{0}&apos;.
         /// </summary>
         internal static string ShortcutsManager_RemoveShortcut_Remove_shortcut {
             get {

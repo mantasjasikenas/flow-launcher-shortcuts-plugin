@@ -15,6 +15,7 @@ public class CommandsRepository : ICommandsRepository
 {
     private readonly Dictionary<string, Command> _commands =
         new(StringComparer.InvariantCultureIgnoreCase);
+
     private readonly PluginInitContext _context;
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IShortcutsService _shortcutsService;
@@ -46,9 +47,9 @@ public class CommandsRepository : ICommandsRepository
         }
 
         // In case this is a shortcut command, let's open shortcut
-        if (_shortcutsRepository.GetShortcut(arguments[0]) is not null)
+        if (_shortcutsRepository.GetShortcuts(arguments[0]) is not null)
         {
-            return _shortcutsService.OpenShortcut(arguments[0], arguments.Skip(1).ToList()); // Skips shortcut name
+            return _shortcutsService.OpenShortcuts(arguments[0], arguments.Skip(1).ToList()); // Skips shortcut name
         }
 
         // If command was not found
@@ -56,31 +57,14 @@ public class CommandsRepository : ICommandsRepository
         {
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository
-                .GetShortcuts()
-                .Where(s => Fuzz.PartialRatio(s.Key, arguments[0]) > 90)
-                .Select(s =>
-                    _shortcutsService.OpenShortcut(s.Key, arguments.Skip(1).ToList()).First()
-                )
-                .ToList();
+                                    .GetPossibleShortcuts(arguments[0])
+                                    .Select(s =>
+                                        _shortcutsService.OpenShortcut(s, arguments.Skip(1).ToList())
+                                                         .First()
+                                    );
 
             // Return possible command matches
-            var possibleCommands = _commands
-                .Values.Where(c =>
-                    c.Key.StartsWith(arguments[0], StringComparison.InvariantCultureIgnoreCase)
-                )
-                .Select(c =>
-                    ResultExtensions.Result(
-                        c.ResponseInfo.Item1,
-                        c.ResponseInfo.Item2,
-                        score: 1000,
-                        hideAfterAction: false,
-                        action: () =>
-                        {
-                            _context.API.ChangeQuery($"{query.ActionKeyword} {c.Key}");
-                        }
-                    )
-                )
-                .ToList();
+            var possibleCommands = GetPossibleCommands(arguments[0], query.ActionKeyword);
 
             var possibleResults = possibleShortcuts.Concat(possibleCommands).ToList();
 
@@ -90,8 +74,6 @@ public class CommandsRepository : ICommandsRepository
                     "Invalid input",
                     "Please provide valid command or shortcut"
                 );
-
-            // If user has already written some arguments and the first argument is invalid
         }
 
         var level = 0;
@@ -123,18 +105,15 @@ public class CommandsRepository : ICommandsRepository
             } */
 
             return executor
-                .Arguments.Cast<Argument>()
-                .Select(a =>
-                    ResultExtensions.Result(
-                        a.ResponseInfo.Item1,
-                        a.ResponseInfo.Item2,
-                        () =>
-                        {
-                            _context.API.ChangeQuery($"{a.Key} ");
-                        }
-                    )
-                )
-                .ToList();
+                   .Arguments.Cast<Argument>()
+                   .Select(a =>
+                       ResultExtensions.Result(
+                           a.ResponseInfo.Item1,
+                           a.ResponseInfo.Item2,
+                           () => { _context.API.ChangeQuery($"{a.Key} "); }
+                       )
+                   )
+                   .ToList();
         }
 
         return Map(executor, executor.ResponseFailure, arguments);
@@ -143,19 +122,37 @@ public class CommandsRepository : ICommandsRepository
     private List<Result> ShowAvailableCommands(string actionKeyword)
     {
         return _commands
-            .Values.Select(c => new Result
-            {
-                Title = c.ResponseInfo.Item1 + "  ", // FIXME: Wrong order without space
-                SubTitle = c.ResponseInfo.Item2,
-                IcoPath = Icons.Logo,
-                Score = 1000 - _commands.Count,
-                Action = _ =>
-                {
-                    _context.API.ChangeQuery($"{actionKeyword} {c.Key}");
-                    return false;
-                }
-            })
-            .ToList();
+               .Values.Select(c => new Result
+               {
+                   Title = c.ResponseInfo.Item1 + "  ", // FIXME: Wrong order without space
+                   SubTitle = c.ResponseInfo.Item2,
+                   IcoPath = Icons.Logo,
+                   Score = 1000 - _commands.Count,
+                   Action = _ =>
+                   {
+                       _context.API.ChangeQuery($"{actionKeyword} {c.Key}");
+                       return false;
+                   }
+               })
+               .ToList();
+    }
+
+    private IEnumerable<Result> GetPossibleCommands(string query, string actionKeyword)
+    {
+        return _commands
+               .Values.Where(c =>
+                   c.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase)
+               )
+               .Select(c =>
+                   ResultExtensions.Result(
+                       c.ResponseInfo.Item1,
+                       c.ResponseInfo.Item2,
+                       score: 1000,
+                       hideAfterAction: false,
+                       action: () => { _context.API.ChangeQuery($"{actionKeyword} {c.Key}"); }
+                   )
+               )
+               .ToList();
     }
 
     private static List<Result> Map(

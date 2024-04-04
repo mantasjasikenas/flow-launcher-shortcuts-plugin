@@ -112,21 +112,26 @@ public class ShortcutHandler : IShortcutHandler
                 return;
             }
 
-            var value = _shortcutsRepository.GetShortcut(key);
+            var values = _shortcutsRepository.GetShortcuts(key);
 
-            if (value is GroupShortcut groupShortcutValue)
+            foreach (var value in values)
             {
-                if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
+                if (value is GroupShortcut groupShortcutValue)
                 {
-                    _context.API.ShowMsg("Shortcut cannot contain itself.");
-                    return;
+                    if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
+                    {
+                        _context.API.ShowMsg("Shortcut cannot contain itself.");
+                        return;
+                    }
+                }
+
+                if (value is not null)
+                {
+                    ExecuteShortcut(value, parsedArguments);
                 }
             }
 
-            if (value is not null)
-            {
-                ExecuteShortcut(value, parsedArguments);
-            }
+
         });
     }
 
