@@ -33,7 +33,7 @@ public class ShortcutHandler : IShortcutHandler
                 ? CommandLineExtensions.ParseArguments(shortcut.ToString(), arguments)
                 : new Dictionary<string, string>();
 
-        ExecuteShortcut(shortcut, parsedArguments);
+        Task.Run(() => ExecuteShortcut(shortcut, parsedArguments));
     }
 
     private void ExecuteShortcut(
