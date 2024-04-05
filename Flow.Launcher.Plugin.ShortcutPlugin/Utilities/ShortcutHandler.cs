@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
@@ -77,64 +76,6 @@ public class ShortcutHandler : IShortcutHandler
         }
     }
 
-    private void ExecuteGroupShortcut(
-        GroupShortcut groupShortcut,
-        IReadOnlyDictionary<string, string> parsedArguments
-    )
-    {
-        if (groupShortcut.Shortcuts != null)
-        {
-            Parallel.ForEach(groupShortcut.Shortcuts, shortcut =>
-            {
-                if (shortcut is GroupShortcut groupShortcutValue)
-                {
-                    if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
-                    {
-                        _context.API.ShowMsg("Shortcut cannot contain itself.");
-                        return;
-                    }
-                }
-
-                ExecuteShortcut(shortcut, parsedArguments);
-            });
-        }
-
-        if (groupShortcut.Keys == null)
-        {
-            return;
-        }
-
-        Parallel.ForEach(groupShortcut.Keys, key =>
-        {
-            if (key.Equals(groupShortcut.Key))
-            {
-                _context.API.ShowMsg("Shortcut cannot contain itself.");
-                return;
-            }
-
-            var values = _shortcutsRepository.GetShortcuts(key);
-
-            if (values == null)
-            {
-                return;
-            }
-
-            foreach (var value in values)
-            {
-                if (value is GroupShortcut groupShortcutValue)
-                {
-                    if (groupShortcutValue.Keys?.Contains(groupShortcut.Key) == true)
-                    {
-                        _context.API.ShowMsg("Shortcut cannot contain itself.");
-                        return;
-                    }
-                }
-
-                ExecuteShortcut(value, parsedArguments);
-            }
-        });
-    }
-
     private void ExecuteUrlShortcut(
         UrlShortcut urlShortcut,
         IReadOnlyDictionary<string, string> parsedArguments
@@ -189,9 +130,77 @@ public class ShortcutHandler : IShortcutHandler
         }
     }
 
+    private void ExecuteGroupShortcut(GroupShortcut groupShortcut, IReadOnlyDictionary<string, string> parsedArguments)
+    {
+        ExecuteShortcuts(groupShortcut.Shortcuts, groupShortcut.Key, parsedArguments);
+        ExecuteShortcutsByKey(groupShortcut.Keys, groupShortcut.Key, parsedArguments);
+    }
+
+    private void ExecuteShortcuts(IEnumerable<Shortcut>? shortcuts, string groupKey,
+        IReadOnlyDictionary<string, string> parsedArguments)
+    {
+        if (shortcuts == null)
+        {
+            return;
+        }
+
+        var enumerable = shortcuts.ToList();
+
+        if (enumerable.Any(shortcut => IsRecursiveGroupShortcut(shortcut, groupKey)))
+        {
+            _context.API.ShowMsg(Resources.Error_recursive_group_shortcut,
+                "Remove the recursive group shortcut in shortcuts list of the group shortcut");
+            return;
+        }
+
+        Parallel.ForEach(enumerable, shortcut =>
+        {
+            if (IsRecursiveGroupShortcut(shortcut, groupKey))
+            {
+                return;
+            }
+
+            ExecuteShortcut(shortcut, parsedArguments);
+        });
+    }
+
+    private void ExecuteShortcutsByKey(IEnumerable<string>? keys, string groupKey,
+        IReadOnlyDictionary<string, string> parsedArguments)
+    {
+        if (keys == null)
+        {
+            return;
+        }
+
+        var keysList = keys.ToList();
+
+        if (keysList.Contains(groupKey))
+        {
+            _context.API.ShowMsg(Resources.Error_recursive_group_shortcut,
+                "Remove the recursive group shortcut in keys list of the group shortcut");
+            return;
+        }
+
+        Parallel.ForEach(keysList, key =>
+        {
+            if (key.Equals(groupKey))
+            {
+                return;
+            }
+
+            var values = _shortcutsRepository.GetShortcuts(key);
+
+            ExecuteShortcuts(values, groupKey, parsedArguments);
+        });
+    }
+
+    private static bool IsRecursiveGroupShortcut(Shortcut shortcut, string groupKey)
+    {
+        return shortcut is GroupShortcut groupShortcutValue && groupShortcutValue.Keys?.Contains(groupKey) == true;
+    }
+
     // ReSharper disable once UnusedMember.Local
-    [System.Obsolete]
-    private List<Result> ExecutePluginShortcut(PluginInitContext context, PluginShortcut shortcut)
+    /*private List<Result> ExecutePluginShortcut(PluginInitContext context, PluginShortcut shortcut)
     {
         return ResultExtensions.SingleResult(
             "Executing plugin shortcut",
@@ -209,5 +218,5 @@ public class ShortcutHandler : IShortcutHandler
             var results = plugin.Plugin.QueryAsync(query, CancellationToken.None).Result;
             results.First().Action.Invoke(null);
         }
-    }
+    }*/
 }

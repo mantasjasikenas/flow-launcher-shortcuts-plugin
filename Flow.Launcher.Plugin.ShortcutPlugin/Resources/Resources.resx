@@ -78,5 +78,7 @@
     <data name="Shortcuts_Query_No_results_found" xml:space="preserve">
         <value>No results found</value>
     </data>
-
+    <data name="Error_recursive_group_shortcut" xml:space="preserve">
+        <value>Shortcut cannot contain itself</value>
+    </data>
 </root>

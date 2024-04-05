@@ -60,6 +60,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Shortcut cannot contain itself.
+        /// </summary>
+        internal static string Error_recursive_group_shortcut {
+            get {
+                return ResourceManager.GetString("Error_recursive_group_shortcut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error while exporting shortcuts.
         /// </summary>
         internal static string Error_while_exporting_shortcuts {
