@@ -55,7 +55,7 @@ public class SettingsService : ISettingsService
         _settings = _context.API.LoadSettingJsonStorage<Settings>();
         var (isValid, invalidProperties) = Validate(_settings);
 
-        if (!isValid)
+        if (!isValid || true)
         {
             LoadDefaultSettings(invalidProperties);
         }
@@ -63,18 +63,25 @@ public class SettingsService : ISettingsService
 
     private void LoadDefaultSettings(ICollection<string> invalidProperties)
     {
+        var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var parentDirectory = Directory.GetParent(pluginDirectory)?.Parent?.FullName;
+
+        if (parentDirectory is null)
+        {
+            return;
+        }
+
+        var dataPath = Path.Combine(parentDirectory, Constants.PluginDataPath);
+
         if (invalidProperties.Contains(nameof(Settings.ShortcutsPath)))
         {
-            _settings.ShortcutsPath =
-                Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.ShortcutsFileName);
+            _settings.ShortcutsPath = Path.Combine(dataPath, Constants.ShortcutsFileName);
         }
 
         if (invalidProperties.Contains(nameof(Settings.VariablesPath)))
         {
-            _settings.VariablesPath =
-             Path.Combine(_context.CurrentPluginMetadata.PluginDirectory, Constants.VariablesFileName);
+            _settings.VariablesPath = Path.Combine(dataPath, Constants.VariablesFileName);
         }
-
 
         SaveSettings();
     }
