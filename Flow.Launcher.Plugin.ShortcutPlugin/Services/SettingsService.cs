@@ -45,6 +45,11 @@ public class SettingsService : ISettingsService
         SaveSettings();
     }
 
+    public void Reset()
+    {
+        LoadDefaultSettings(new List<string> {nameof(Settings.ShortcutsPath), nameof(Settings.VariablesPath)});
+    }
+
     private void SaveSettings()
     {
         _context.API.SaveSettingJsonStorage<Settings>();

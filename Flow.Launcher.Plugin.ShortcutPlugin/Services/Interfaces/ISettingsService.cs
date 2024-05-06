@@ -9,5 +9,6 @@ public interface ISettingsService
     T GetSetting<T>(Func<Settings, T> getAction);
     void SetSettings<T>(Action<Settings, T> setAction, T value);
     Settings GetSettings();
+    void Reset();
     void Reload();
 }

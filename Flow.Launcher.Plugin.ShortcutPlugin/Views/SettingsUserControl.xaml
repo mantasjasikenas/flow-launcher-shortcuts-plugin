@@ -3,65 +3,115 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             xmlns:viewModels="clr-namespace:Flow.Launcher.Plugin.ShortcutPlugin.ViewModels"
+             d:DataContext="{d:DesignInstance viewModels:SettingsViewModel}"
              mc:Ignorable="d"
              d:DesignHeight="450"
-             d:DesignWidth="940">
+             d:DesignWidth="800">
 
-    <Grid Margin="70, 10, 15, 10">
-        <StackPanel Orientation="Vertical"
-                    HorizontalAlignment="Stretch">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <Grid VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!--Shortcuts path-->
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Grid.Column="0"
-                            Grid.Row="0">
-                    <!--<ui:FontIcon Glyph="&#xE8B7;" />-->
-                    <Label Padding="10,0,0,0"
-                           Content="Shortcuts file path" />
+        <StackPanel Grid.Row="0"
+                    HorizontalAlignment="Stretch"
+                    Orientation="Vertical">
+            <DockPanel Margin="70,10,0,8"
+                       HorizontalAlignment="Stretch"
+                       LastChildFill="True">
+                <TextBlock Margin="0,5,0,0"
+                           Text="Shortcuts file path" />
+                <StackPanel Margin="0,0,18,0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            DockPanel.Dock="Right">
+                    <TextBox Width="360"
+                             HorizontalAlignment="Left"
+                             VerticalAlignment="Center"
+                             Text="{Binding ShortcutsPath}"
+                             TextWrapping="NoWrap" />
                 </StackPanel>
+            </DockPanel>
+            <Separator Height="1"
+                       BorderBrush="{DynamicResource Color03B}"
+                       BorderThickness="1" />
+        </StackPanel>
 
-                <TextBox Text="{Binding Path = ShortcutsPath, Mode=TwoWay}"
-                         Width="350"
-                         Padding="5"
-                         Grid.Row="0"
-                         Grid.Column="1" />
-
-                <!---->
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Grid.Column="0"
-                            Grid.Row="1">
-                    <!--<ui:FontIcon Glyph="&#xE8B7;" />-->
-                    <Label Padding="10,0,0,0"
-                           Content="Variables file path" />
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    Orientation="Vertical">
+            <DockPanel Margin="70,10,0,8"
+                       HorizontalAlignment="Stretch"
+                       LastChildFill="True">
+                <TextBlock Margin="0,5,0,0"
+                           Text="Variables file path" />
+                <StackPanel Margin="0,0,18,0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            DockPanel.Dock="Right">
+                    <TextBox Width="360"
+                             HorizontalAlignment="Left"
+                             VerticalAlignment="Center"
+                             Text="{Binding VariablesPath}"
+                             TextWrapping="NoWrap" />
                 </StackPanel>
+            </DockPanel>
+            <Separator Height="1"
+                       BorderBrush="{DynamicResource Color03B}"
+                       BorderThickness="1" />
+        </StackPanel>
 
-                <TextBox Text="{Binding Path = VariablesPath, Mode=TwoWay}"
-                         Width="350"
-                         Padding="5"
-                         Grid.Column="1"
-                         Grid.Row="1"/>
-            </Grid>
+        <StackPanel Grid.Row="2"
+                    HorizontalAlignment="Stretch"
+                    Orientation="Vertical">
+            <StackPanel Margin="70,10,0,8">
+                <TextBlock Margin="0,5,0,0"
+                           FontWeight="Thin"
+                           TextWrapping="Wrap">
+                    <Run FontWeight="Bold">Reset</Run> will reset all settings to default values and reload the plugin.
+                </TextBlock>
+
+                <TextBlock Margin="0,5,0,0"
+                           FontWeight="Thin"
+                           TextWrapping="Wrap">
+                    <Run FontWeight="Bold">Discard</Run> will discard all changes and load the last saved settings.
+                </TextBlock>
+
+                <TextBlock Margin="0,5,0,0"
+                           FontWeight="Thin"
+                           TextWrapping="Wrap">
+                    <Run FontWeight="Bold">Save</Run> will save the current settings and reload the plugin.
+                </TextBlock>
+
+            </StackPanel>
+            <Separator Height="1"
+                       BorderBrush="{DynamicResource Color03B}"
+                       BorderThickness="1" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center">
+            <Button Content="Reset"
+                    Margin="0,10,20,10"
+                    Command="{Binding ResetCommand}"
+                    Padding="10 5 10 5" />
+
+            <Button Content="Discard"
+                    Margin="0,10,20,10"
+                    Command="{Binding DiscardCommand}"
+                    Padding="10 5 10 5" />
 
             <Button Content="Save"
-                    Margin="0,20,0,5"
-                    Click="SaveButton_OnClick"
-                    HorizontalAlignment="Right"
-                    Width="60"/>
+                    Margin="0,10,20,10"
+                    Command="{Binding SaveCommand}"
+                    Padding="10 5 10 5" />
         </StackPanel>
     </Grid>
-
-
 </UserControl>

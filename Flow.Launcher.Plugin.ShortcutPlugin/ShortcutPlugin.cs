@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,9 +15,9 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
     internal ServiceProvider ServiceProvider { get; private set; }
 
     private ICommandsService _commandsService;
-    private ISettingsService _settingsService;
 
     private SettingsUserControl _settingWindow;
+    private SettingsViewModel _settingsViewModel;
     private ContextMenu _contextMenu;
 
     public void Init(PluginInitContext context)
@@ -26,9 +27,9 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
                               .RegisterCommands()
                               .BuildServiceProvider();
 
-        _settingsService = serviceProvider.GetService<ISettingsService>();
         _commandsService = serviceProvider.GetService<ICommandsService>();
         _contextMenu = serviceProvider.GetService<ContextMenu>();
+        _settingsViewModel = serviceProvider.GetService<SettingsViewModel>();
 
         ServiceProvider = serviceProvider;
     }
@@ -53,7 +54,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public Control CreateSettingPanel()
     {
-        _settingWindow = new SettingsUserControl(_settingsService, _commandsService);
+        _settingWindow = new SettingsUserControl(_settingsViewModel);
+
         return _settingWindow;
     }
 }

@@ -4,6 +4,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.DI;
@@ -25,6 +26,7 @@ public static class DependencyInjection
         services.AddSingleton<ICommandsService, CommandsService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
+        services.AddSingleton<SettingsViewModel, SettingsViewModel>();
         services.AddScoped<ContextMenu>();
 
         return services;
