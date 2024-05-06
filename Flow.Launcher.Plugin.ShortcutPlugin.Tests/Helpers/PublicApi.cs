@@ -222,7 +222,23 @@ internal class PublicApi : IPublicAPI
 
     public void OpenAppUri(string appUri)
     {
-        throw new NotImplementedException();
+    }
+
+    public void ToggleGameMode()
+    {
+    }
+
+    public void SetGameMode(bool value)
+    {
+    }
+
+    public bool IsGameModeOn()
+    {
+        return false;
+    }
+
+    public void ReQuery(bool reselect = true)
+    {
     }
 
     public event VisibilityChangedEventHandler? VisibilityChanged;
