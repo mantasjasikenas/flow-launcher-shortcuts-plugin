@@ -7,7 +7,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 public interface IShortcutsRepository
 {
     IList<Shortcut> GetShortcuts();
-    IEnumerable<Shortcut> GetPossibleShortcuts(string query);
+    IEnumerable<Shortcut> GetPossibleShortcuts(string key);
     IList<Shortcut>? GetShortcuts(string key);
     void AddShortcut(Shortcut shortcut);
     void RemoveShortcut(Shortcut shortcut);

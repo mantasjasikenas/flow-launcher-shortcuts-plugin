@@ -38,11 +38,23 @@ public class ShortcutsRepository : IShortcutsRepository
                          .ToList();
     }
 
-    public IEnumerable<Shortcut> GetPossibleShortcuts(string query)
+    public IEnumerable<Shortcut> GetPossibleShortcuts(string key)
     {
-        return GetShortcuts()
-               .Where(s => Fuzz.PartialRatio(s.Key, query) > 90)
-               .ToList();
+        var lowerKey = key.ToLowerInvariant();
+
+        var result = GetShortcuts()
+                     .Select(s => new
+                     {
+                         Shortcut = s,
+                         PartialScore = Fuzz.PartialRatio(s.Key.ToLowerInvariant(), lowerKey),
+                         Score = Fuzz.Ratio(s.Key.ToLowerInvariant(), lowerKey)
+                     })
+                     .Where(x => x.PartialScore > 90)
+                     .OrderByDescending(x => x.Score)
+                     .Select(x => x.Shortcut)
+                     .ToList();
+
+        return result;
     }
 
     public void AddShortcut(Shortcut shortcut)

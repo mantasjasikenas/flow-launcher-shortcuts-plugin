@@ -446,7 +446,7 @@ public class ShortcutsService : IShortcutsService
         var expandedShortcut = ExpandShortcut(shortcut, arguments);
 
         return ResultExtensions.Result(
-            string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey,
+            (string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey) + " ", // FIXME: Wrong order without space
             expandedShortcut,
             () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
             contextData: shortcut,
