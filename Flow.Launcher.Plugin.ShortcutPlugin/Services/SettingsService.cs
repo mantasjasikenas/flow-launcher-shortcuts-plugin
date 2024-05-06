@@ -55,7 +55,7 @@ public class SettingsService : ISettingsService
         _settings = _context.API.LoadSettingJsonStorage<Settings>();
         var (isValid, invalidProperties) = Validate(_settings);
 
-        if (!isValid || true)
+        if (!isValid)
         {
             LoadDefaultSettings(invalidProperties);
         }

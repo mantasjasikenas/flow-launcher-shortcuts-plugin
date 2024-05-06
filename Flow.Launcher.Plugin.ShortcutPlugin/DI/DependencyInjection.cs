@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddSingleton<ICommand, KeywordCommand>();
         services.AddSingleton<ICommand, GroupCommand>();
         services.AddSingleton<ICommand, ReportCommand>();
+        services.AddSingleton<ICommand, VersionCommand>();
 
         return services;
     }
