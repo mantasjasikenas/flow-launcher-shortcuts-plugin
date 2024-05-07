@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -10,17 +9,17 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 public class SettingsService : ISettingsService
 {
     private readonly PluginInitContext _context;
+
     private Settings _settings;
+
+    private readonly Settings _defaultSettings;
 
     public SettingsService(PluginInitContext context)
     {
         _context = context;
-        LoadSettings();
-    }
+        _defaultSettings = GetDefaultSettings();
 
-    public Settings GetSettings()
-    {
-        return _settings;
+        LoadSettings();
     }
 
     public void Reload()
@@ -28,10 +27,21 @@ public class SettingsService : ISettingsService
         LoadSettings();
     }
 
-    public void ModifySettings(Action<Settings> modifyAction)
+    public T GetSettingOrDefault<T>(Func<Settings, T> getAction)
     {
-        modifyAction(_settings);
-        SaveSettings();
+        var value = getAction(_settings);
+
+        if (value is null || string.IsNullOrWhiteSpace(value.ToString()))
+        {
+            return getAction(_defaultSettings);
+        }
+
+        return value;
+    }
+
+    public T GetDefaultSetting<T>(Func<Settings, T> getAction)
+    {
+        return getAction(_defaultSettings);
     }
 
     public T GetSetting<T>(Func<Settings, T> getAction)
@@ -47,7 +57,10 @@ public class SettingsService : ISettingsService
 
     public void Reset()
     {
-        LoadDefaultSettings(new List<string> {nameof(Settings.ShortcutsPath), nameof(Settings.VariablesPath)});
+        _settings.ShortcutsPath = string.Empty;
+        _settings.VariablesPath = string.Empty;
+
+        SaveSettings();
     }
 
     private void SaveSettings()
@@ -58,34 +71,40 @@ public class SettingsService : ISettingsService
     private void LoadSettings()
     {
         _settings = _context.API.LoadSettingJsonStorage<Settings>();
-        var (isValid, invalidProperties) = Validate(_settings);
-
-        if (!isValid)
-        {
-            LoadDefaultSettings(invalidProperties);
-        }
     }
 
-    private void LoadDefaultSettings(ICollection<string> invalidProperties)
+    private Settings GetDefaultSettings()
     {
         var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
         var parentDirectory = Directory.GetParent(pluginDirectory)?.Parent?.FullName;
 
         if (parentDirectory is null)
         {
-            return;
+            return new Settings();
         }
 
-        var dataPath = Path.Combine(parentDirectory, Constants.PluginDataPath);
+        var path = Path.Combine(parentDirectory, Constants.PluginDataPath);
+
+        return new Settings
+        {
+            ShortcutsPath = Path.Combine(path, Constants.ShortcutsFileName),
+            VariablesPath = Path.Combine(path, Constants.VariablesFileName)
+        };
+    }
+
+    /*
+    private void LoadDefaultSettings(ICollection<string> invalidProperties)
+    {
+        var defaultSettings = GetDefaultSettings();
 
         if (invalidProperties.Contains(nameof(Settings.ShortcutsPath)))
         {
-            _settings.ShortcutsPath = Path.Combine(dataPath, Constants.ShortcutsFileName);
+            _settings.ShortcutsPath = defaultSettings.ShortcutsPath;
         }
 
         if (invalidProperties.Contains(nameof(Settings.VariablesPath)))
         {
-            _settings.VariablesPath = Path.Combine(dataPath, Constants.VariablesFileName);
+            _settings.VariablesPath = defaultSettings.VariablesPath;
         }
 
         SaveSettings();
@@ -95,16 +114,21 @@ public class SettingsService : ISettingsService
     {
         var invalidProperties = new List<string>();
 
-        if (settings.ShortcutsPath is null)
+        if (settings is null)
+        {
+            return (false, invalidProperties);
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.ShortcutsPath))
         {
             invalidProperties.Add(nameof(settings.ShortcutsPath));
         }
 
-        if (settings.VariablesPath is null)
+        if (string.IsNullOrWhiteSpace(settings.VariablesPath))
         {
             invalidProperties.Add(nameof(settings.VariablesPath));
         }
 
         return (invalidProperties.Count == 0, invalidProperties);
-    }
+    }*/
 }

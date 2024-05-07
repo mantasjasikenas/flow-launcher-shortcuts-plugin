@@ -23,7 +23,7 @@ public class VariablesRepository : IVariablesRepository
         _variables = ReadVariables(VariablesPath);
     }
 
-    private string VariablesPath => _settingsService.GetSetting(x => x.VariablesPath);
+    private string VariablesPath => _settingsService.GetSettingOrDefault(x => x.VariablesPath);
 
     public List<Variable> GetVariables()
     {

@@ -23,7 +23,7 @@ public class ShortcutsRepository : IShortcutsRepository
         _settingsService = settingsService;
         _context = context;
 
-        _shortcuts = ReadShortcuts(settingsService.GetSetting(x => x.ShortcutsPath));
+        _shortcuts = ReadShortcuts(settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
     }
 
     public IList<Shortcut> GetShortcuts(string key)
@@ -129,7 +129,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void ReloadShortcuts()
     {
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
 
         _shortcuts = ReadShortcuts(path);
     }
@@ -159,7 +159,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void ExportShortcuts(string path)
     {
-        if (!File.Exists(_settingsService.GetSetting(x => x.ShortcutsPath)))
+        if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath)))
         {
             _context.API.ShowMsg("No shortcuts to export");
             return;
@@ -167,7 +167,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
         try
         {
-            File.Copy(_settingsService.GetSetting(x => x.ShortcutsPath), path);
+            File.Copy(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath), path);
         }
         catch (Exception ex)
         {
@@ -213,7 +213,7 @@ public class ShortcutsRepository : IShortcutsRepository
                                          .ToList();
 
         var json = JsonSerializer.Serialize(flattenShortcuts, options);
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
         var directory = Path.GetDirectoryName(path);
 
         if (directory != null && !Directory.Exists(directory))

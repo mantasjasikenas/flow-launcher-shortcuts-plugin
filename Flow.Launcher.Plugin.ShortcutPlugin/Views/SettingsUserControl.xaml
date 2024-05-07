@@ -18,7 +18,27 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+
         <StackPanel Grid.Row="0"
+                    HorizontalAlignment="Stretch"
+                    Orientation="Vertical">
+            <StackPanel Margin="70,10,0,8">
+                <TextBlock Margin="0,5,0,0"
+                           FontWeight="Thin"
+                           TextWrapping="Wrap">
+                    <Run FontWeight="Bold"
+                         TextDecorations="Underline">
+                        IMPORTANT
+                    </Run>
+                    Please make sure to backup your shortcuts and variables files before making any changes.
+                </TextBlock>
+            </StackPanel>
+            <Separator Height="1"
+                       BorderBrush="{DynamicResource Color03B}"
+                       BorderThickness="1" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
                     HorizontalAlignment="Stretch"
                     Orientation="Vertical">
             <DockPanel Margin="70,10,0,8"
@@ -37,12 +57,13 @@
                              TextWrapping="NoWrap" />
                 </StackPanel>
             </DockPanel>
+
             <Separator Height="1"
                        BorderBrush="{DynamicResource Color03B}"
                        BorderThickness="1" />
         </StackPanel>
 
-        <StackPanel Grid.Row="1"
+        <StackPanel Grid.Row="2"
                     HorizontalAlignment="Stretch"
                     Orientation="Vertical">
             <DockPanel Margin="70,10,0,8"
@@ -66,7 +87,7 @@
                        BorderThickness="1" />
         </StackPanel>
 
-        <StackPanel Grid.Row="2"
+        <StackPanel Grid.Row="3"
                     HorizontalAlignment="Stretch"
                     Orientation="Vertical">
             <StackPanel Margin="70,10,0,8">
@@ -94,7 +115,7 @@
                        BorderThickness="1" />
         </StackPanel>
 
-        <StackPanel Grid.Row="3"
+        <StackPanel Grid.Row="4"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center">

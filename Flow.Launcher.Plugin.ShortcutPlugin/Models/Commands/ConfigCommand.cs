@@ -32,8 +32,8 @@ public class ConfigCommand : ICommand
 
     private List<Result> ConfigCommandHandler(ActionContext context, List<string> arguments)
     {
-        var shortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
-        var variablesPath = _settingsService.GetSetting(x => x.VariablesPath);
+        var shortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
+        var variablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
 
         return new List<Result>
         {

@@ -2,6 +2,7 @@
 
 public class Settings
 {
-    public string ShortcutsPath { get; set; }
-    public string VariablesPath { get; set; }
+    public string ShortcutsPath { get; set; } = string.Empty;
+
+    public string VariablesPath { get; set; } = string.Empty;
 }

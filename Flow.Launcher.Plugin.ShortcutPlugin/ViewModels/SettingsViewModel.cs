@@ -20,10 +20,8 @@ public partial class SettingsViewModel : ObservableObject
         _commandsService = commandsService;
         _settingsService = settingsService;
 
-        var settings = _settingsService.GetSettings();
-
-        ShortcutsPath = settings.ShortcutsPath;
-        VariablesPath = settings.VariablesPath;
+        ShortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
+        VariablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
     }
 
     [RelayCommand]
@@ -31,15 +29,34 @@ public partial class SettingsViewModel : ObservableObject
     {
         var isModified = false;
 
-        if (ShortcutsPath != _settingsService.GetSetting(x => x.ShortcutsPath))
+        var newShortcutsPath = ShortcutsPath;
+        var newVariablesPath = VariablesPath;
+
+        var currentShortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
+        var currentVariablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
+
+        var defaultShortcutsPath = _settingsService.GetDefaultSetting(x => x.ShortcutsPath);
+        var defaultVariablesPath = _settingsService.GetDefaultSetting(x => x.VariablesPath);
+
+        if (newShortcutsPath != currentShortcutsPath)
         {
-            _settingsService.SetSettings((x, v) => x.ShortcutsPath = v, ShortcutsPath);
+            if (newShortcutsPath == defaultShortcutsPath)
+            {
+                newShortcutsPath = string.Empty;
+            }
+
+            _settingsService.SetSettings((x, v) => x.ShortcutsPath = v, newShortcutsPath);
             isModified = true;
         }
 
-        if (VariablesPath != _settingsService.GetSetting(x => x.VariablesPath))
+        if (newVariablesPath != currentVariablesPath)
         {
-            _settingsService.SetSettings((x, v) => x.VariablesPath = v, VariablesPath);
+            if (newVariablesPath == defaultVariablesPath)
+            {
+                newVariablesPath = string.Empty;
+            }
+
+            _settingsService.SetSettings((x, v) => x.VariablesPath = v, newVariablesPath);
             isModified = true;
         }
 
@@ -54,8 +71,8 @@ public partial class SettingsViewModel : ObservableObject
     {
         _settingsService.Reset();
 
-        ShortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
-        VariablesPath = _settingsService.GetSetting(x => x.VariablesPath);
+        ShortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
+        VariablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
 
         _commandsService.ReloadPluginData();
     }
@@ -63,7 +80,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void Discard()
     {
-        ShortcutsPath = _settingsService.GetSetting(x => x.ShortcutsPath);
-        VariablesPath = _settingsService.GetSetting(x => x.VariablesPath);
+        ShortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
+        VariablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
     }
 }
