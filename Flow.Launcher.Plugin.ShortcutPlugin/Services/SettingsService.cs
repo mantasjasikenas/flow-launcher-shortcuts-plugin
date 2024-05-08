@@ -69,23 +69,27 @@ public class SettingsService : ISettingsService
     {
         var modified = false;
 
-        var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var shortcutPluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var pluginsDirectory = Directory.GetParent(shortcutPluginDirectory)?.Parent?.FullName;
 
-        var oldShortcutsPath = Path.Combine(pluginDirectory, Constants.ShortcutsFileName);
-        var oldVariablesPath = Path.Combine(pluginDirectory, Constants.VariablesFileName);
+        if (pluginsDirectory is null)
+        {
+            return;
+        }
 
-        var shortcutsPathFromSettings = _settings.ShortcutsPath;
-        var variablesPathFromSettings = _settings.VariablesPath;
+        // default paths are empty strings
+        var shortcutsPath = _settings.ShortcutsPath;
+        var variablesPath = _settings.VariablesPath;
 
-        if (!string.IsNullOrEmpty(shortcutsPathFromSettings) &&
-            Path.GetFullPath(shortcutsPathFromSettings) == Path.GetFullPath(oldShortcutsPath))
+        if (!string.IsNullOrEmpty(shortcutsPath) &&
+            Path.GetFullPath(shortcutsPath).StartsWith(pluginsDirectory))
         {
             _settings.ShortcutsPath = string.Empty;
             modified = true;
         }
 
-        if (!string.IsNullOrEmpty(variablesPathFromSettings) &&
-            Path.GetFullPath(variablesPathFromSettings) == Path.GetFullPath(oldVariablesPath))
+        if (!string.IsNullOrEmpty(variablesPath) &&
+            Path.GetFullPath(variablesPath).StartsWith(pluginsDirectory))
         {
             _settings.VariablesPath = string.Empty;
             modified = true;
