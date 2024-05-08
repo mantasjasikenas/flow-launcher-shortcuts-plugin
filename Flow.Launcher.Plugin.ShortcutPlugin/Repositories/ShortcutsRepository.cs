@@ -142,13 +142,15 @@ public class ShortcutsRepository : IShortcutsRepository
 
             if (shortcuts.Count == 0)
             {
-                throw new Exception();
+                throw new Exception("No valid shortcuts found in the file.");
             }
 
             _shortcuts = shortcuts;
 
             SaveShortcuts();
             ReloadShortcuts();
+
+            _context.API.ShowMsg("Shortcuts imported successfully");
         }
         catch (Exception ex)
         {

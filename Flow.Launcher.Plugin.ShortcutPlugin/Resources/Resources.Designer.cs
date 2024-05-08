@@ -87,6 +87,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Export variables.
+        /// </summary>
+        internal static string Export_variables {
+            get {
+                return ResourceManager.GetString("Export_variables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to import shortcuts file.
         /// </summary>
         internal static string Failed_to_import_shortcuts_file {
@@ -101,6 +110,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin {
         internal static string Import_shortcuts {
             get {
                 return ResourceManager.GetString("Import_shortcuts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import variables.
+        /// </summary>
+        internal static string Import_variables {
+            get {
+                return ResourceManager.GetString("Import_variables", resourceCulture);
             }
         }
         

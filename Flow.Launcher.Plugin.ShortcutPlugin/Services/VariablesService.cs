@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
@@ -107,6 +109,66 @@ public class VariablesService : IVariablesService
     {
         var expandedArguments = ExpandArguments(value, arguments);
         return ExpandVariables(expandedArguments);
+    }
+
+    public List<Result> ImportVariables()
+    {
+        return ResultExtensions.SingleResult(
+            Resources.Import_variables,
+            "",
+            () =>
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    Title = Resources.Import_variables,
+                    CheckFileExists = true,
+                    CheckPathExists = true,
+                    DefaultExt = "json",
+                    Filter = "JSON (*.json)|*.json",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+
+                if (openFileDialog.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                _variablesRepository.ImportVariables(openFileDialog.FileName);
+            }
+        );
+    }
+
+    public List<Result> ExportVariables()
+    {
+        return ResultExtensions.SingleResult(
+            Resources.Export_variables,
+            "",
+            () =>
+            {
+                var dialog = new SaveFileDialog
+                {
+                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    Title = Resources.Export_shortcuts,
+                    FileName = "variables.json",
+                    CheckPathExists = true,
+                    DefaultExt = "json",
+                    Filter = "JSON (*.json)|*.json",
+                    FilterIndex = 2,
+                    RestoreDirectory = true
+                };
+
+                if (dialog.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                var exportPath = dialog.FileName;
+
+                _variablesRepository.ExportVariables(exportPath);
+            }
+        );
     }
 
     private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)

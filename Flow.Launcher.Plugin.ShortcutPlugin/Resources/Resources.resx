@@ -63,6 +63,12 @@
     <data name="Export_shortcuts" xml:space="preserve">
         <value>Export shortcuts</value>
     </data>
+    <data name="Import_variables" xml:space="preserve">
+        <value>Import variables</value>
+    </data>
+    <data name="Export_variables" xml:space="preserve">
+        <value>Export variables</value>
+    </data>
     <data name="Shortcuts_file_not_found" xml:space="preserve">
         <value>Shortcuts file not found!</value>
     </data>
