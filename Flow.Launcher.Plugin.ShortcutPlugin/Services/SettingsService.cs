@@ -20,6 +20,8 @@ public class SettingsService : ISettingsService
         _defaultSettings = GetDefaultSettings();
 
         LoadSettings();
+
+        MigrateSettings();
     }
 
     public void Reload()
@@ -61,6 +63,44 @@ public class SettingsService : ISettingsService
         _settings.VariablesPath = string.Empty;
 
         SaveSettings();
+    }
+
+    private void MigrateSettings()
+    {
+        var modified = false;
+
+        var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+
+        var oldShortcutsPath = Path.Combine(pluginDirectory, Constants.ShortcutsFileName);
+        var oldVariablesPath = Path.Combine(pluginDirectory, Constants.VariablesFileName);
+
+        var shortcutsPathFromSettings = _settings.ShortcutsPath;
+        var variablesPathFromSettings = _settings.VariablesPath;
+
+        if (!string.IsNullOrEmpty(shortcutsPathFromSettings) &&
+            Path.GetFullPath(shortcutsPathFromSettings) == Path.GetFullPath(oldShortcutsPath))
+        {
+            _settings.ShortcutsPath = string.Empty;
+            modified = true;
+        }
+
+        if (!string.IsNullOrEmpty(variablesPathFromSettings) &&
+            Path.GetFullPath(variablesPathFromSettings) == Path.GetFullPath(oldVariablesPath))
+        {
+            _settings.VariablesPath = string.Empty;
+            modified = true;
+        }
+
+        if (!modified)
+        {
+            return;
+        }
+
+        SaveSettings();
+
+        _context.API.ShowMsg("Settings paths have been migrated to the new location.",
+            "Settings have been migrated because you where using the default settings path. This should fix the issue when shortcuts disappear after updating the plugin.");
+        _context.API.ReloadAllPluginData();
     }
 
     private void SaveSettings()
