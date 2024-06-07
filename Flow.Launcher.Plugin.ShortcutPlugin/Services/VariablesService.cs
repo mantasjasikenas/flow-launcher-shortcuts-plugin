@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
@@ -30,7 +31,10 @@ public class VariablesService : IVariablesService
                             Title = $"Variable '{variable.Name}'",
                             SubTitle = $"Value: '{variable.Value}'",
                             IcoPath = Icons.Logo,
-                            Action = _ => true
+                            Action = _ => {
+                                Clipboard.SetDataObject(variable.Value);
+                                return true;
+                            }
                         })
                         .ToList();
     }
