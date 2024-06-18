@@ -13,9 +13,12 @@ public class VariablesService : IVariablesService
 {
     private readonly IVariablesRepository _variablesRepository;
 
-    public VariablesService(IVariablesRepository variablesRepository)
+    private readonly PluginInitContext _context;
+
+    public VariablesService(IVariablesRepository variablesRepository, PluginInitContext context)
     {
         _variablesRepository = variablesRepository;
+        _context = context;
     }
 
     public List<Result> GetVariables()
@@ -26,14 +29,18 @@ public class VariablesService : IVariablesService
             return ResultExtensions.EmptyResult("No variables found.");
 
         return variables
-            .Select(variable => new Result
-            {
-                Title = $"Variable '{variable.Name}'",
-                SubTitle = $"Value: '{variable.Value}'",
-                IcoPath = Icons.Logo,
-                Action = _ => true
-            })
-            .ToList();
+               .Select(variable => new Result
+               {
+                   Title = $"Variable '{variable.Name}'",
+                   SubTitle = $"Value: '{variable.Value}'",
+                   IcoPath = Icons.Logo,
+                   Action = _ =>
+                   {
+                       _context.API.CopyToClipboard(variable.Value);
+                       return true;
+                   }
+               })
+               .ToList();
     }
 
     public List<Result> GetVariable(string name)
@@ -54,10 +61,7 @@ public class VariablesService : IVariablesService
         return ResultExtensions.SingleResult(
             $"Add variable '{name}'",
             $"Value: '{value}'",
-            () =>
-            {
-                _variablesRepository.AddVariable(name, value);
-            }
+            () => { _variablesRepository.AddVariable(name, value); }
         );
     }
 
@@ -71,10 +75,7 @@ public class VariablesService : IVariablesService
         return ResultExtensions.SingleResult(
             $"Remove variable '{name}'",
             $"Value: '{variable.Value}'",
-            () =>
-            {
-                _variablesRepository.RemoveVariable(name);
-            }
+            () => { _variablesRepository.RemoveVariable(name); }
         );
     }
 
@@ -88,10 +89,7 @@ public class VariablesService : IVariablesService
         return ResultExtensions.SingleResult(
             $"Update variable '{name}'",
             $"Old value '{variable.Value}' | New value '{value}'",
-            () =>
-            {
-                _variablesRepository.UpdateVariable(name, value);
-            }
+            () => { _variablesRepository.UpdateVariable(name, value); }
         );
     }
 
