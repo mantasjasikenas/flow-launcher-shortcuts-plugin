@@ -88,6 +88,38 @@ The following shortcut types are available. More types will be added in the futu
 | `` url ``       | Open URL in default browser      | `` url `` - URL to open                                                                                                                         |
 | `` shell ``     | Run shell command                | ``type`` - shell type (``cmd`` or ``powershell``), ``command`` - shell command arguments, ``silent`` - run command without opening shell window |
 
+### Example of adding a new shortcut
+
+If you want to add a new shortcut, you can use the following commands. Keep in mind that if shortcut contains spaces,
+you should use quotes around the arguments.
+
+- Directory shortcut
+
+```shell
+q add directory doc C:\Users\tutta\Documents
+q add directory pvp "C:\Users\tutta\OneDrive - Kaunas University of Technology\KTU\6 semester\Product Development Project"
+```
+
+- File shortcut
+
+```shell
+q add file my_file C:\Users\my_user\Documents\my_file.txt
+q add file my_file "C:\Users\my user\Documents\my_file.txt"
+```
+
+- URL shortcut
+
+```shell
+q add url google www.google.com
+```
+
+- Shell shortcut
+
+```shell
+q add shell cmd k1 true \"C:\Users\tutta\AppData\Local\Programs\Android Studio\bin\studio64.exe\" \"C:\Users\tutta\AndroidStudioProjects\De mo\DemoApp\"
+q add shell powershell k2 false "Write-Host 'Hello, World!'"
+```
+
 ## Configuration files
 
 The following configuration files are available.
@@ -123,6 +155,27 @@ running `` q reload `` command.
     "Type": "Url",
     "Path": "www.google.com",
     "Key": "google"
+  },
+  {
+    "Type": "Shell",
+    "ShellType": "Cmd",
+    "Arguments": "\u0022C:\\Users\\tutta\\AppData\\Local\\Programs\\Android Studio\\bin\\studio64.exe\u0022 \u0022C:\\Users\\tutta\\AndroidStudioProjects\\De mo\\DemoApp\u0022",
+    "Silent": false,
+    "Key": "t2"
+  },
+  {
+    "Type": "Shell",
+    "ShellType": "Cmd",
+    "Arguments": "echo \u0022C:\\Users\\tutta\\AppData\\Local\\Programs\\Android Studio\\bin\\studio64.exe\u0022 \u0022C:\\Users\\tutta\\AndroidStudioProjects\\De mo\\DemoApp\u0022",
+    "Silent": false,
+    "Key": "t3"
+  },
+  {
+    "Type": "Shell",
+    "ShellType": "Powershell",
+    "Arguments": "cd C:\\Users\\tutta\\Storage\\Dev\\Scripts\\unsplash; python unsplash.py",
+    "Silent": true,
+    "Key": "unsplash"
   },
   {
     "Type": "Group",
