@@ -1,10 +1,8 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.models;
-
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
 public class DirectoryShortcut : Shortcut
 {
-    public string Path { get; set; }
+    public string Path { get; init; }
 
     public override object Clone()
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.models;
 
@@ -16,37 +15,35 @@ public class ArgumentLiteral : Argument
 {
 }
 
+
 public class BaseQueryExecutor : IQueryExecutor
 {
-    public List<IQueryExecutor> Arguments { get; init; }
+    public string Key { get; set; }
 
-    public bool AllowsMultipleValuesForSingleArgument { get; init; }
+    public List<IQueryExecutor> Arguments { get; set; }
 
-    public Func<ActionContext, List<string>, List<Result>> Handler { get; init; }
+    public bool AllowsMultipleValuesForSingleArgument { get; set; }
 
-    [NotNull] public string Key { get; init; }
+    public Func<ActionContext, List<string>, List<Result>> Handler { get; set; }
 
-    public (string, string)? ResponseFailure { get; init; }
+    public (string, string)? ResponseFailure { get; set; }
 
-    public (string, string) ResponseInfo { get; init; }
+    public (string, string) ResponseInfo { get; set; }
 
-    public (string, string)? ResponseSuccess { get; init; }
+    public (string, string)? ResponseSuccess { get; set; }
 }
 
-public interface IQueryExecutor : IArgumentsHolder
+public interface IQueryExecutor
 {
-    public Func<ActionContext, List<string>, List<Result>> Handler { get; init; }
+    public Func<ActionContext, List<string>, List<Result>> Handler { get; set; }
 
-    public (string, string)? ResponseFailure { get; init; }
+    public (string, string)? ResponseFailure { get; set; }
 
-    public (string, string) ResponseInfo { get; init; }
+    public (string, string) ResponseInfo { get; set; }
 
-    public (string, string)? ResponseSuccess { get; init; }
-}
+    public (string, string)? ResponseSuccess { get; set; }
 
-public interface IArgumentsHolder
-{
-    public List<IQueryExecutor> Arguments { get; init; }
+    public List<IQueryExecutor> Arguments { get; set; }
 
-    public bool AllowsMultipleValuesForSingleArgument { get; init; }
+    public bool AllowsMultipleValuesForSingleArgument { get; set; }
 }

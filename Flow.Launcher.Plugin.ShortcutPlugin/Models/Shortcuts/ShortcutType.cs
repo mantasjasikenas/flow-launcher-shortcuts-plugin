@@ -6,7 +6,6 @@ public enum ShortcutType
     File,
     Url,
     Plugin,
-    Program,
     Group,
     Unspecified,
     Shell

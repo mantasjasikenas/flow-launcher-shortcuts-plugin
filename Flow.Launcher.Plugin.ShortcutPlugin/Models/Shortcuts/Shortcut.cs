@@ -5,13 +5,12 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
-[JsonDerivedType(typeof(PluginShortcut), nameof(ShortcutType.Plugin))]
-[JsonDerivedType(typeof(ProgramShortcut), nameof(ShortcutType.Program))]
-[JsonDerivedType(typeof(UrlShortcut), nameof(ShortcutType.Url))]
 [JsonDerivedType(typeof(DirectoryShortcut), nameof(ShortcutType.Directory))]
+[JsonDerivedType(typeof(UrlShortcut), nameof(ShortcutType.Url))]
 [JsonDerivedType(typeof(FileShortcut), nameof(ShortcutType.File))]
-[JsonDerivedType(typeof(GroupShortcut), nameof(ShortcutType.Group))]
 [JsonDerivedType(typeof(ShellShortcut), nameof(ShortcutType.Shell))]
+[JsonDerivedType(typeof(GroupShortcut), nameof(ShortcutType.Group))]
+[JsonDerivedType(typeof(PluginShortcut), nameof(ShortcutType.Plugin))]
 public abstract class Shortcut : ICloneable
 {
     public string Key { get; set; }
@@ -23,10 +22,10 @@ public abstract class Shortcut : ICloneable
             FileShortcut => "File",
             DirectoryShortcut => "Directory",
             UrlShortcut => "Url",
-            ProgramShortcut => "Program",
             PluginShortcut => "Plugin",
             GroupShortcut => "Group",
-            _ => "Unspecified"
+            ShellShortcut => "Shell",
+            _ => "Unspecified shortcut type"
         };
     }
 
@@ -37,7 +36,6 @@ public abstract class Shortcut : ICloneable
             FileShortcut => Icons.File,
             DirectoryShortcut => Icons.Folder,
             UrlShortcut => Icons.Link,
-            ProgramShortcut => Icons.Terminal,
             ShellShortcut => Icons.Terminal,
             PluginShortcut => Icons.Logo,
             GroupShortcut => Icons.TabGroup,
@@ -50,7 +48,6 @@ public abstract class Shortcut : ICloneable
         FileShortcut => ShortcutType.File,
         DirectoryShortcut => ShortcutType.Directory,
         UrlShortcut => ShortcutType.Url,
-        ProgramShortcut => ShortcutType.Program,
         ShellShortcut => ShortcutType.Shell,
         PluginShortcut => ShortcutType.Plugin,
         GroupShortcut => ShortcutType.Group,

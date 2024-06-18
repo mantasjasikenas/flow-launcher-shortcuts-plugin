@@ -2,7 +2,9 @@
 
 public class UrlShortcut : Shortcut
 {
-    public string Url { get; set; }
+    public string Url { get; init; }
+
+    public string App { get; init; }
 
     public override object Clone()
     {

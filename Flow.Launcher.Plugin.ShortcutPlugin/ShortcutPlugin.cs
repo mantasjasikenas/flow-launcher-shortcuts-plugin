@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,32 +12,32 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 // ReSharper disable once UnusedType.Global
 public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMenu
 {
+    internal ServiceProvider ServiceProvider { get; private set; }
+
     private ICommandsService _commandsService;
-    private ISettingsService _settingsService;
 
-    private PluginInitContext _context;
     private SettingsUserControl _settingWindow;
+    private SettingsViewModel _settingsViewModel;
     private ContextMenu _contextMenu;
-
 
     public void Init(PluginInitContext context)
     {
-        _context = context;
-
         var serviceProvider = new ServiceCollection()
                               .ConfigureServices(context)
+                              .RegisterCommands()
                               .BuildServiceProvider();
 
-        _settingsService = serviceProvider.GetService<ISettingsService>();
         _commandsService = serviceProvider.GetService<ICommandsService>();
         _contextMenu = serviceProvider.GetService<ContextMenu>();
-    }
+        _settingsViewModel = serviceProvider.GetService<SettingsViewModel>();
 
+        ServiceProvider = serviceProvider;
+    }
 
     public List<Result> Query(Query query)
     {
         var args = CommandLineExtensions.SplitArguments(query.Search);
-        var results = _commandsService.ResolveCommand(args, query.Search);
+        var results = _commandsService.ResolveCommand(args, query);
 
         return results;
     }
@@ -53,7 +54,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public Control CreateSettingPanel()
     {
-        _settingWindow = new SettingsUserControl(_context, _settingsService, _commandsService);
+        _settingWindow = new SettingsUserControl(_settingsViewModel);
+
         return _settingWindow;
     }
 }

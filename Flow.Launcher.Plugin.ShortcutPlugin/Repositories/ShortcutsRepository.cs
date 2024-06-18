@@ -4,53 +4,102 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using FuzzySharp;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
-    private Dictionary<string, Shortcut> _shortcuts;
+    private readonly PluginInitContext _context;
 
-    public ShortcutsRepository(ISettingsService settingsService)
+    private Dictionary<string, List<Shortcut>> _shortcuts;
+
+    public ShortcutsRepository(ISettingsService settingsService, PluginInitContext context)
     {
         _settingsService = settingsService;
-        _shortcuts = ReadShortcuts(settingsService.GetSetting(x => x.ShortcutsPath));
+        _context = context;
+
+        _shortcuts = ReadShortcuts(settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
     }
 
-    public Shortcut GetShortcut(string key)
+    public IList<Shortcut> GetShortcuts(string key)
     {
-        return _shortcuts.TryGetValue(key, out var shortcut) ? shortcut : null;
+        return _shortcuts.GetValueOrDefault(key);
     }
 
     public IList<Shortcut> GetShortcuts()
     {
-        return _shortcuts.Values.ToList();
+        return _shortcuts.Values
+                         .SelectMany(x => x)
+                         .ToList();
+    }
+
+    public IEnumerable<Shortcut> GetPossibleShortcuts(string key)
+    {
+        var lowerKey = key.ToLowerInvariant();
+
+        var result = GetShortcuts()
+                     .Select(s => new
+                     {
+                         Shortcut = s,
+                         PartialScore = Fuzz.PartialRatio(s.Key.ToLowerInvariant(), lowerKey),
+                         Score = Fuzz.Ratio(s.Key.ToLowerInvariant(), lowerKey)
+                     })
+                     .Where(x => x.PartialScore > 90)
+                     .OrderByDescending(x => x.Score)
+                     .Select(x => x.Shortcut)
+                     .ToList();
+
+        return result;
     }
 
     public void AddShortcut(Shortcut shortcut)
     {
-        _shortcuts[shortcut.Key] = shortcut;
+        var result = _shortcuts.TryGetValue(shortcut.Key, out var value);
+
+        if (!result)
+        {
+            value = new List<Shortcut>();
+            _shortcuts.Add(shortcut.Key, value);
+        }
+
+        value.Add(shortcut);
+
         SaveShortcuts();
     }
 
-    public void RemoveShortcut(string key)
+    public void RemoveShortcut(Shortcut shortcut)
     {
-        var result = _shortcuts.Remove(key);
-
-        if (result)
+        if (!_shortcuts.TryGetValue(shortcut.Key, out var value))
         {
-            SaveShortcuts();
+            return;
         }
+
+        var result = value.Remove(shortcut);
+
+        if (!result)
+        {
+            return;
+        }
+
+        if (value.Count == 0)
+        {
+            _shortcuts.Remove(shortcut.Key);
+        }
+
+        SaveShortcuts();
     }
 
-    public List<GroupShortcut> GetGroups()
+    public IList<GroupShortcut> GetGroups()
     {
-        return _shortcuts.Values.OfType<GroupShortcut>().ToList();
+        return _shortcuts.Values
+                         .SelectMany(x => x)
+                         .OfType<GroupShortcut>()
+                         .ToList();
     }
 
     public void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys)
@@ -61,40 +110,27 @@ public class ShortcutsRepository : IShortcutsRepository
             Keys = shortcutKeys.ToList()
         };
 
-        _shortcuts[groupKey] = group;
-        SaveShortcuts();
-    }
+        _shortcuts.TryGetValue(groupKey, out var value);
 
-    public void ReplaceShortcut(Shortcut shortcut)
-    {
-        if (!_shortcuts.ContainsKey(shortcut.Key))
-        {
-            return;
-        }
-
-        _shortcuts[shortcut.Key] = shortcut;
+        value ??= new List<Shortcut>();
+        value.Add(group);
 
         SaveShortcuts();
     }
 
-    public void DuplicateShortcut(string existingKey, string duplicateKey)
+    public void DuplicateShortcut(Shortcut shortcut, string duplicateKey)
     {
-        if (!_shortcuts.TryGetValue(existingKey, out var value))
-        {
-            return;
-        }
+        var duplicateShortcut = (Shortcut) shortcut.Clone();
 
-        var newShortcut = (Shortcut) value.Clone();
+        duplicateShortcut.Key = duplicateKey;
 
-        newShortcut.Key = duplicateKey;
-        _shortcuts[duplicateKey] = newShortcut;
-
-        SaveShortcuts();
+        AddShortcut(duplicateShortcut);
     }
 
     public void ReloadShortcuts()
     {
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
+
         _shortcuts = ReadShortcuts(path);
     }
 
@@ -106,55 +142,63 @@ public class ShortcutsRepository : IShortcutsRepository
 
             if (shortcuts.Count == 0)
             {
-                throw new Exception("No shortcuts found in file");
+                throw new Exception("No valid shortcuts found in the file.");
             }
 
             _shortcuts = shortcuts;
 
             SaveShortcuts();
             ReloadShortcuts();
+
+            _context.API.ShowMsg("Shortcuts imported successfully");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            MessageBox.Show(Resources.Failed_to_import_shortcuts_file);
+            _context.API.ShowMsg("Error while importing shortcuts");
+            _context.API.LogException(nameof(ShortcutsRepository), "Error importing shortcuts", ex);
         }
     }
 
     public void ExportShortcuts(string path)
     {
-        if (!File.Exists(_settingsService.GetSetting(x => x.ShortcutsPath)))
+        if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath)))
         {
-            MessageBox.Show(Resources.Shortcuts_file_not_found);
+            _context.API.ShowMsg("No shortcuts to export");
             return;
         }
 
         try
         {
-            File.Copy(_settingsService.GetSetting(x => x.ShortcutsPath), path);
+            File.Copy(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath), path);
         }
-        catch
+        catch (Exception ex)
         {
-            MessageBox.Show(Resources.Error_while_exporting_shortcuts);
+            _context.API.ShowMsg("Error while exporting shortcuts");
+            _context.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
         }
     }
 
-    private static Dictionary<string, Shortcut> ReadShortcuts(string path)
+    private Dictionary<string, List<Shortcut>> ReadShortcuts(string path)
     {
         if (!File.Exists(path))
         {
-            return new Dictionary<string, Shortcut>();
+            return new Dictionary<string, List<Shortcut>>();
         }
 
         try
         {
             var json = File.ReadAllText(path);
             var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
-            return shortcuts.ToDictionary(shortcut => shortcut.Key);
+
+            return shortcuts.GroupBy(x => x.Key)
+                            .ToDictionary(x => x.Key, x => x.ToList());
         }
         catch (Exception e)
         {
-            MessageBox.Show("Error while reading shortcuts file: " + e.Message);
-            return new Dictionary<string, Shortcut>();
+            _context.API.ShowMsg("Error while reading shortcuts. Please check the shortcuts config file.");
+            _context.API.LogException(nameof(ShortcutsRepository), "Error reading shortcuts", e);
+
+            return new Dictionary<string, List<Shortcut>>();
         }
     }
 
@@ -165,11 +209,15 @@ public class ShortcutsRepository : IShortcutsRepository
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
-        var json = JsonSerializer.Serialize(_shortcuts.Values, options);
 
-        var path = _settingsService.GetSetting(x => x.ShortcutsPath);
+        var flattenShortcuts = _shortcuts.Values
+                                         .SelectMany(x => x)
+                                         .ToList();
 
+        var json = JsonSerializer.Serialize(flattenShortcuts, options);
+        var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
         var directory = Path.GetDirectoryName(path);
+
         if (directory != null && !Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);

@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.models;
 
-public class Query : IParsable<Query>
+public partial class Query : IParsable<Query>
 {
     public string Keyword { get; init; }
 
@@ -15,8 +14,8 @@ public class Query : IParsable<Query>
 
     public static Query Parse(string s, IFormatProvider provider = null)
     {
-        var keyword = Regex.Match(s, @"^\w+").ToString();
-        var args = Regex.Match(s, @"(?<=\w+ ).+(?<=\n|$)").ToString();
+        var keyword = KeywordRegex().Match(s).ToString();
+        var args = ArgsRegex().Match(s).ToString();
 
 
         return new Query
@@ -37,4 +36,10 @@ public class Query : IParsable<Query>
     {
         return $"Keyword: {Keyword} Args: {Args}";
     }
+
+    [GeneratedRegex("^\\w+")]
+    private static partial Regex KeywordRegex();
+
+    [GeneratedRegex("(?<=\\w+ ).+(?<=\\n|$)")]
+    private static partial Regex ArgsRegex();
 }

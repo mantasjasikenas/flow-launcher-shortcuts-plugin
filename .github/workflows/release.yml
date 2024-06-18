@@ -32,6 +32,12 @@ jobs:
 
       - run: echo ${{steps.version.outputs.prop}}
 
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v1
+
+      - run: echo '${{ steps.extract-release-notes.outputs.release_notes }}'
+
       - name: Restore dependencies
         run: |
           cd Flow.Launcher.Plugin.ShortcutPlugin
@@ -46,5 +52,6 @@ jobs:
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
+          body: '${{ steps.extract-release-notes.outputs.release_notes }}'
           files: "Flow.Launcher.Plugin.ShortcutPlugin/Flow.Launcher.Plugin.ShortcutPlugin.zip"
           tag_name: "v${{steps.version.outputs.prop}}"

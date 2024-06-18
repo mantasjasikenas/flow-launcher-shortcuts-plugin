@@ -28,28 +28,28 @@
         <value>Plugin initialized</value>
     </data>
     <data name="ShortcutsManager_AddShortcut_Add_shortcut" xml:space="preserve">
-        <value>Add {0} shortcut '{1}'.</value>
+        <value>Add {0} shortcut '{1}'</value>
     </data>
     <data name="ShortcutsManager_RemoveShortcut_Remove_shortcut" xml:space="preserve">
-        <value>Remove shortcut '{0}'.</value>
+        <value>Remove shortcut '{0}'</value>
     </data>
     <data name="ShortcutsManager_GetShortcutPath_Copy_shortcut_path" xml:space="preserve">
-        <value>Copy shortcut {0} path.</value>
+        <value>Copy shortcut {0} path</value>
     </data>
     <data name="ShortcutsManager_ChangeShortcutPath_Change_shortcut_path" xml:space="preserve">
-        <value>Change shortcut '{0}' path.</value>
+        <value>Change shortcut '{0}' path</value>
     </data>
     <data name="ShortcutsManager_OpenShortcut_Open_shortcut" xml:space="preserve">
-        <value>Open shortcut '{0}'.</value>
+        <value>Open shortcut '{0}'</value>
     </data>
     <data name="SettingsManager_OpenConfigCommand_Open_plugin_config" xml:space="preserve">
-        <value>Open plugin config.</value>
+        <value>Open plugin config</value>
     </data>
     <data name="SettingsManager_OpenHelpersCommand_Open_plugin_helpers" xml:space="preserve">
-        <value>Open plugin helpers.</value>
+        <value>Open plugin helpers</value>
     </data>
     <data name="SettingsManager_ReloadCommand_Reload_plugin" xml:space="preserve">
-        <value>Reload plugin.</value>
+        <value>Reload plugin</value>
     </data>
     <data name="Utils_OpenFolder_Directory_does_not_exist" xml:space="preserve">
         <value>Directory does not exist! ({0})</value>
@@ -62,6 +62,12 @@
     </data>
     <data name="Export_shortcuts" xml:space="preserve">
         <value>Export shortcuts</value>
+    </data>
+    <data name="Import_variables" xml:space="preserve">
+        <value>Import variables</value>
+    </data>
+    <data name="Export_variables" xml:space="preserve">
+        <value>Export variables</value>
     </data>
     <data name="Shortcuts_file_not_found" xml:space="preserve">
         <value>Shortcuts file not found!</value>
@@ -78,5 +84,7 @@
     <data name="Shortcuts_Query_No_results_found" xml:space="preserve">
         <value>No results found</value>
     </data>
-
+    <data name="Error_recursive_group_shortcut" xml:space="preserve">
+        <value>Shortcut cannot contain itself</value>
+    </data>
 </root>

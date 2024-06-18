@@ -12,4 +12,6 @@ public interface IVariablesService
     void Reload();
     string ExpandVariables(string value);
     string ExpandVariables(string value, IReadOnlyDictionary<string, string> arguments);
+    List<Result> ImportVariables();
+    List<Result> ExportVariables();
 }

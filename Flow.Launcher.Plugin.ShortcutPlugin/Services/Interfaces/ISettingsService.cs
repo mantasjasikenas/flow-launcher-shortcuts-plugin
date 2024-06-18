@@ -5,9 +5,15 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 public interface ISettingsService
 {
-    void ModifySettings(Action<Settings> modifyAction);
+    T GetSettingOrDefault<T>(Func<Settings, T> getAction);
+
     T GetSetting<T>(Func<Settings, T> getAction);
+
+    T GetDefaultSetting<T>(Func<Settings, T> getAction);
+
     void SetSettings<T>(Action<Settings, T> setAction, T value);
-    Settings GetSettings();
+
+    void Reset();
+
     void Reload();
 }

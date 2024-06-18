@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
-public static class CommandLineExtensions
+public static partial class CommandLineExtensions
 {
-    public static List<string> SplitArguments(string commandLine)
+    [GeneratedRegex("\\$\\{(.*?)\\}")]
+    private static partial Regex ArgumentRegex();
+
+    /*public static List<string> SplitArguments(string commandLine)
     {
         var arguments = new List<string>();
 
@@ -50,9 +54,80 @@ public static class CommandLineExtensions
         arguments = arguments.Select(x => x.Replace("\"", "")).Where(x => !string.IsNullOrEmpty(x)).ToList();
 
         return arguments;
+    }*/
+
+    public static List<string> SplitArguments(string commandLine)
+    {
+        var arguments = new List<string>();
+
+        var inQuotes = false;
+        var isEscaped = false;
+        var argStartIndex = 0;
+
+        for (var i = 0; i < commandLine.Length; i++)
+        {
+            var currentChar = commandLine[i];
+
+            switch (currentChar)
+            {
+                case '\\' when !isEscaped:
+                    isEscaped = true;
+                    continue;
+                case '\"':
+                    if (isEscaped)
+                    {
+                        isEscaped = false; // reset the flag if the quote is escaped
+                    }
+                    else
+                    {
+                        inQuotes = !inQuotes;
+                    }
+
+                    continue;
+                case ' ' when !inQuotes:
+                {
+                    if (i > argStartIndex)
+                    {
+                        var argument = commandLine.Substring(argStartIndex, i - argStartIndex);
+
+                        arguments.Add(argument);
+                    }
+
+                    argStartIndex = i + 1;
+                    break;
+                }
+            }
+
+            if (currentChar != '\\')
+            {
+                isEscaped = false; // reset the flag if the current character is not a backslash
+            }
+        }
+
+        if (commandLine.Length > argStartIndex)
+        {
+            var lastArgument = commandLine[argStartIndex..];
+            arguments.Add(lastArgument);
+        }
+
+        arguments = arguments
+                    .Select(x =>
+                        {
+                            var input = x.Replace("\\\"", "\"");
+
+                            return input.StartsWith("\"") && input.EndsWith("\"") && input.Length > 1
+                                ? input[1..^1]
+                                : input;
+                        }
+                    )
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .ToList();
+
+        return arguments;
     }
 
-    public static Dictionary<string, string> ParseArguments(IReadOnlyList<string> args)
+
+    public static Dictionary<string, string> ParseArguments(string shortcut, IReadOnlyList<string> args)
     {
         var arguments = new Dictionary<string, string>();
 
@@ -76,30 +151,22 @@ public static class CommandLineExtensions
                                          !string.IsNullOrEmpty(x.Value))
                              .ToDictionary(x => x.Key, x => x.Value);
 
-        return arguments;
-    }
+        // if no arguments found, map all arguments to the first argument
+        var matches = ArgumentRegex().Matches(shortcut);
 
-    /*public static Dictionary<string, string> ParseArguments(IReadOnlyList<string> args)
-    {
-        var arguments = new Dictionary<string, string>();
-
-        for (var i = 0; i < args.Count; i++)
+        if (arguments.Count != 0 || matches.Count < 1)
         {
-            var arg = args[i];
-
-            if (!arg.StartsWith("-")) continue;
-
-            if (i + 1 < args.Count && !args[i + 1].StartsWith("-"))
-            {
-                arguments.Add(arg, args[i + 1]);
-                i++;
-            }
-            else
-            {
-                arguments.Add(arg, string.Empty);
-            }
+            return arguments;
         }
 
+        var argumentName = matches[0].Groups[1].Value;
+
+        if (!args.Contains($"-{argumentName}"))
+        {
+            arguments.Add(argumentName, string.Join(" ", args));
+        }
+
+
         return arguments;
-    }*/
+    }
 }

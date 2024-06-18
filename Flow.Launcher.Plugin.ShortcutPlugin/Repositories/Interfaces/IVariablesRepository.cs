@@ -11,5 +11,7 @@ public interface IVariablesRepository
     public Variable GetVariable(string name);
     public List<Variable> GetVariables();
     public void Reload();
-    string ExpandVariables(string value);
+    public string ExpandVariables(string value);
+    public void ImportVariables(string path);
+    public void ExportVariables(string path);
 }

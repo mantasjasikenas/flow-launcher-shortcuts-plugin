@@ -6,16 +6,6 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
 public static class ResultExtensions
 {
-    public static List<Result> InitializedResult()
-    {
-        return SingleResult(Resources.ShortcutsManager_Init_Plugin_initialized);
-    }
-
-    public static List<Result> NotImplementedResult()
-    {
-        return SingleResult("Not implemented yet", "Please wait for the next release");
-    }
-
     public static List<Result> EmptyResult()
     {
         return SingleResult(Resources.Shortcuts_Query_No_results_found);
@@ -26,8 +16,25 @@ public static class ResultExtensions
         return SingleResult(title, subtitle);
     }
 
-    public static List<Result> SingleResult(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true, string autocomplete = default, string iconPath = default)
+    /*public static List<Result> InitializedResult()
+    {
+        return SingleResult(Resources.ShortcutsManager_Init_Plugin_initialized);
+    }*/
+
+    /*public static List<Result> NotImplementedResult()
+    {
+        return SingleResult("Not implemented yet", "Please wait for the next release");
+    }*/
+
+    public static List<Result> SingleResult(
+        string title,
+        string subtitle = "",
+        Action action = default,
+        bool hideAfterAction = true,
+        string autocomplete = default,
+        string iconPath = default,
+        IList<int> titleHighlightData = default
+    )
     {
         return new List<Result>
         {
@@ -37,6 +44,7 @@ public static class ResultExtensions
                 SubTitle = subtitle,
                 IcoPath = iconPath ?? Icons.Logo,
                 AutoCompleteText = autocomplete,
+                TitleHighlightData = titleHighlightData,
                 Action = _ =>
                 {
                     action?.Invoke();
@@ -46,20 +54,32 @@ public static class ResultExtensions
         };
     }
 
-    public static Result Result(string title, string subtitle = "", Action action = default,
-        bool hideAfterAction = true, string iconPath = default, object contextData = default)
+    public static Result Result(
+        string title,
+        string subtitle = "",
+        Action action = default,
+        bool hideAfterAction = true,
+        string iconPath = default,
+        object contextData = default,
+        string autoCompleteText = null,
+        IList<int> titleHighlightData = default,
+        int score = default
+    )
     {
         return new Result
         {
             Title = title,
             SubTitle = subtitle,
             IcoPath = iconPath ?? Icons.Logo,
+            TitleHighlightData = titleHighlightData,
             ContextData = contextData,
+            Score = score,
             Action = _ =>
             {
                 action?.Invoke();
                 return hideAfterAction;
-            }
+            },
+            AutoCompleteText = autoCompleteText ?? title
         };
     }
 }
