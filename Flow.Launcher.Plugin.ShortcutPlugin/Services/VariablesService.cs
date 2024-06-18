@@ -1,8 +1,6 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -15,9 +13,12 @@ public class VariablesService : IVariablesService
 {
     private readonly IVariablesRepository _variablesRepository;
 
-    public VariablesService(IVariablesRepository variablesRepository)
+    private readonly PluginInitContext _context;
+
+    public VariablesService(IVariablesRepository variablesRepository, PluginInitContext context)
     {
         _variablesRepository = variablesRepository;
+        _context = context;
     }
 
     public List<Result> GetVariables()
@@ -35,7 +36,7 @@ public class VariablesService : IVariablesService
                    IcoPath = Icons.Logo,
                    Action = _ =>
                    {
-                       Clipboard.SetDataObject(variable.Value);
+                       _context.API.CopyToClipboard(variable.Value);
                        return true;
                    }
                })
