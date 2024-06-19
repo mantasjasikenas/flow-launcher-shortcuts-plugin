@@ -12,4 +12,10 @@ public static class Constants
 
     public const string GithubRepository =
         "https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin";
+
+    public const string GithubIssues = $"{GithubRepository}/issues";
+
+    public const string ReadmeUrl = GithubRepository + "/blob/master/README.md";
+
+    public const string DiscordUsername = "mantelis130";
 }
