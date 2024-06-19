@@ -21,9 +21,11 @@ public static class DependencyInjection
         services.AddSingleton<IShortcutsRepository, ShortcutsRepository>();
         services.AddSingleton<IShortcutsService, ShortcutsService>();
         services.AddSingleton<IVariablesRepository, VariablesRepository>();
+        services.AddSingleton<IBackupRepository, BackupRepository>();
         services.AddSingleton<ICommandsRepository, CommandsRepository>();
         services.AddSingleton<IVariablesService, VariablesService>();
         services.AddSingleton<ICommandsService, CommandsService>();
+        services.AddSingleton<IBackupService, BackupService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
         services.AddSingleton<SettingsViewModel, SettingsViewModel>();
@@ -41,6 +43,7 @@ public static class DependencyInjection
         services.AddSingleton<ICommand, ConfigCommand>();
         services.AddSingleton<ICommand, ImportCommand>();
         services.AddSingleton<ICommand, ExportCommand>();
+        services.AddSingleton<ICommand, BackupCommand>();
         services.AddSingleton<ICommand, VariablesCommand>();
         services.AddSingleton<ICommand, RemoveCommand>();
         services.AddSingleton<ICommand, DuplicateCommand>();
