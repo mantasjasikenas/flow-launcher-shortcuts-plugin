@@ -14,25 +14,18 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
 internal class ContextMenu : IContextMenu
 {
-    // ReSharper disable once NotAccessedField.Local
-    private readonly PluginInitContext _context;
-
-    // ReSharper disable once NotAccessedField.Local
-    private readonly IShortcutHandler _shortcutHandler;
-
     private readonly IVariablesService _variablesService;
 
-
-    public ContextMenu(PluginInitContext context, IShortcutHandler shortcutHandler, IVariablesService variablesService)
+    public ContextMenu(IVariablesService variablesService)
     {
-        _context = context;
-        _shortcutHandler = shortcutHandler;
         _variablesService = variablesService;
     }
 
     public List<Result> LoadContextMenus(Result selectedResult)
     {
         var contextMenu = new List<Result>();
+
+        AddCopyTitleAndSubtitle(selectedResult, contextMenu);
 
         if (selectedResult.ContextData is not Shortcut shortcut)
         {
@@ -50,6 +43,25 @@ internal class ContextMenu : IContextMenu
         }
 
         return contextMenu;
+    }
+
+    private static void AddCopyTitleAndSubtitle(Result selectedResult, List<Result> contextMenu)
+    {
+        var copyTitle = ResultExtensions.Result(
+            "Copy result title",
+            selectedResult.Title,
+            action: () => { Clipboard.SetText(selectedResult.Title); },
+            iconPath: Icons.Copy
+        );
+        var copySubTitle = ResultExtensions.Result(
+            "Copy result subtitle",
+            selectedResult.SubTitle,
+            action: () => { Clipboard.SetText(selectedResult.SubTitle); },
+            iconPath: Icons.Copy
+        );
+
+        contextMenu.Add(copyTitle);
+        contextMenu.Add(copySubTitle);
     }
 
     private void GetFileShortcutContextMenu(ICollection<Result> contextMenu, FileShortcut fileShortcut)
