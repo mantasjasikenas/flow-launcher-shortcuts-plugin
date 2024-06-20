@@ -43,4 +43,8 @@ public static class Icons
     public const string WindowsTerminal = "Images\\windows-terminal.png";
 
     public const string Copy = "Images\\copy.png";
+
+    public const string Github = "Images\\github-mark-white.png";
+
+    public const string Discord = "Images\\discord-mark-white.png";
 }
