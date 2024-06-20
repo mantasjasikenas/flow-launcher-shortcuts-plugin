@@ -12,6 +12,8 @@ public static class Constants
 
     public const string BackupTimestampFormat = "yyyyMMddHHmmssfff";
 
+    public const string BackupsFolder = "Backups";
+
     public const string GithubRepository =
         "https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin";
 

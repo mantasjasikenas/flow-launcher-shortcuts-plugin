@@ -20,91 +20,61 @@ public class BackupCommand : ICommand
 
     private Command CreateBackupCommand()
     {
-        // backup addVariableValueArgument = new ArgumentBuilder()
-        //                                .WithResponseInfo(
-        //                                    ("Enter variable value", "What should your variable value be?"))
-        //                                .WithHandler(AddVariableCommandHandler)
-        //                                .Build();
-        //
-        // backup addVariableNameArgument = new ArgumentBuilder()
-        //                               .WithResponseInfo(("Enter variable name", "How should your variable be named?"))
-        //                               .WithArgument(addVariableValueArgument)
-        //                               .Build();
-        //
-        // backup addVariable = new ArgumentLiteralBuilder()
-        //                   .WithKey("add")
-        //                   .WithResponseInfo(("backup add", "Add variable"))
-        //                   .WithResponseFailure(("Failed to add variable", "Something went wrong"))
-        //                   .WithArgument(addVariableNameArgument)
-        //                   .Build();
-        //
-        // backup removeVariableArgument = new ArgumentBuilder()
-        //                              .WithResponseInfo(("Enter variable name", "Which variable should be removed?"))
-        //                              .WithResponseSuccess(("Remove", "Your variable will be removed from the list"))
-        //                              .WithHandler(RemoveVariableCommandHandler)
-        //                              .Build();
-        //
-        // backup removeVariable = new ArgumentLiteralBuilder()
-        //                      .WithKey("remove")
-        //                      .WithResponseInfo(("backup remove", "Remove variable"))
-        //                      .WithResponseFailure(("Failed to remove variable", "Something went wrong"))
-        //                      .WithArgument(removeVariableArgument)
-        //                      .Build();
+        var listBackup = new ArgumentLiteralBuilder()
+                         .WithKey("list")
+                         .WithResponseInfo(("backup list", "Show all backups"))
+                         .WithResponseFailure(("Failed to list backup", "Something went wrong"))
+                         .WithResponseSuccess(("List", "List all backups"))
+                         .WithHandler(ListBackupCommandHandler)
+                         .Build();
 
         var createBackup = new ArgumentLiteralBuilder()
                            .WithKey("create")
-                           .WithResponseInfo(("backup create", "Create Backup"))
-                           .WithResponseFailure(("Failed to create Backup", "Something went wrong"))
-                           .WithResponseSuccess(("Backup created", "Backup created successfully"))
+                           .WithResponseInfo(("backup create", "Create new backup"))
+                           .WithResponseFailure(("Failed to create backup", "Something went wrong"))
+                           .WithResponseSuccess(("backup created", "backup created successfully"))
                            .WithHandler(BackupCommandHandler)
                            .Build();
 
         var restoreBackup = new ArgumentLiteralBuilder()
                             .WithKey("restore")
-                            .WithResponseInfo(("backup restore", "Restore Backup"))
-                            .WithResponseFailure(("Failed to restore Backup", "Something went wrong"))
-                            .WithResponseSuccess(("Backup restored", "Backup restored successfully"))
+                            .WithResponseInfo(("backup restore", "Restore selected backup"))
+                            .WithResponseFailure(("Failed to restore backup", "Something went wrong"))
+                            .WithResponseSuccess(("backup restored", "backup restored successfully"))
                             .WithHandler(RestoreCommandHandler)
                             .Build();
 
-        var listBackup = new ArgumentLiteralBuilder()
-                         .WithKey("list")
-                         .WithResponseInfo(("backup list", "List all Backup"))
-                         .WithResponseFailure(("Failed to list Backup", "Something went wrong"))
-                         .WithResponseSuccess(("List", "List all Backup"))
-                         .WithHandler(ListBackupCommandHandler)
-                         .Build();
 
         var deleteBackup = new ArgumentLiteralBuilder()
                            .WithKey("delete")
-                           .WithResponseInfo(("backup delete", "Delete Backup"))
-                           .WithResponseFailure(("Failed to delete Backup", "Something went wrong"))
-                           .WithResponseSuccess(("Backup deleted", "Backup deleted successfully"))
+                           .WithResponseInfo(("backup delete", "Delete selected backup"))
+                           .WithResponseFailure(("Failed to delete backup", "Something went wrong"))
+                           .WithResponseSuccess(("backup deleted", "backup deleted successfully"))
                            .WithHandler(DeleteBackupCommandHandler)
                            .Build();
 
         var clearBackup = new ArgumentLiteralBuilder()
                           .WithKey("clear")
-                          .WithResponseInfo(("backup clear", "Clear Backup"))
-                          .WithResponseFailure(("Failed to clear Backup", "Something went wrong"))
-                          .WithResponseSuccess(("Backup cleared", "Backup cleared successfully"))
+                          .WithResponseInfo(("backup clear", "Clear all backups"))
+                          .WithResponseFailure(("Failed to clear backup", "Something went wrong"))
+                          .WithResponseSuccess(("backup cleared", "backup cleared successfully"))
                           .WithHandler(ClearBackupCommandHandler)
                           .Build();
 
         return new CommandBuilder()
                .WithKey("backup")
-               .WithResponseInfo(("backup", "Manage Backup"))
-               .WithResponseFailure(("Failed to manage Backup", "Something went wrong"))
+               .WithResponseInfo(("backup", "Manage backup"))
+               .WithResponseFailure(("Failed to manage backup", "Something went wrong"))
                .WithArguments(listBackup, createBackup, restoreBackup, deleteBackup, clearBackup)
                .Build();
     }
 
-    private List<Result> ClearBackupCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> ClearBackupCommandHandler(ActionContext context, List<string> arguments)
     {
         return _backupService.ClearBackups();
     }
 
-    private List<Result> DeleteBackupCommandHandler(ActionContext arg1, List<string> arg2)
+    private List<Result> DeleteBackupCommandHandler(ActionContext context, List<string> arguments)
     {
         return _backupService.DeleteBackup();
     }

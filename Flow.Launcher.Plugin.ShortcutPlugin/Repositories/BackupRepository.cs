@@ -19,8 +19,7 @@ public class BackupRepository : IBackupRepository
 
     private readonly IVariablesRepository _variablesRepository;
 
-    private static string BackupPath => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) +
-                                        "\\ShortcutPlugin";
+    private string BackupPath => GetBackupPath();
 
     public BackupRepository(PluginInitContext context, ISettingsService settingsService,
         IShortcutsRepository shortcutsRepository, IVariablesRepository variablesRepository)
@@ -33,7 +32,7 @@ public class BackupRepository : IBackupRepository
         Initialize();
     }
 
-    private static void Initialize()
+    private void Initialize()
     {
         if (!Directory.Exists(BackupPath))
         {
@@ -41,10 +40,24 @@ public class BackupRepository : IBackupRepository
         }
     }
 
+    private string GetBackupPath()
+    {
+        var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var parentDirectory = Directory.GetParent(pluginDirectory)?.Parent?.FullName;
+
+        if (parentDirectory == null)
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ShortcutPlugin\\" +
+                   Constants.BackupsFolder;
+        }
+
+        return Path.Combine(parentDirectory, Constants.PluginDataPath, Constants.BackupsFolder);
+    }
+
     public void Backup()
     {
         var timestamp = DateTime.Now.ToString(Constants.BackupTimestampFormat);
-        var backupFolderPath = BackupPath + "\\" + "backup_" + timestamp;
+        var backupFolderPath = $"{BackupPath}\\{timestamp}";
 
         Directory.CreateDirectory(backupFolderPath);
 
@@ -78,7 +91,7 @@ public class BackupRepository : IBackupRepository
                .GetDirectories(BackupPath)
                .Select(x =>
                {
-                   var timestamp = x.Split("_").Last();
+                   var timestamp = x.Split('\\').Last();
                    var date = DateTime.ParseExact(timestamp, Constants.BackupTimestampFormat, null);
 
                    return new Backup

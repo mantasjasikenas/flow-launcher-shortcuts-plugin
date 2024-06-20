@@ -60,17 +60,22 @@ public class BackupService : IBackupService
             return ResultExtensions.SingleResult("No backups found", "No backups found");
         }
 
-        return backups
-               .Select(backup =>
-               {
-                   return ResultExtensions.Result(
-                       backup.DateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                       backup.Path,
-                       () => { ShortcutUtilities.OpenDirectory(backup.Path); }
-                   );
-               })
-               .OrderByDescending(x => x.Title)
-               .ToList();
+        var results = backups
+                      .Select(backup =>
+                      {
+                          return ResultExtensions.Result(
+                              backup.DateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                              backup.Path,
+                              () => { ShortcutUtilities.OpenDirectory(backup.Path); }
+                          );
+                      })
+                      .OrderByDescending(x => x.Title)
+                      .ToList();
+
+        results.Insert(0,
+            ResultExtensions.Result("Select a backup to open", "The selected backup will be opened", score: 1000));
+
+        return results;
     }
 
     public List<Result> DeleteBackup()
@@ -101,9 +106,18 @@ public class BackupService : IBackupService
 
     public List<Result> ClearBackups()
     {
-        return ResultExtensions.SingleResult(
-            "Clear all backups",
-            "All backups will be deleted",
-            () => { _backupRepository.ClearBackups(); });
+        var question = ResultExtensions.Result(
+            "Are you sure you want to clear all backups?",
+            "This action cannot be undone",
+            score: 3000
+        );
+
+        var yesResult = ResultExtensions.Result("Yes", "Selecting this will clear all backups",
+            () => { _backupRepository.ClearBackups(); },
+            score: 2000);
+        var noResult = ResultExtensions.Result("No", "Selecting this will cancel the operation",
+            score: 1000);
+
+        return new List<Result> {question, yesResult, noResult};
     }
 }
