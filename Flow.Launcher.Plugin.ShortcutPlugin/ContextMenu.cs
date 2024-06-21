@@ -14,25 +14,18 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
 internal class ContextMenu : IContextMenu
 {
-    // ReSharper disable once NotAccessedField.Local
-    private readonly PluginInitContext _context;
-
-    // ReSharper disable once NotAccessedField.Local
-    private readonly IShortcutHandler _shortcutHandler;
-
     private readonly IVariablesService _variablesService;
 
-
-    public ContextMenu(PluginInitContext context, IShortcutHandler shortcutHandler, IVariablesService variablesService)
+    public ContextMenu(IVariablesService variablesService)
     {
-        _context = context;
-        _shortcutHandler = shortcutHandler;
         _variablesService = variablesService;
     }
 
     public List<Result> LoadContextMenus(Result selectedResult)
     {
         var contextMenu = new List<Result>();
+
+        AddCopyTitleAndSubtitle(selectedResult, contextMenu);
 
         if (selectedResult.ContextData is not Shortcut shortcut)
         {
@@ -50,6 +43,25 @@ internal class ContextMenu : IContextMenu
         }
 
         return contextMenu;
+    }
+
+    private static void AddCopyTitleAndSubtitle(Result selectedResult, List<Result> contextMenu)
+    {
+        var copyTitle = ResultExtensions.Result(
+            "Copy result title",
+            selectedResult.Title,
+            action: () => { Clipboard.SetText(selectedResult.Title); },
+            iconPath: Icons.Copy
+        );
+        var copySubTitle = ResultExtensions.Result(
+            "Copy result subtitle",
+            selectedResult.SubTitle,
+            action: () => { Clipboard.SetText(selectedResult.SubTitle); },
+            iconPath: Icons.Copy
+        );
+
+        contextMenu.Add(copyTitle);
+        contextMenu.Add(copySubTitle);
     }
 
     private void GetFileShortcutContextMenu(ICollection<Result> contextMenu, FileShortcut fileShortcut)
@@ -124,16 +136,15 @@ internal class ContextMenu : IContextMenu
             iconPath: Icons.FolderOpen
         ));
 
+        var visualCodeVersions = GetVisualCodeVersions();
 
-        // open folder in vs code if it exists in the system
-        if (TryGetVisualCode(out var command, out var icon))
+        foreach (var (title, cmd, icon) in visualCodeVersions)
         {
             contextMenu.Add(ResultExtensions.Result(
-                "Open in VS Code",
-                // directoryPath,
+                $"Open in {title}",
                 action: () =>
                 {
-                    CliWrap.Cli.Wrap(command)
+                    CliWrap.Cli.Wrap(cmd)
                            .WithArguments(".")
                            .WithWorkingDirectory(directoryPath)
                            .ExecuteAsync();
@@ -144,7 +155,6 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Open in Command Prompt",
-            // directoryPath,
             action: () =>
             {
                 var processStartInfo = new ProcessStartInfo
@@ -160,7 +170,6 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Open in PowerShell",
-            // directoryPath,
             action: () =>
             {
                 var processStartInfo = new ProcessStartInfo
@@ -216,39 +225,31 @@ internal class ContextMenu : IContextMenu
         }
     }
 
-    private static bool TryGetVisualCode(out string version, out string icon)
+    private static List<(string title, string executable, string icon)> GetVisualCodeVersions()
     {
         var path = Environment.GetEnvironmentVariable("PATH");
-
-        version = null;
-        icon = null;
+        var versions = new List<(string, string, string)>();
 
         if (path == null)
         {
-            return false;
+            return versions;
         }
 
         var folders = path.Split(';');
 
         foreach (var folder in folders)
         {
+            if (File.Exists(Path.Combine(folder, "code.cmd")))
+            {
+                versions.Add(("Visual Studio Code", "code", Icons.VisualCode));
+            }
+
             if (File.Exists(Path.Combine(folder, "code-insiders.cmd")))
             {
-                version = "code-insiders";
-                icon = Icons.VisualCodeInsiders;
-                return true;
+                versions.Add(("Visual Studio Code - Insiders", "code-insiders", Icons.VisualCodeInsiders));
             }
-
-            if (!File.Exists(Path.Combine(folder, "code.cmd")))
-            {
-                continue;
-            }
-
-            version = "code";
-            icon = Icons.VisualCode;
-            return true;
         }
 
-        return false;
+        return versions;
     }
 }

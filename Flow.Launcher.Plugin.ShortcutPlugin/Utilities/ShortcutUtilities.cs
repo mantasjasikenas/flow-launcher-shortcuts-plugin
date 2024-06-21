@@ -33,11 +33,11 @@ public static class ShortcutUtilities
 
         if (silent)
         {
-            processStartInfo.Arguments = "/c " + arguments;
+            processStartInfo.Arguments = "/c " + "\"" + arguments + "\"";
         }
         else
         {
-            processStartInfo.Arguments = "/K " + arguments;
+            processStartInfo.Arguments = "/K " + "\"" + arguments + "\"";
             processStartInfo.UseShellExecute = true;
         }
 

@@ -27,7 +27,7 @@ public class ReportCommand : ICommand
         return ResultExtensions.SingleResult(
             "Report an issue",
             "",
-            () => { ShortcutUtilities.OpenUrl($"{Constants.GithubRepository}/issues"); }
+            () => { ShortcutUtilities.OpenUrl(Constants.GithubIssues); }
         );
     }
 }

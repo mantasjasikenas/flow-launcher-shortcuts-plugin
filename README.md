@@ -39,6 +39,7 @@ Shortcuts plugin features include:
 - Show list of commands
 - Show or set plugin keyword
 - Allows to modify configuration files directly
+- Backup and restore shortcuts
 
 ## Settings
 
@@ -54,28 +55,37 @@ The following general options are available on the Flow Launcher settings page.
 
 The following commands are available for the Shortcuts plugin.
 
-| Command                                                          | Description                   | Example                                                                                                                                                               |
-|------------------------------------------------------------------|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `` q ``                                                          | Show available commands       | `` q `` to show available commands                                                                                                                                    |
-| `` q <shortcut_name> <optional_arguments> ``                     | Run shortcut                  | `` q search -q "flow launcher" `` to run shortcut with name `search` and pass `-q "flow launcher"` as arguments. Arguments are optional.                              |
-| `` q add <shortcut_type> <shortcut_name> <shortcut_arguments> `` | Add new shortcut              | `` q add directory doc C:\Users\my_user\Documents `` to add a shortcut named `doc` to the `Documents` folder                                                          |
-| `` q remove <shortcut_name> ``                                   | Remove shortcut               | `` q remove doc `` to remove shortcut with name `doc`                                                                                                                 |
-| `` q var list ``                                                 | Show all variables            | `` q var list `` to show all variables                                                                                                                                |
-| `` q var add <variable_name> <variable_value> ``                 | Show or set variable          | `` q var add appdata C:\Users\my_user\AppData\Roaming `` to set value of the `appdata` variable                                                                       |
-| `` q var remove <variable_name> ``                               | Remove variable               | `` q var remove appdata `` to remove variable with name `appdata`                                                                                                     |
-| `` q keyword get ``                                              | Show plugin action keywords   | `` q keyword get `` to show all plugin action keywords                                                                                                                |
-| `` q keyword set <keyword> ``                                    | Set plugin keyword            | `` q keyword set ss `` to set plugin keyword to `ss`. Existing keywords will be removed.                                                                              |
-| `` q keyword add <keyword> ``                                    | Add additional plugin keyword | `` q keyword add quick `` to add `quick` as a keyword for the plugin.                                                                                                 |
-| `` q keyword remove <keyword> ``                                 | Remove plugin keyword         | `` q keyword remove quick `` to remove `quick` as a keyword for the plugin.                                                                                           |
-| `` q duplicate <shortcut_name> <new_shortcut_name> ``            | Duplicate shortcut            | `` q duplicate doc doc_copy `` to duplicate shortcut with name `doc` to `doc_copy`                                                                                    |
-| `` q config ``                                                   | Open configuration files      | `` q config `` to show available configuration files                                                                                                                  |
-| `` q reload ``                                                   | Reload configuration files    | `` q reload `` to reload configuration files                                                                                                                          |
-| `` q import ``                                                   | Import shortcuts              | `` q import `` to import shortcuts from JSON file                                                                                                                     |
-| `` q export ``                                                   | Export shortcuts              | `` q export `` to export shortcuts to JSON file                                                                                                                       |
-| `` q settings ``                                                 | Open plugin settings          | `` q settings `` to open Flow Launcher settings page                                                                                                                  |
-| `` q group list ``                                               | Show all groups               | `` q group list `` to show all groups                                                                                                                                 |
-| `` q group add <group_name> <existing_shortcuts_keys> ``         | Add new group                 | `` q group add search google bing duckduckgo `` to add a group named `search`` with shortcuts `google`, `bing` and `duckduckgo` These shortcuts should already exist. |
-| `` q group remove <group_name> ``                                | Remove group                  | `` q group remove search `` to remove group with name `search`                                                                                                        |
+| Command                                                          | Description                    | Example                                                                                                                                                               |
+|------------------------------------------------------------------|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `` q ``                                                          | Show available commands        | `` q `` to show available commands                                                                                                                                    |
+| `` q <shortcut_name> <optional_arguments> ``                     | Run shortcut                   | `` q search -q "flow launcher" `` to run shortcut with name `search` and pass `-q "flow launcher"` as arguments. Arguments are optional.                              |
+| `` q add <shortcut_type> <shortcut_name> <shortcut_arguments> `` | Add new shortcut               | `` q add directory doc C:\Users\my_user\Documents `` to add a shortcut named `doc` to the `Documents` folder                                                          |
+| `` q remove <shortcut_name> ``                                   | Remove shortcut                | `` q remove doc `` to remove shortcut with name `doc`                                                                                                                 |
+| `` q var list ``                                                 | Show all variables             | `` q var list `` to show all variables                                                                                                                                |
+| `` q var add <variable_name> <variable_value> ``                 | Show or set variable           | `` q var add appdata C:\Users\my_user\AppData\Roaming `` to set value of the `appdata` variable                                                                       |
+| `` q var remove <variable_name> ``                               | Remove variable                | `` q var remove appdata `` to remove variable with name `appdata`                                                                                                     |
+| `` q keyword get ``                                              | Show plugin action keywords    | `` q keyword get `` to show all plugin action keywords                                                                                                                |
+| `` q keyword set <keyword> ``                                    | Set plugin keyword             | `` q keyword set ss `` to set plugin keyword to `ss`. Existing keywords will be removed.                                                                              |
+| `` q keyword add <keyword> ``                                    | Add additional plugin keyword  | `` q keyword add quick `` to add `quick` as a keyword for the plugin.                                                                                                 |
+| `` q keyword remove <keyword> ``                                 | Remove plugin keyword          | `` q keyword remove quick `` to remove `quick` as a keyword for the plugin.                                                                                           |
+| `` q duplicate <shortcut_name> <new_shortcut_name> ``            | Duplicate shortcut             | `` q duplicate doc doc_copy `` to duplicate shortcut with name `doc` to `doc_copy`                                                                                    |
+| `` q config ``                                                   | Open configuration files       | `` q config `` to show available configuration files                                                                                                                  |
+| `` q reload ``                                                   | Reload configuration files     | `` q reload `` to reload configuration files                                                                                                                          |
+| `` q import ``                                                   | Import shortcuts               | `` q import `` to import shortcuts from JSON file                                                                                                                     |
+| `` q export ``                                                   | Export shortcuts               | `` q export `` to export shortcuts to JSON file                                                                                                                       |
+| `` q settings ``                                                 | Open plugin settings           | `` q settings `` to open Flow Launcher settings page                                                                                                                  |
+| `` q group list ``                                               | Show all groups                | `` q group list `` to show all groups                                                                                                                                 |
+| `` q group add <group_name> <existing_shortcuts_keys> ``         | Add new group                  | `` q group add search google bing duckduckgo `` to add a group named `search`` with shortcuts `google`, `bing` and `duckduckgo` These shortcuts should already exist. |
+| `` q group remove <group_name> ``                                | Remove group                   | `` q group remove search `` to remove group with name `search`                                                                                                        |
+| `` q report ``                                                   | Report a bug                   | `` q report `` to report a bug                                                                                                                                        |
+| `` q help ``                                                     | Show help                      | `` q help `` to show help                                                                                                                                             |
+| `` q version ``                                                  | Show version                   | `` q version `` to show installed plugin version                                                                                                                      |
+| `` q backup ``                                                   | Show available backup commands | `` q backup `` to show available backup commands                                                                                                                      |
+| `` q backup list ``                                              | Show all backups               | `` q backup list `` to show all backups                                                                                                                               |
+| `` q backup create ``                                            | Create a new backup            | `` q backup create `` to create a new backup                                                                                                                          |
+| `` q backup restore ``                                           | Restore a backup               | `` q backup restore `` to to display a list of available backups and restore the selected one                                                                         |
+| `` q backup delete ``                                            | Delete a backup                | `` q backup delete `` to to display a list of available backups and delete the selected one                                                                           |                                                                                              
+| `` q backup clear ``                                             | Clear all backups              | `` q backup clear `` to clear all backups. It will delete all backups.                                                                                                |                                                                                                                          
 
 ## Shortcuts
 
@@ -87,6 +97,39 @@ The following shortcut types are available. More types will be added in the futu
 | `` file ``      | Open file in default application | `` file `` - path to the file                                                                                                                   |
 | `` url ``       | Open URL in default browser      | `` url `` - URL to open                                                                                                                         |
 | `` shell ``     | Run shell command                | ``type`` - shell type (``cmd`` or ``powershell``), ``command`` - shell command arguments, ``silent`` - run command without opening shell window |
+
+### Example of adding a new shortcut
+
+If you want to add a new shortcut, you can use the following commands. Keep in mind that if shortcut contains spaces,
+you should use quotes around the arguments. Also, if you need to use quotes in the arguments, you should escape them.
+You can do that by using `\"` or using Unicode escape sequence `\u0022`. For example, `\"C:\Program Files\MyApp\app.exe\"`
+
+- Directory shortcut
+
+```shell
+q add directory doc C:\Users\tutta\Documents
+q add directory pvp "C:\Users\tutta\OneDrive - Kaunas University of Technology\KTU\6 semester\Product Development Project"
+```
+
+- File shortcut
+
+```shell
+q add file my_file C:\Users\my_user\Documents\my_file.txt
+q add file my_file "C:\Users\my user\Documents\my_file.txt"
+```
+
+- URL shortcut
+
+```shell
+q add url google www.google.com
+```
+
+- Shell shortcut
+
+```shell
+q add shell cmd k1 true \"C:\Users\tutta\AppData\Local\Programs\Android Studio\bin\studio64.exe\" \"C:\Users\tutta\AndroidStudioProjects\De mo\DemoApp\"
+q add shell powershell k2 false "Write-Host 'Hello, World!'"
+```
 
 ## Configuration files
 
@@ -123,6 +166,27 @@ running `` q reload `` command.
     "Type": "Url",
     "Path": "www.google.com",
     "Key": "google"
+  },
+  {
+    "Type": "Shell",
+    "ShellType": "Cmd",
+    "Arguments": "\u0022C:\\Users\\tutta\\AppData\\Local\\Programs\\Android Studio\\bin\\studio64.exe\u0022 \u0022C:\\Users\\tutta\\AndroidStudioProjects\\De mo\\DemoApp\u0022",
+    "Silent": false,
+    "Key": "t2"
+  },
+  {
+    "Type": "Shell",
+    "ShellType": "Cmd",
+    "Arguments": "echo \u0022C:\\Users\\tutta\\AppData\\Local\\Programs\\Android Studio\\bin\\studio64.exe\u0022 \u0022C:\\Users\\tutta\\AndroidStudioProjects\\De mo\\DemoApp\u0022",
+    "Silent": false,
+    "Key": "t3"
+  },
+  {
+    "Type": "Shell",
+    "ShellType": "Powershell",
+    "Arguments": "cd C:\\Users\\tutta\\Storage\\Dev\\Scripts\\unsplash; python unsplash.py",
+    "Silent": true,
+    "Key": "unsplash"
   },
   {
     "Type": "Group",
