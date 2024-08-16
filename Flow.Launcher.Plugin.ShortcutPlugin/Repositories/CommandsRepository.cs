@@ -109,7 +109,11 @@ public class CommandsRepository : ICommandsRepository
                        ResultExtensions.Result(
                            a.ResponseInfo.Item1,
                            a.ResponseInfo.Item2,
-                           () => { _context.API.ChangeQuery($"{a.Key} "); }
+                           () =>
+                           {
+                               _context.API.ChangeQuery($"{query.ActionKeyword} {a.ResponseInfo.Item1}");
+                           },
+                           hideAfterAction: false
                        )
                    )
                    .ToList();
