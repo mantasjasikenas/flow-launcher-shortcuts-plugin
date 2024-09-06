@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
@@ -44,7 +45,7 @@ public class ShortcutsService : IShortcutsService
                               $"{shortcut}",
                               () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
                               contextData: shortcut,
-                              iconPath: shortcut.GetIcon()
+                              iconPath: GetIcon(shortcut)
                           );
                       })
                       .ToList();
@@ -152,7 +153,7 @@ public class ShortcutsService : IShortcutsService
                     shortcut,
                     args,
                     defaultKey,
-                    shortcut.GetIcon(),
+                    GetIcon(shortcut),
                     titleHighlightData: highlightIndexes
                 )
             );
@@ -186,7 +187,7 @@ public class ShortcutsService : IShortcutsService
                 shortcut,
                 args,
                 defaultKey,
-                shortcut.GetIcon(),
+                GetIcon(shortcut),
                 titleHighlightData: highlightIndexes
             )
         );
@@ -339,7 +340,7 @@ public class ShortcutsService : IShortcutsService
                     _shortcutHandler.ExecuteShortcut(groupShortcut, arguments);
                     return true;
                 },
-                IcoPath = groupShortcut.GetIcon(),
+                IcoPath = GetIcon(groupShortcut),
                 TitleHighlightData = highlightIndexes,
                 Score = 100
             }
@@ -361,7 +362,7 @@ public class ShortcutsService : IShortcutsService
                             _shortcutHandler.ExecuteShortcut(shortcut, arguments);
                             return true;
                         },
-                        IcoPath = shortcut.GetIcon(),
+                        IcoPath = GetIcon(shortcut),
                         ContextData = shortcut
                     };
                 })
@@ -420,7 +421,7 @@ public class ShortcutsService : IShortcutsService
                                              _shortcutHandler.ExecuteShortcut(shortcut, arguments);
                                              return true;
                                          },
-                                         IcoPath = shortcut.GetIcon(),
+                                         IcoPath = GetIcon(shortcut),
                                          ContextData = shortcut
                                      });
                                  }
@@ -446,7 +447,8 @@ public class ShortcutsService : IShortcutsService
         var expandedShortcut = ExpandShortcut(shortcut, arguments);
 
         return ResultExtensions.Result(
-            (string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey) + " ", // FIXME: Wrong order without space
+            (string.IsNullOrEmpty(defaultKey) ? shortcut.GetDerivedType() : defaultKey) +
+            " ", // FIXME: Wrong order without space
             expandedShortcut,
             () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
             contextData: shortcut,
@@ -461,5 +463,67 @@ public class ShortcutsService : IShortcutsService
                 _ => null
             }
         );
+    }
+
+    private string GetIcon(Shortcut shortcut)
+    {
+        if (!string.IsNullOrEmpty(shortcut.Icon))
+        {
+            return shortcut.Icon;
+        }
+
+        var arguments = new Dictionary<string, string>();
+
+        switch (shortcut)
+        {
+            case FileShortcut fileShortcut:
+            {
+                var path = _variablesService.ExpandVariables(fileShortcut.Path, arguments);
+
+                return string.IsNullOrEmpty(fileShortcut.App)
+                    ? path
+                    : AppUtilities.GetApplicationPath(fileShortcut.App);
+            }
+            case DirectoryShortcut directoryShortcut:
+            {
+                return _variablesService.ExpandVariables(directoryShortcut.Path, arguments);
+            }
+            case UrlShortcut urlShortcut:
+            {
+                if (!(urlShortcut.Url.Contains("www.") || urlShortcut.Url.Contains("http") ||
+                      urlShortcut.Url.Contains("https")))
+                {
+                    return AppUtilities.GetApplicationPath(urlShortcut.Url.Split(':')[0]);
+                }
+
+                if (string.IsNullOrEmpty(urlShortcut.App))
+                {
+                    return AppUtilities.GetSystemDefaultBrowser();
+                }
+
+                if (Path.Exists(urlShortcut.App))
+                {
+                    return urlShortcut.App;
+                }
+
+                var path = AppUtilities.GetApplicationPath(urlShortcut.App);
+
+                return !string.IsNullOrEmpty(path) ? path : Icons.Link;
+            }
+
+            case ShellShortcut shellShortcut:
+            {
+                return shellShortcut.ShellType switch
+                {
+                    ShellType.Cmd => Icons.WindowsTerminal,
+                    ShellType.Powershell => Icons.PowerShellBlack,
+                    _ => Icons.Terminal
+                };
+            }
+            case GroupShortcut:
+                return Icons.TabGroup;
+            default:
+                return Icons.Logo;
+        }
     }
 }

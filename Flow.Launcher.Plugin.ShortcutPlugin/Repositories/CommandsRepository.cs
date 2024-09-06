@@ -98,10 +98,10 @@ public class CommandsRepository : ICommandsRepository
         if (executor.Arguments.Count != 0)
         {
             // Can't check because Flow Launcher trims the query
-            /* if (!query.EndsWith(" "))
-            {
-                return ResultExtensions.SingleResult(executor.ResponseInfo.Item1, executor.ResponseInfo.Item2);
-            } */
+            // if (!query.RawQuery.EndsWith(" "))
+            // {
+            //     return ResultExtensions.SingleResult(executor.ResponseInfo.Item1, executor.ResponseInfo.Item2);
+            // }
 
             return executor
                    .Arguments.Cast<Argument>()

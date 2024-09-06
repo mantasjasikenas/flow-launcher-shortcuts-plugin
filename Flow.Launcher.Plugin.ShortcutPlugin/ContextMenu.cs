@@ -180,7 +180,7 @@ internal class ContextMenu : IContextMenu
                 };
                 Process.Start(processStartInfo);
             },
-            iconPath: Icons.PowerShell
+            iconPath: Icons.PowerShellBlack
         ));
 
         contextMenu.Add(ResultExtensions.Result(
