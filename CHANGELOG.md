@@ -4,7 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-- Add quotes escaping
+## [1.1.8] - 2024-09-xx
+
+- Add autocomplete support for commands with arguments
+- Show associated icons for shortcuts in the search results
+- New plugin icon
+
+## [1.1.7] - 2024-06-21
+
+- New backup command with subcommands.
+- Added copy result title and subtitle options in the context menu
+- Fix issue with cmd arguments quotes
+- Support for VS Code and VS Code - Insiders in context menu for folders
+- Help command with documentation, issues links and developer Discord username
+
+## [1.1.6] - 2024-05-08
+
+- Improved possible shortcuts fuzzy search. Now fuzzy search is case insensitive.
+- Version command to see the current plugin version.
+- Fix the disappearing config file after updating the plugin using default shortcuts and variables paths. This should
+  start working updating from **v1.1.6** to future releases.
+- Changed default shortcuts and variable paths.
+- Reset button in the settings panel to set default settings values.
 
 ## [1.1.5] - 2024-04-05
 

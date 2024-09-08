@@ -1,6 +1,7 @@
 <div align="center">
-  <img src="https://github.com/mantasjasikenas/flow-launcher-shortcuts-plugin/blob/master/assets/icon.png?raw=true" alt="Shortcuts logo" width="75">  
-  <h1>Shortcuts Plugin <br> Quickly launch your shortcuts</h1>
+  <img src="Flow.Launcher.Plugin.ShortcutPlugin/Images/icon.png" alt="Shortcuts logo" width="75">  
+  
+<h1>Shortcuts Plugin <br> Quickly launch your shortcuts</h1>
   <br>
 </div>
 
@@ -102,7 +103,8 @@ The following shortcut types are available. More types will be added in the futu
 
 If you want to add a new shortcut, you can use the following commands. Keep in mind that if shortcut contains spaces,
 you should use quotes around the arguments. Also, if you need to use quotes in the arguments, you should escape them.
-You can do that by using `\"` or using Unicode escape sequence `\u0022`. For example, `\"C:\Program Files\MyApp\app.exe\"`
+You can do that by using `\"` or using Unicode escape sequence `\u0022`. For example,
+`\"C:\Program Files\MyApp\app.exe\"`
 
 - Directory shortcut
 
@@ -248,6 +250,9 @@ syntax. Valid variable object attributes are `Name` and `Value`.
 <br/>
 <br/>
 ![Commands](assets/screenshots/commands_2.png)
+<br/>
+<br/>
+![Commands](assets/screenshots/commands_3.png)
 
 # Licence
 
