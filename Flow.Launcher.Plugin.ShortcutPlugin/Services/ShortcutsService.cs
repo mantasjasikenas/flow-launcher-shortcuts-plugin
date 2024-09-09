@@ -45,7 +45,8 @@ public class ShortcutsService : IShortcutsService
                               $"{shortcut}",
                               () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
                               contextData: shortcut,
-                              iconPath: GetIcon(shortcut)
+                              iconPath: GetIcon(shortcut),
+                              autoCompleteText: $"{shortcut}"
                           );
                       })
                       .ToList();

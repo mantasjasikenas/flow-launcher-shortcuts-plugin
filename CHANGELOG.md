@@ -7,8 +7,22 @@ All notable changes to this project will be documented in this file.
 ## [1.1.8] - 2024-09-xx
 
 - Add autocomplete support for commands with arguments
+- After typing the full shortcut, for example `q dev`, pressing `Ctr+Tab` (autocomplete) will replace current query with
+  the
+  shortcut path
 - Show associated icons for shortcuts in the search results
 - New plugin icon
+- Customizable icons for shortcuts. In order to use custom icons, add `Icon` field in the shortcut JSON file.
+  Provide the full path to the icon file. Example:
+
+  ```json
+    {
+    "Type": "Directory",
+    "Path": "C:\\Users\\tutta\\Storage\\Dev",
+    "Key": "dev",
+    "Icon": "C:\\Users\\tutta\\Storage\\Dev\\Projects\\ShortcutPlugin\\Flow.Launcher.Plugin.ShortcutPlugin\\Images\\discord-mark-white.png"
+  }
+  ```
 
 ## [1.1.7] - 2024-06-21
 

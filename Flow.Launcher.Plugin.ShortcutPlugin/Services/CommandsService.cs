@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
@@ -31,9 +32,18 @@ public class CommandsService : ICommandsService
         //TODO: Move this to different place?
         results.ForEach(result =>
         {
-            result.AutoCompleteText = string.IsNullOrEmpty(result.AutoCompleteText)
-                ? $"{query.ActionKeyword} {result.Title}"
-                : $"{query.ActionKeyword} {result.AutoCompleteText}";
+            if (string.IsNullOrEmpty(result.AutoCompleteText))
+            {
+                result.AutoCompleteText = $"{query.ActionKeyword} {result.Title}";
+            }
+            else if (result.ContextData is Shortcut)
+            {
+                result.AutoCompleteText = result.SubTitle;
+            }
+            else
+            {
+                result.AutoCompleteText = $"{query.ActionKeyword} {result.AutoCompleteText}";
+            }
         });
 
         return results;
