@@ -5,31 +5,8 @@ param (
     [string]$configuration = "Release"
 )
 
-function Get-PropertyFromJson
-{
-    param (
-        [string]$jsonFilePath,
-        [string]$propertyName
-    )
-
-    # Read the JSON file content
-    $jsonContent = Get-Content -Path $pluginJson -Raw
-
-    # Parse the JSON content
-    $jsonObject = ConvertFrom-Json -InputObject $jsonContent
-
-    # Return the extracted property
-    return $jsonObject.$propertyName
-}
-
-function Remove-Directory($path)
-{
-    if (Test-Path $path)
-    {
-        Remove-Item -Force -Recurse -Path "$path\*"
-    }
-}
-
+# Load functions
+. "$PSScriptRoot\utils.ps1"
 
 # Define variables
 $parentDirectory = Split-Path -Path $PSScriptRoot -Parent
@@ -43,16 +20,18 @@ $desktopDest = Join-Path -Path $userProfileDir -ChildPath "Desktop\$pluginName-$
 
 Write-Host "Plugin $pluginName-$version publish" -ForegroundColor Magenta
 Write-Host
-Write-Host "Script started..." -ForegroundColor Yellow
+Print-Normal "Script started..."
 
 
 # Stop Flow Launcher
-Write-Host "Stopping Flow Launcher..." -ForegroundColor Yellow
+Print-Normal "Stopping Flow Launcher..."
 Stop-Process -Name "Flow.Launcher" -Force
+Wait-Process -Name "Flow.Launcher"
 
+Start-Sleep -Milliseconds 500
 
 # Clean up directories
-Write-Host "Cleaning up directories..." -ForegroundColor Yellow
+Print-Normal "Cleaning up directories..."
 Remove-Directory -Path $publishDest
 Remove-Directory -Path $desktopDest
 $directoriesToRemove = Get-ChildItem -Path $pluginsDirectory -Directory | Where-Object { $_.Name -like "$pluginName-*" }
@@ -65,12 +44,12 @@ foreach ($directory in $directoriesToRemove)
 # Publish plugin
 if ($configuration -eq "Debug")
 {
-    Write-Host "Building and publishing plugin in Debug mode..." -ForegroundColor Yellow
+    Print-Normal "Building and publishing plugin in Debug mode..."
     $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Debug -r win-x64 --no-self-contained -o $publishDest
 }
 else
 {
-    Write-Host "Building and publishing plugin in Release mode..." -ForegroundColor Yellow
+    Print-Normal "Building and publishing plugin in Release mode..."
     $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Release -r win-x64 --no-self-contained -o $publishDest
 }
 
@@ -78,27 +57,27 @@ $publish_result = $LASTEXITCODE
 
 if ($publish_result -ne 0)
 {
-    Write-Host "Publish failed with exit code $publish_result" -ForegroundColor Red
+    Print-Error "Publish failed with exit code $publish_result"
     exit $publish_result
 }
 
 # Copy plugin to destination
-Write-Host "Copying plugin to destination..." -ForegroundColor Yellow
+Print-Normal "Copying plugin to destination..."
 Copy-Item -Path $publishDest -Destination $pluginDest -Force -Recurse
 
 
 # Start Flow Launcher
-Write-Host "Starting Flow Launcher..." -ForegroundColor Yellow
+Print-Normal "Starting Flow Launcher..."
 Start-Process (Join-Path -Path $userProfileDir -ChildPath "AppData\Local\FlowLauncher\Flow.Launcher.exe")
 
 
 # Process publish to desktop
 if ($copyToDesktop)
 {
-    Write-Host "Copying plugin to desktop..." -ForegroundColor Yellow
+    Print-Normal "Copying plugin to desktop..."
     Copy-Item -Path $publishDest -Destination $desktopDest -Force -Recurse
     Compress-Archive -Path $desktopDest -DestinationPath "$desktopDest.zip" -Force
 }
 
 Write-Host
-Write-Host "Script finished. Success!" -ForegroundColor Green
+Print-Success "Script finished. Success!"
