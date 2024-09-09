@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -15,10 +13,12 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 internal class ContextMenu : IContextMenu
 {
     private readonly IVariablesService _variablesService;
+    private readonly PluginInitContext _context;
 
-    public ContextMenu(IVariablesService variablesService)
+    public ContextMenu(IVariablesService variablesService, PluginInitContext context)
     {
         _variablesService = variablesService;
+        _context = context;
     }
 
     public List<Result> LoadContextMenus(Result selectedResult)
@@ -45,18 +45,18 @@ internal class ContextMenu : IContextMenu
         return contextMenu;
     }
 
-    private static void AddCopyTitleAndSubtitle(Result selectedResult, List<Result> contextMenu)
+    private void AddCopyTitleAndSubtitle(Result selectedResult, List<Result> contextMenu)
     {
         var copyTitle = ResultExtensions.Result(
             "Copy result title",
             selectedResult.Title,
-            action: () => { Clipboard.SetText(selectedResult.Title); },
+            action: () => { _context.API.CopyToClipboard(selectedResult.Title, showDefaultNotification: false); },
             iconPath: Icons.Copy
         );
         var copySubTitle = ResultExtensions.Result(
             "Copy result subtitle",
             selectedResult.SubTitle,
-            action: () => { Clipboard.SetText(selectedResult.SubTitle); },
+            action: () => { _context.API.CopyToClipboard(selectedResult.SubTitle, showDefaultNotification: false); },
             iconPath: Icons.Copy
         );
 
@@ -106,13 +106,13 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy path",
-            action: () => { Clipboard.SetText(filePath); },
+            action: () => { _context.API.CopyToClipboard(filePath, showDefaultNotification: false); },
             iconPath: Icons.Copy
         ));
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy file",
-            action: () => { Clipboard.SetFileDropList(new StringCollection {filePath}); },
+            action: () => { _context.API.CopyToClipboard(filePath, true, false); },
             iconPath: Icons.Copy
         ));
     }
@@ -185,7 +185,7 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy path",
-            action: () => { Clipboard.SetText(directoryPath); },
+            action: () => { _context.API.CopyToClipboard(directoryPath, showDefaultNotification: false); },
             iconPath: Icons.Copy
         ));
 
