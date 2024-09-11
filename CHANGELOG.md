@@ -10,6 +10,16 @@ All notable changes to this project will be documented in this file.
 - After typing the full shortcut, for example `q dev`, pressing `Ctr+Tab` (autocomplete) will replace current query with
   the
   shortcut path
+- Alias support for shortcuts. Add `Alias` field in the shortcut JSON file. Provide the alias name. Example:
+
+  ```json
+  {
+    "Type": "Directory",
+    "Path": "C:\\Users\\tutta\\Storage\\Dev",
+    "Key": "dev",
+    "Alias": ["development", "devs"]
+  }
+  ```
 - Show associated icons for shortcuts in the search results
 - New plugin icon
 - Customizable icons for shortcuts. In order to use custom icons, add `Icon` field in the shortcut JSON file.

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
@@ -12,6 +13,8 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 public abstract class Shortcut : ICloneable
 {
     public string Key { get; set; }
+
+    public List<string> Alias { get; set; }
 
     public string Description { get; set; }
 
@@ -28,6 +31,17 @@ public abstract class Shortcut : ICloneable
             ShellShortcut => "Shell",
             _ => "Unspecified shortcut type"
         };
+    }
+
+    public string GetTitle()
+    {
+        return $"{Key}{GetAlias()}";
+    }
+
+    private string GetAlias()
+    {
+        // Alternative symbols: ⨯ ⇒ ⪢ ⌗
+        return Alias is {Count: > 0} ? $" ⌗ {string.Join(" ⌗ ", Alias)}" : string.Empty;
     }
 
 

@@ -25,6 +25,7 @@ internal class ContextMenu : IContextMenu
     {
         var contextMenu = new List<Result>();
 
+        AddShortcutDetails(selectedResult, contextMenu);
         AddCopyTitleAndSubtitle(selectedResult, contextMenu);
 
         if (selectedResult.ContextData is not Shortcut shortcut)
@@ -43,6 +44,41 @@ internal class ContextMenu : IContextMenu
         }
 
         return contextMenu;
+    }
+
+    private void AddShortcutDetails(Result selectedResult, List<Result> contextMenu)
+    {
+        if (selectedResult.ContextData is not Shortcut shortcut)
+        {
+            return;
+        }
+
+        contextMenu.Add(ResultExtensions.Result(
+            "Key",
+            shortcut.Key,
+            () => { _context.API.CopyToClipboard(shortcut.Key, showDefaultNotification: false); }
+        ));
+
+        if (shortcut.Alias is {Count: > 0})
+        {
+            contextMenu.Add(ResultExtensions.Result(
+                "Alias",
+                string.Join(", ", shortcut.Alias),
+                () =>
+                {
+                    _context.API.CopyToClipboard(string.Join(", ", shortcut.Alias), showDefaultNotification: false);
+                }
+            ));
+        }
+
+        if (!string.IsNullOrEmpty(shortcut.Description))
+        {
+            contextMenu.Add(ResultExtensions.Result(
+                "Description",
+                shortcut.Description,
+                () => { _context.API.CopyToClipboard(shortcut.Description, showDefaultNotification: false); }
+            ));
+        }
     }
 
     private void AddCopyTitleAndSubtitle(Result selectedResult, List<Result> contextMenu)
