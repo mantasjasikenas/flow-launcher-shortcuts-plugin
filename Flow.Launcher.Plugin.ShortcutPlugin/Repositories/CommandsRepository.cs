@@ -60,7 +60,7 @@ public class CommandsRepository : ICommandsRepository
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository
                                     .GetPossibleShortcuts(key)
-                                    .Select(s => _shortcutsService.OpenShortcut(s, argsWithoutKey).First());
+                                    .SelectMany(s => _shortcutsService.OpenShortcut(s, argsWithoutKey));
 
             // Return possible command matches
             var possibleCommands = GetPossibleCommands(key, query.ActionKeyword);

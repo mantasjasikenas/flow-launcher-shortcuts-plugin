@@ -43,22 +43,16 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         var lowerKey = key.ToLowerInvariant();
 
-        var result = GetShortcuts()
-                     .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
-                         (s, k) => new {Shortcut = s, Key = k})
-                     .Select(x => new
-                     {
-                         x.Shortcut,
-                         PartialScore = Fuzz.PartialRatio(x.Key.ToLowerInvariant(), lowerKey),
-                         Score = Fuzz.Ratio(x.Key.ToLowerInvariant(), lowerKey)
-                     })
-                     .Where(x => x.PartialScore > 90)
-                     .OrderByDescending(x => x.Score)
-                     .Select(x => x.Shortcut)
-                     .Distinct()
-                     .ToList();
+        var shortcuts = GetShortcuts()
+            .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
+                (s, k) => new {Shortcut = s, Key = k.ToLowerInvariant()});
 
-        return result;
+        return shortcuts
+               .Where(x => Fuzz.PartialRatio(x.Key, lowerKey) > 90)
+               .OrderByDescending(x => Fuzz.Ratio(x.Key, lowerKey))
+               .Select(x => x.Shortcut)
+               .Distinct()
+               .ToList();
     }
 
     public void AddShortcut(Shortcut shortcut)

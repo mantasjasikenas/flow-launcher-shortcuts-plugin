@@ -16,16 +16,6 @@ public static class ResultExtensions
         return SingleResult(title, subtitle);
     }
 
-    /*public static List<Result> InitializedResult()
-    {
-        return SingleResult(Resources.ShortcutsManager_Init_Plugin_initialized);
-    }*/
-
-    /*public static List<Result> NotImplementedResult()
-    {
-        return SingleResult("Not implemented yet", "Please wait for the next release");
-    }*/
-
     public static List<Result> SingleResult(
         string title,
         string subtitle = "",
