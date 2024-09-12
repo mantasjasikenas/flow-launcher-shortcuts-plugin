@@ -32,13 +32,15 @@ public static class Icons
 
     public const string Terminal = "Images\\terminal.png";
 
+    public const string Shell = "Images\\shell.png";
+
     public const string Web = "Images\\web.png";
 
     public const string VisualCode = "Images\\vscode.png";
 
     public const string VisualCodeInsiders = "Images\\vscode-insiders.png";
 
-    public const string PowerShell = "Images\\powershell.png";
+    public const string PowerShellBlack = "Images\\powershell_black.png";
 
     public const string WindowsTerminal = "Images\\windows-terminal.png";
 

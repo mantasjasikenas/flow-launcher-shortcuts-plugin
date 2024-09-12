@@ -45,29 +45,29 @@ public class CommandsRepository : ICommandsRepository
             return ShowAvailableCommands(query.ActionKeyword);
         }
 
+        var key = arguments[0];
+        var argsWithoutKey = arguments.Skip(1).ToList();
+
         // In case this is a shortcut command, let's open shortcut
-        if (_shortcutsRepository.GetShortcuts(arguments[0]) is not null)
+        if (_shortcutsRepository.GetShortcuts(key) is not null)
         {
-            return _shortcutsService.OpenShortcuts(arguments[0], arguments.Skip(1).ToList()); // Skips shortcut name
+            return _shortcutsService.OpenShortcuts(key, argsWithoutKey);
         }
 
         // If command was not found
-        if (!_commands.TryGetValue(arguments[0], out var command))
+        if (!_commands.TryGetValue(key, out var command))
         {
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository
-                                    .GetPossibleShortcuts(arguments[0])
-                                    .Select(s =>
-                                        _shortcutsService.OpenShortcut(s, arguments.Skip(1).ToList())
-                                                         .First()
-                                    );
+                                    .GetPossibleShortcuts(key)
+                                    .SelectMany(s => _shortcutsService.OpenShortcut(s, argsWithoutKey));
 
             // Return possible command matches
-            var possibleCommands = GetPossibleCommands(arguments[0], query.ActionKeyword);
+            var possibleCommands = GetPossibleCommands(key, query.ActionKeyword);
 
             var possibleResults = possibleShortcuts.Concat(possibleCommands).ToList();
 
-            return possibleResults.Count != 0
+            return possibleResults.Any()
                 ? possibleResults
                 : ResultExtensions.SingleResult(
                     "Invalid input",
@@ -95,13 +95,13 @@ public class CommandsRepository : ICommandsRepository
         }
 
         // If command has more arguments
-        if (executor.Arguments.Count != 0)
+        if (executor.Arguments.Any())
         {
             // Can't check because Flow Launcher trims the query
-            /* if (!query.EndsWith(" "))
+            /*if (!query.RawQuery.EndsWith(" "))
             {
                 return ResultExtensions.SingleResult(executor.ResponseInfo.Item1, executor.ResponseInfo.Item2);
-            } */
+            }*/
 
             return executor
                    .Arguments.Cast<Argument>()
@@ -109,7 +109,8 @@ public class CommandsRepository : ICommandsRepository
                        ResultExtensions.Result(
                            a.ResponseInfo.Item1,
                            a.ResponseInfo.Item2,
-                           () => { _context.API.ChangeQuery($"{a.Key} "); }
+                           () => { _context.API.ChangeQuery($"{query.ActionKeyword} {a.ResponseInfo.Item1}"); },
+                           hideAfterAction: false
                        )
                    )
                    .ToList();

@@ -35,6 +35,7 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         return _shortcuts.Values
                          .SelectMany(x => x)
+                         .Distinct()
                          .ToList();
     }
 
@@ -42,53 +43,53 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         var lowerKey = key.ToLowerInvariant();
 
-        var result = GetShortcuts()
-                     .Select(s => new
-                     {
-                         Shortcut = s,
-                         PartialScore = Fuzz.PartialRatio(s.Key.ToLowerInvariant(), lowerKey),
-                         Score = Fuzz.Ratio(s.Key.ToLowerInvariant(), lowerKey)
-                     })
-                     .Where(x => x.PartialScore > 90)
-                     .OrderByDescending(x => x.Score)
-                     .Select(x => x.Shortcut)
-                     .ToList();
+        var shortcuts = GetShortcuts()
+            .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
+                (s, k) => new {Shortcut = s, Key = k.ToLowerInvariant()});
 
-        return result;
+        return shortcuts
+               .Where(x => Fuzz.PartialRatio(x.Key, lowerKey) > 90)
+               .OrderByDescending(x => Fuzz.Ratio(x.Key, lowerKey))
+               .Select(x => x.Shortcut)
+               .Distinct()
+               .ToList();
     }
 
     public void AddShortcut(Shortcut shortcut)
     {
-        var result = _shortcuts.TryGetValue(shortcut.Key, out var value);
+        var keys = (shortcut.Alias ?? Enumerable.Empty<string>()).Append(shortcut.Key);
 
-        if (!result)
+        foreach (var key in keys)
         {
-            value = new List<Shortcut>();
-            _shortcuts.Add(shortcut.Key, value);
-        }
+            if (!_shortcuts.TryGetValue(key, out var value))
+            {
+                value = new List<Shortcut>();
+                _shortcuts.Add(key, value);
+            }
 
-        value.Add(shortcut);
+            value.Add(shortcut);
+        }
 
         SaveShortcuts();
     }
 
     public void RemoveShortcut(Shortcut shortcut)
     {
-        if (!_shortcuts.TryGetValue(shortcut.Key, out var value))
-        {
-            return;
-        }
+        var keys = (shortcut.Alias ?? Enumerable.Empty<string>()).Append(shortcut.Key);
 
-        var result = value.Remove(shortcut);
-
-        if (!result)
+        foreach (var key in keys)
         {
-            return;
-        }
+            if (!_shortcuts.TryGetValue(key, out var value))
+            {
+                continue;
+            }
 
-        if (value.Count == 0)
-        {
-            _shortcuts.Remove(shortcut.Key);
+            var result = value.Remove(shortcut);
+
+            if (result && value.Count == 0)
+            {
+                _shortcuts.Remove(key);
+            }
         }
 
         SaveShortcuts();
@@ -190,8 +191,11 @@ public class ShortcutsRepository : IShortcutsRepository
             var json = File.ReadAllText(path);
             var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
 
-            return shortcuts.GroupBy(x => x.Key)
-                            .ToDictionary(x => x.Key, x => x.ToList());
+            return shortcuts
+                   .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
+                       (s, k) => new {Shortcut = s, Key = k})
+                   .GroupBy(x => x.Key)
+                   .ToDictionary(x => x.Key, x => x.Select(y => y.Shortcut).ToList());
         }
         catch (Exception e)
         {
@@ -212,6 +216,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
         var flattenShortcuts = _shortcuts.Values
                                          .SelectMany(x => x)
+                                         .Distinct()
                                          .ToList();
 
         var json = JsonSerializer.Serialize(flattenShortcuts, options);
