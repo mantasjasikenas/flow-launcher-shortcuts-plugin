@@ -95,62 +95,6 @@ public class ShortcutsRepository : IShortcutsRepository
         SaveShortcuts();
     }
 
-    // public IEnumerable<Shortcut> GetPossibleShortcuts(string key)
-    // {
-    //     var lowerKey = key.ToLowerInvariant();
-    //
-    //     var result = GetShortcuts()
-    //                  .Select(s => new
-    //                  {
-    //                      Shortcut = s,
-    //                      PartialScore = Fuzz.PartialRatio(s.Key.ToLowerInvariant(), lowerKey),
-    //                      Score = Fuzz.Ratio(s.Key.ToLowerInvariant(), lowerKey)
-    //                  })
-    //                  .Where(x => x.PartialScore > 90)
-    //                  .OrderByDescending(x => x.Score)
-    //                  .Select(x => x.Shortcut)
-    //                  .ToList();
-    //
-    //     return result;
-    // }
-    //
-    // public void AddShortcut(Shortcut shortcut)
-    // {
-    //     var result = _shortcuts.TryGetValue(shortcut.Key, out var value);
-    //
-    //     if (!result)
-    //     {
-    //         value = new List<Shortcut>();
-    //         _shortcuts.Add(shortcut.Key, value);
-    //     }
-    //
-    //     value.Add(shortcut);
-    //
-    //     SaveShortcuts();
-    // }
-    //
-    // public void RemoveShortcut(Shortcut shortcut)
-    // {
-    //     if (!_shortcuts.TryGetValue(shortcut.Key, out var value))
-    //     {
-    //         return;
-    //     }
-    //
-    //     var result = value.Remove(shortcut);
-    //
-    //     if (!result)
-    //     {
-    //         return;
-    //     }
-    //
-    //     if (value.Count == 0)
-    //     {
-    //         _shortcuts.Remove(shortcut.Key);
-    //     }
-    //
-    //     SaveShortcuts();
-    // }
-
     public IList<GroupShortcut> GetGroups()
     {
         return _shortcuts.Values
@@ -250,11 +194,8 @@ public class ShortcutsRepository : IShortcutsRepository
             return shortcuts
                    .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
                        (s, k) => new {Shortcut = s, Key = k})
-                   // .SelectMany(s => s.Alias.Append(s.Key), (s, k) => new {Shortcut = s, Key = k})
                    .GroupBy(x => x.Key)
                    .ToDictionary(x => x.Key, x => x.Select(y => y.Shortcut).ToList());
-            // .GroupBy(x => x.Key)
-            // .ToDictionary(x => x.Key, x => x.ToList());
         }
         catch (Exception e)
         {
