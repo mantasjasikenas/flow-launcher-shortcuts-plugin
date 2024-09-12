@@ -4,12 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [1.1.8] - 2024-09-xx
+## [1.1.9] - 2024-xx-xx
+
+-
+
+## [1.1.8] - 2024-09-12
 
 - Add autocomplete support for commands with arguments
-- After typing the full shortcut, for example `q dev`, pressing `Ctr+Tab` (autocomplete) will replace current query with
-  the
-  shortcut path
+- After typing the full shortcut, for example `q dev`, pressing `Ctr+Tab` (autocomplete) will replace current query with the shortcut path
 - Alias support for shortcuts. Add `Alias` field in the shortcut JSON file. Provide the alias name. Example:
 
   ```json
