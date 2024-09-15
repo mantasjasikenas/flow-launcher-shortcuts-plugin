@@ -7,8 +7,8 @@ public interface IShortcutsService
 {
     List<Result> RemoveShortcut(string key);
     List<Result> RemoveGroup(string key);
-    List<Result> OpenShortcuts(string key, IEnumerable<string> arguments);
-    IEnumerable<Result> OpenShortcut(Shortcut shortcut, IEnumerable<string> arguments);
+    List<Result> OpenShortcuts(IList<Shortcut> shortcuts, IEnumerable<string> arguments, bool expandGroups);
+    IEnumerable<Result> OpenShortcut(Shortcut shortcut, IEnumerable<string> arguments, bool expandGroups);
     List<Result> DuplicateShortcut(string existingKey, string newKey);
     List<Result> ImportShortcuts();
     List<Result> ExportShortcuts();

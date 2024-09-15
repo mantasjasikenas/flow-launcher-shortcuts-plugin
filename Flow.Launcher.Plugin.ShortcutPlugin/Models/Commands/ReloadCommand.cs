@@ -37,7 +37,7 @@ public class ReloadCommand : ICommand
 
     private List<Result> ReloadCommandHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Reload plugin data", "", () =>
+        return ResultExtensions.SingleResult("Reload plugin data", "This action will reload all plugin data", () =>
         {
             _settingsService.Reload();
             _shortcutsService.Reload();

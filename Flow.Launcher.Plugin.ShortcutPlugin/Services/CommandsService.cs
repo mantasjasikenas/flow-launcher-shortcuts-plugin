@@ -27,26 +27,7 @@ public class CommandsService : ICommandsService
 
     public List<Result> ResolveCommand(List<string> arguments, Query query)
     {
-        var results = _commandsRepository.ResolveCommand(arguments, query);
-
-        //TODO: Move this to different place?
-        results.ForEach(result =>
-        {
-            if (string.IsNullOrEmpty(result.AutoCompleteText))
-            {
-                result.AutoCompleteText = $"{query.ActionKeyword} {result.Title}";
-            }
-            else if (result.ContextData is Shortcut)
-            {
-                result.AutoCompleteText = result.SubTitle;
-            }
-            else
-            {
-                result.AutoCompleteText = $"{query.ActionKeyword} {result.AutoCompleteText}";
-            }
-        });
-
-        return results;
+        return _commandsRepository.ResolveCommand(arguments, query);
     }
 
     public void ReloadPluginData()

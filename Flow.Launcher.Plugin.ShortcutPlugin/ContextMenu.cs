@@ -53,11 +53,14 @@ internal class ContextMenu : IContextMenu
             return;
         }
 
-        contextMenu.Add(ResultExtensions.Result(
-            "Key",
-            shortcut.Key,
-            () => { _context.API.CopyToClipboard(shortcut.Key, showDefaultNotification: false); }
-        ));
+        if (!string.IsNullOrWhiteSpace(shortcut.Key))
+        {
+            contextMenu.Add(ResultExtensions.Result(
+                "Key",
+                shortcut.Key,
+                () => { _context.API.CopyToClipboard(shortcut.Key, showDefaultNotification: false); }
+            ));
+        }
 
         if (shortcut.Alias is {Count: > 0})
         {

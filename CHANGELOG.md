@@ -6,12 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.9] - 2024-xx-xx
 
--
+- QuickLook support to preview folders and files
+- Improved code quality and performance
+- Enchanted config command. Now shows icon of the application which will be used to open configuration files
 
 ## [1.1.8] - 2024-09-12
 
 - Add autocomplete support for commands with arguments
-- After typing the full shortcut, for example `q dev`, pressing `Ctr+Tab` (autocomplete) will replace current query with the shortcut path
+- After typing the full shortcut, for example `q dev`, pressing `Ctr+Tab` (autocomplete) will replace current query with
+  the shortcut path
 - Alias support for shortcuts. Add `Alias` field in the shortcut JSON file. Provide the alias name. Example:
 
   ```json
