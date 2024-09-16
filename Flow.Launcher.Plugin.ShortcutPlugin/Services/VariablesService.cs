@@ -26,21 +26,36 @@ public class VariablesService : IVariablesService
         var variables = _variablesRepository.GetVariables();
 
         if (variables.Count == 0)
+        {
             return ResultExtensions.EmptyResult("No variables found.");
+        }
 
-        return variables
-               .Select(variable => new Result
-               {
-                   Title = $"Variable '{variable.Name}'",
-                   SubTitle = $"Value: '{variable.Value}'",
-                   IcoPath = Icons.Logo,
-                   Action = _ =>
-                   {
-                       _context.API.CopyToClipboard(variable.Value);
-                       return true;
-                   }
-               })
-               .ToList();
+        var header = new Result
+        {
+            Title = "Variables",
+            SubTitle = "List of all variables",
+            IcoPath = Icons.Logo
+        };
+
+        var results =
+            variables
+                .Select(variable => new Result
+                {
+                    Title = $"{variable.Name}",
+                    SubTitle = $"{variable.Value}",
+                    IcoPath = Icons.Logo,
+                    Action = _ =>
+                    {
+                        _context.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
+                        return true;
+                    },
+                    AutoCompleteText = $"Variable: {variable.Name} value: {variable.Value}"
+                })
+                .ToList();
+
+        results.Insert(0, header);
+
+        return results;
     }
 
     public List<Result> GetVariable(string name)

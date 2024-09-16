@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using CliWrap;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
@@ -37,25 +38,30 @@ public class ConfigCommand : ICommand
 
         return new List<Result>
         {
-            ResultExtensions.Result("Open shortcuts config", shortcutsPath, () =>
-            {
-                if (!File.Exists(shortcutsPath))
-                {
-                    CreateConfigFile(shortcutsPath);
-                }
-
-                OpenConfig(shortcutsPath);
-            }),
-            ResultExtensions.Result("Open variables config", variablesPath, () =>
-            {
-                if (!File.Exists(variablesPath))
-                {
-                    CreateConfigFile(variablesPath);
-                }
-
-                OpenConfig(variablesPath);
-            })
+            CreateConfigResult("Open shortcuts config", shortcutsPath),
+            CreateConfigResult("Open variables config", variablesPath)
         };
+    }
+
+    private Result CreateConfigResult(string title, string path)
+    {
+        return ResultExtensions.Result(title, path, () =>
+            {
+                if (!File.Exists(path))
+                {
+                    CreateConfigFile(path);
+                }
+
+                OpenConfig(path);
+            },
+            iconPath: File.Exists(path) ? path : null,
+            autoCompleteText: path,
+            previewFilePath: path,
+            contextData: new FileShortcut
+            {
+                Path = path
+            }
+        );
     }
 
     private static void OpenConfig(string path)

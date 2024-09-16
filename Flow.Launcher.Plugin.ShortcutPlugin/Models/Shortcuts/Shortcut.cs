@@ -35,7 +35,14 @@ public abstract class Shortcut : ICloneable
 
     public string GetTitle()
     {
-        return $"{Key}{GetAlias()}";
+        var title = $"{Key}{GetAlias()}";
+
+        return string.IsNullOrWhiteSpace(title) ? GetDerivedType() : title;
+    }
+
+    public string GetSubTitle()
+    {
+        return ToString();
     }
 
     private string GetAlias()

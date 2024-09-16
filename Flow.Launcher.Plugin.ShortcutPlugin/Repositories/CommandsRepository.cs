@@ -49,9 +49,9 @@ public class CommandsRepository : ICommandsRepository
         var argsWithoutKey = arguments.Skip(1).ToList();
 
         // In case this is a shortcut command, let's open shortcut
-        if (_shortcutsRepository.GetShortcuts(key) is not null)
+        if (_shortcutsRepository.TryGetShortcuts(key, out var shortcuts))
         {
-            return _shortcutsService.OpenShortcuts(key, argsWithoutKey);
+            return _shortcutsService.OpenShortcuts(shortcuts, argsWithoutKey, true);
         }
 
         // If command was not found
@@ -60,7 +60,7 @@ public class CommandsRepository : ICommandsRepository
             // Show possible shortcuts
             var possibleShortcuts = _shortcutsRepository
                                     .GetPossibleShortcuts(key)
-                                    .SelectMany(s => _shortcutsService.OpenShortcut(s, argsWithoutKey));
+                                    .SelectMany(s => _shortcutsService.OpenShortcut(s, argsWithoutKey, false));
 
             // Return possible command matches
             var possibleCommands = GetPossibleCommands(key, query.ActionKeyword);
@@ -107,10 +107,11 @@ public class CommandsRepository : ICommandsRepository
                    .Arguments.Cast<Argument>()
                    .Select(a =>
                        ResultExtensions.Result(
-                           a.ResponseInfo.Item1,
-                           a.ResponseInfo.Item2,
+                           title: a.ResponseInfo.Item1,
+                           subtitle: a.ResponseInfo.Item2,
                            () => { _context.API.ChangeQuery($"{query.ActionKeyword} {a.ResponseInfo.Item1}"); },
-                           hideAfterAction: false
+                           hideAfterAction: false,
+                           autoCompleteText: $"{query.ActionKeyword} {a.ResponseInfo.Item1}"
                        )
                    )
                    .ToList();
@@ -122,34 +123,34 @@ public class CommandsRepository : ICommandsRepository
     private List<Result> ShowAvailableCommands(string actionKeyword)
     {
         return _commands
-               .Values.Select(c => new Result
-               {
-                   Title = c.ResponseInfo.Item1 + "  ", // FIXME: Wrong order without space
-                   SubTitle = c.ResponseInfo.Item2,
-                   IcoPath = Icons.Logo,
-                   Score = 1000 - _commands.Count,
-                   Action = _ =>
-                   {
-                       _context.API.ChangeQuery($"{actionKeyword} {c.Key}");
-                       return false;
-                   }
-               })
+               .Values.Select(c =>
+                   ResultExtensions.Result(
+                       title: c.ResponseInfo.Item1,
+                       subtitle: c.ResponseInfo.Item2,
+                       score: 1000 - _commands.Count,
+                       hideAfterAction: false,
+                       action: () => { _context.API.ChangeQuery($"{actionKeyword} {c.Key}"); },
+                       autoCompleteText: $"{actionKeyword} {c.Key}"
+                   )
+               )
                .ToList();
     }
 
     private IEnumerable<Result> GetPossibleCommands(string query, string actionKeyword)
     {
         return _commands
-               .Values.Where(c =>
+               .Values
+               .Where(c =>
                    c.Key.StartsWith(query, StringComparison.InvariantCultureIgnoreCase)
                )
                .Select(c =>
                    ResultExtensions.Result(
-                       c.ResponseInfo.Item1,
-                       c.ResponseInfo.Item2,
+                       title: c.ResponseInfo.Item1,
+                       subtitle: c.ResponseInfo.Item2,
                        score: 1000,
                        hideAfterAction: false,
-                       action: () => { _context.API.ChangeQuery($"{actionKeyword} {c.Key}"); }
+                       action: () => { _context.API.ChangeQuery($"{actionKeyword} {c.Key}"); },
+                       autoCompleteText: $"{actionKeyword} {c.Key}"
                    )
                )
                .ToList();

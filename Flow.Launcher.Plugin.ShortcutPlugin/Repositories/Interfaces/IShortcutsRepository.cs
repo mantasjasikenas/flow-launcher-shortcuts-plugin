@@ -9,6 +9,7 @@ public interface IShortcutsRepository
     IList<Shortcut> GetShortcuts();
     IEnumerable<Shortcut> GetPossibleShortcuts(string key);
     IList<Shortcut>? GetShortcuts(string key);
+    bool TryGetShortcuts(string key, out List<Shortcut> shortcuts);
     void AddShortcut(Shortcut shortcut);
     void RemoveShortcut(Shortcut shortcut);
     void DuplicateShortcut(Shortcut shortcut, string duplicateKey);

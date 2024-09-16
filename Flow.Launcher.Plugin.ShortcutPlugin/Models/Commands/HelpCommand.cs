@@ -35,21 +35,24 @@ public class HelpCommand : ICommand
             "Open the plugin's documentation",
             Constants.ReadmeUrl,
             () => { ShortcutUtilities.OpenUrl(Constants.ReadmeUrl); },
-            iconPath: Icons.Info
+            iconPath: Icons.Info,
+            autoCompleteText: Constants.ReadmeUrl
         );
 
         var reportIssueResult = ResultExtensions.Result(
             "Report an issue on GitHub",
             Constants.GithubIssues,
             () => { ShortcutUtilities.OpenUrl(Constants.GithubIssues); },
-            iconPath: Icons.Github
+            iconPath: Icons.Github,
+            autoCompleteText: Constants.GithubIssues
         );
 
         var discordResult = ResultExtensions.Result(
             "Contact the developer on Discord",
             "Username: " + Constants.DiscordUsername,
             () => { _context.API.CopyToClipboard(Constants.DiscordUsername); },
-            iconPath: Icons.Discord
+            iconPath: Icons.Discord,
+            autoCompleteText: Constants.DiscordUsername
         );
 
         return new List<Result> {readmeResult, reportIssueResult, discordResult};

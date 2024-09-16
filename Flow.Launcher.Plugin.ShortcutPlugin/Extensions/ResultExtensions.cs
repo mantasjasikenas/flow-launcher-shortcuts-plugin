@@ -6,6 +6,11 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
 public static class ResultExtensions
 {
+    public static List<Result> ToList(this Result result)
+    {
+        return new List<Result> {result};
+    }
+
     public static List<Result> EmptyResult()
     {
         return SingleResult(Resources.Shortcuts_Query_No_results_found);
@@ -53,7 +58,8 @@ public static class ResultExtensions
         object contextData = default,
         string autoCompleteText = null,
         IList<int> titleHighlightData = default,
-        int score = default
+        int score = default,
+        string previewFilePath = null
     )
     {
         return new Result
@@ -69,7 +75,11 @@ public static class ResultExtensions
                 action?.Invoke();
                 return hideAfterAction;
             },
-            AutoCompleteText = autoCompleteText ?? title
+            AutoCompleteText = autoCompleteText ?? title,
+            Preview = new Result.PreviewInfo
+            {
+                FilePath = previewFilePath
+            }
         };
     }
 }

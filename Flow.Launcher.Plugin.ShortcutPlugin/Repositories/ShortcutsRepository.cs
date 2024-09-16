@@ -31,6 +31,11 @@ public class ShortcutsRepository : IShortcutsRepository
         return _shortcuts.GetValueOrDefault(key);
     }
 
+    public bool TryGetShortcuts(string key, out List<Shortcut> shortcuts)
+    {
+        return _shortcuts.TryGetValue(key, out shortcuts);
+    }
+
     public IList<Shortcut> GetShortcuts()
     {
         return _shortcuts.Values
