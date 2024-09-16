@@ -82,16 +82,23 @@ public class VariablesService : IVariablesService
 
     public List<Result> RemoveVariable(string name)
     {
-        var variable = _variablesRepository.GetVariable(name);
+        var variables = _variablesRepository
+                        .GetPossibleVariables(name)
+                        .ToList();
 
-        if (variable is null)
-            return ResultExtensions.EmptyResult($"Variable '{name}' not found.");
+        if (variables.Count == 0)
+        {
+            return ResultExtensions.EmptyResult($"Variable {name} not found.");
+        }
 
-        return ResultExtensions.SingleResult(
-            $"Remove variable '{name}'",
-            $"Value: '{variable.Value}'",
-            () => { _variablesRepository.RemoveVariable(name); }
-        );
+        return variables.Select(variable =>
+                            ResultExtensions.Result(
+                                $"Remove variable {variable.Name}",
+                                $"Value: {variable.Value}",
+                                () => { _variablesRepository.RemoveVariable(name); }
+                            )
+                        )
+                        .ToList();
     }
 
     public List<Result> UpdateVariable(string name, string value)
@@ -99,11 +106,11 @@ public class VariablesService : IVariablesService
         var variable = _variablesRepository.GetVariable(name);
 
         if (variable is null)
-            return ResultExtensions.EmptyResult($"Variable '{name}' not found.");
+            return ResultExtensions.EmptyResult($"Variable {name} not found.");
 
         return ResultExtensions.SingleResult(
-            $"Update variable '{name}'",
-            $"Old value '{variable.Value}' | New value '{value}'",
+            $"Update variable {name}",
+            $"Old value: {variable.Value} | New value: {value}",
             () => { _variablesRepository.UpdateVariable(name, value); }
         );
     }
