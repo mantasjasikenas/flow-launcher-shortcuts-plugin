@@ -57,7 +57,10 @@ public class ConfigCommand : ICommand
             iconPath: File.Exists(path) ? path : null,
             autoCompleteText: path,
             previewFilePath: path,
-            contextData: new FileShortcut()
+            contextData: new FileShortcut
+            {
+                Path = path
+            }
         );
     }
 

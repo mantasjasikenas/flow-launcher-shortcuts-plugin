@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -124,6 +125,7 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Open containing folder",
+            Path.GetDirectoryName(filePath),
             action: () =>
             {
                 var path = Path.GetDirectoryName(filePath);
@@ -145,6 +147,7 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy path",
+            filePath,
             action: () => { _context.API.CopyToClipboard(filePath, showDefaultNotification: false); },
             iconPath: Icons.Copy
         ));
@@ -154,6 +157,22 @@ internal class ContextMenu : IContextMenu
             action: () => { _context.API.CopyToClipboard(filePath, true, false); },
             iconPath: Icons.Copy
         ));
+
+        var codeEditors = GetCodeEditors();
+
+        foreach (var (title, cmd, icon) in codeEditors)
+        {
+            contextMenu.Add(ResultExtensions.Result(
+                $"Open in {title}",
+                action: () =>
+                {
+                    CliWrap.Cli.Wrap(cmd)
+                           .WithArguments(filePath)
+                           .ExecuteAsync();
+                },
+                iconPath: icon
+            ));
+        }
     }
 
     private void GetDirectoryContextMenu(ICollection<Result> contextMenu, DirectoryShortcut directoryShortcut)
@@ -175,9 +194,9 @@ internal class ContextMenu : IContextMenu
             iconPath: Icons.FolderOpen
         ));
 
-        var visualCodeVersions = GetVisualCodeVersions();
+        var codeEditors = GetCodeEditors();
 
-        foreach (var (title, cmd, icon) in visualCodeVersions)
+        foreach (var (title, cmd, icon) in codeEditors)
         {
             contextMenu.Add(ResultExtensions.Result(
                 $"Open in {title}",
@@ -264,7 +283,7 @@ internal class ContextMenu : IContextMenu
         }
     }
 
-    private static List<(string title, string executable, string icon)> GetVisualCodeVersions()
+    private static List<(string title, string executable, string icon)> GetCodeEditors()
     {
         var path = Environment.GetEnvironmentVariable("PATH");
         var versions = new List<(string, string, string)>();
@@ -274,20 +293,20 @@ internal class ContextMenu : IContextMenu
             return versions;
         }
 
-        var folders = path.Split(';');
-
-        foreach (var folder in folders)
+        var editors = new Dictionary<string, (string title, string executable, string icon)>
         {
-            if (File.Exists(Path.Combine(folder, "code.cmd")))
-            {
-                versions.Add(("Visual Studio Code", "code", Icons.VisualCode));
-            }
+            {"code.cmd", ("Visual Studio Code", "code", Icons.VisualCode)},
+            {"code-insiders.cmd", ("Visual Studio Code - Insiders", "code-insiders", Icons.VisualCodeInsiders)},
+            {"zed.exe", ("Zed", "zed", Icons.Zed)}
+        };
 
-            if (File.Exists(Path.Combine(folder, "code-insiders.cmd")))
-            {
-                versions.Add(("Visual Studio Code - Insiders", "code-insiders", Icons.VisualCodeInsiders));
-            }
-        }
+        versions.AddRange(
+            path
+                .Split(';')
+                .SelectMany(_ => editors, (folder, editor) => new {folder, editor})
+                .Where(t => File.Exists(Path.Combine(t.folder, t.editor.Key)))
+                .Select(t => t.editor.Value)
+        );
 
         return versions;
     }

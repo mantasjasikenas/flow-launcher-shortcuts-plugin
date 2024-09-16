@@ -40,6 +40,8 @@ public static class Icons
 
     public const string VisualCodeInsiders = "Images\\vscode-insiders.png";
 
+    public const string Zed = "Images\\zed.png";
+
     public const string PowerShellBlack = "Images\\powershell_black.png";
 
     public const string WindowsTerminal = "Images\\windows-terminal.png";
