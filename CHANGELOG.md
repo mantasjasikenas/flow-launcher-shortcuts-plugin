@@ -4,10 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [1.2.0] - 2024-xx-xx
+## [1.2.0] - 2024-09-16
 
 - Fix group creation bug
-- 
+- Show available possible variables when using `q var remove` command
+- Show available possible shortcuts when using `q remove` command
 
 ## [1.1.9] - 2024-09-16
 
