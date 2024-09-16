@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-xx-xx
+
+- Fix group creation bug
+- 
+
 ## [1.1.9] - 2024-09-16
 
 - QuickLook support to preview folders and files

@@ -68,7 +68,7 @@ public class ShortcutsRepository : IShortcutsRepository
         {
             if (!_shortcuts.TryGetValue(key, out var value))
             {
-                value = new List<Shortcut>();
+                value = [];
                 _shortcuts.Add(key, value);
             }
 
@@ -105,6 +105,7 @@ public class ShortcutsRepository : IShortcutsRepository
         return _shortcuts.Values
                          .SelectMany(x => x)
                          .OfType<GroupShortcut>()
+                         .Distinct()
                          .ToList();
     }
 
@@ -118,7 +119,12 @@ public class ShortcutsRepository : IShortcutsRepository
 
         _shortcuts.TryGetValue(groupKey, out var value);
 
-        value ??= new List<Shortcut>();
+        if (value == null)
+        {
+            value = [];
+            _shortcuts.Add(groupKey, value);
+        }
+
         value.Add(group);
 
         SaveShortcuts();
