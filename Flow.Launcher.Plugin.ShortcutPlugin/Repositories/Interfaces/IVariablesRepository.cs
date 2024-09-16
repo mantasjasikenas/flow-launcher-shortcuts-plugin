@@ -10,6 +10,7 @@ public interface IVariablesRepository
     public void UpdateVariable(string name, string value);
     public Variable GetVariable(string name);
     public List<Variable> GetVariables();
+    public IEnumerable<Variable> GetPossibleVariables(string name);
     public void Reload();
     public string ExpandVariables(string value);
     public void ImportVariables(string path);

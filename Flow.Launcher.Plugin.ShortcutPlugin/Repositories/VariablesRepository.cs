@@ -7,6 +7,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using FuzzySharp;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -31,6 +32,17 @@ public class VariablesRepository : IVariablesRepository
     public List<Variable> GetVariables()
     {
         return _variables.Values.ToList();
+    }
+
+    public IEnumerable<Variable> GetPossibleVariables(string name)
+    {
+        name = name.ToLowerInvariant();
+
+        return GetVariables()
+               .Where(x => Fuzz.PartialRatio(x.Name, name) > 90)
+               .OrderByDescending(x => Fuzz.Ratio(x.Name, name))
+               .Distinct()
+               .ToList();
     }
 
     public Variable GetVariable(string name)

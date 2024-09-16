@@ -81,13 +81,13 @@ public class ShortcutsService : IShortcutsService
 
     public List<Result> RemoveShortcut(string key)
     {
-        return RemoveShortcut(_shortcutsRepository.GetShortcuts(key)?.ToList());
+        return RemoveShortcut(_shortcutsRepository.GetPossibleShortcuts(key).ToList());
     }
 
     public List<Result> RemoveGroup(string key)
     {
-        return RemoveShortcut(_shortcutsRepository.GetShortcuts(key)
-                                                  ?.OfType<GroupShortcut>()
+        return RemoveShortcut(_shortcutsRepository.GetPossibleShortcuts(key)
+                                                  .OfType<GroupShortcut>()
                                                   .Cast<Shortcut>()
                                                   .ToList());
     }
@@ -96,16 +96,16 @@ public class ShortcutsService : IShortcutsService
     {
         if (shortcuts is null || shortcuts.Count == 0)
         {
-            return ResultExtensions.EmptyResult("Shortcut not found");
+            return ResultExtensions.EmptyResult("Shortcut not found", "Please provide a valid shortcut");
         }
 
         return shortcuts.Select(shortcut =>
                         {
                             return ResultExtensions.Result(
-                                string.Format(Resources.ShortcutsManager_RemoveShortcut_Remove_shortcut,
-                                    shortcut.GetTitle()),
+                                $"Remove shortcut {shortcut.GetTitle()}",
                                 shortcut.ToString(),
-                                () => { _shortcutsRepository.RemoveShortcut(shortcut); }
+                                titleHighlightData: [16, shortcut.GetTitle().Length],
+                                action: () => { _shortcutsRepository.RemoveShortcut(shortcut); }
                             );
                         })
                         .ToList();
