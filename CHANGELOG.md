@@ -6,7 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.1] - 2024-xx-xx
 
-- Don't autocomplete result when pressed enter if argument is not literal type
+- Do not autocomplete the result when Enter is pressed if the argument is not a literal type.
+- Added a `LaunchGroup` field to group shortcuts. If set to `true`, there will be ability to launch all shortcuts in the
+  group at the same time. Otherwise, the user will be able only to launch single shortcut from the group at a time.
+- When the group shortcut name (key) is not fully typed, selecting the group shortcut from the list will replace the
+  query with the group shortcut name.
 
 ## [1.2.0] - 2024-09-16
 
@@ -82,7 +86,7 @@ All notable changes to this project will be documented in this file.
   If the application is not defined, the default application will be used to open the file or URL. Example:
 
   ```json
-  {
+  [{
     "Type": "Url",
     "Url": "https://www.youtube.com/playlist?list=WL",
     "App": "msedge.exe",
@@ -99,7 +103,7 @@ All notable changes to this project will be documented in this file.
     "App": "notepad",
     "Path": "C:\\Users\\tutta\\Storage\\Motion Picture\\labas.txt",
     "Key": "t2"
-  }
+  }]
   ```
 
 ## [1.1.3] - 2024-01-31

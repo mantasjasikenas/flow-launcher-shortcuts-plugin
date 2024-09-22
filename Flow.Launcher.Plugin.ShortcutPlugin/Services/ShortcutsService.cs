@@ -17,15 +17,17 @@ public class ShortcutsService : IShortcutsService
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
+    private readonly PluginInitContext _context;
+
     public ShortcutsService(
         IShortcutsRepository shortcutsRepository,
         IShortcutHandler shortcutHandler,
-        IVariablesService variablesService
-    )
+        IVariablesService variablesService, PluginInitContext context)
     {
         _shortcutsRepository = shortcutsRepository;
         _shortcutHandler = shortcutHandler;
         _variablesService = variablesService;
+        _context = context;
     }
 
     public List<Result> GetShortcuts(List<string> arguments)
@@ -74,7 +76,12 @@ public class ShortcutsService : IShortcutsService
         return groups
                .Select(group => BuildShortcutResult(
                    shortcut: group,
-                   arguments: []
+                   arguments: [],
+                   action: () =>
+                   {
+                       _context.API.ChangeQuery($"{_context.CurrentPluginMetadata.ActionKeywords[0]} {group.Key}");
+                   },
+                   hideAfterAction: false
                ))
                .ToList();
     }
@@ -134,9 +141,9 @@ public class ShortcutsService : IShortcutsService
         var args = arguments.ToList();
         var results = new List<Result>();
 
-        if (expandGroups && shortcut is GroupShortcut groupShortcut)
+        if (shortcut is GroupShortcut groupShortcut)
         {
-            results.AddRange(GetGroupShortcutResults(groupShortcut, args));
+            results.AddRange(GetGroupShortcutResults(groupShortcut, expandGroups, args));
             return results;
         }
 
@@ -282,17 +289,42 @@ public class ShortcutsService : IShortcutsService
 
     private IEnumerable<Result> GetGroupShortcutResults(
         GroupShortcut groupShortcut,
+        bool expandGroups,
         List<string> arguments
     )
     {
         var joinedArguments = string.Join(" ", arguments);
+        var results = new List<Result>();
 
+        // expand group when is not fully typed
         var title = "Open group ";
         var highlightIndexes = Enumerable.Range(title.Length, groupShortcut.GetTitle().Length).ToList();
         title += groupShortcut.GetTitle();
 
+        results.Add(BuildShortcutResult(
+            shortcut: groupShortcut,
+            arguments: arguments,
+            title: title,
+            subtitle: $"{groupShortcut} {joinedArguments}",
+            titleHighlightData: highlightIndexes,
+            action: () =>
+            {
+                _context.API.ChangeQuery($"{_context.CurrentPluginMetadata.ActionKeywords[0]} {groupShortcut.Key}");
+            },
+            hideAfterAction: false
+        ));
 
-        var results = BuildShortcutResult(
+        if (!expandGroups)
+        {
+            return results;
+        }
+
+        // Fully typed shortcut key
+        title = groupShortcut.GroupLaunch ? "Launch group " : "Group ";
+        highlightIndexes = Enumerable.Range(title.Length, groupShortcut.GetTitle().Length).ToList();
+        title += groupShortcut.GetTitle();
+
+        results = BuildShortcutResult(
                 shortcut: groupShortcut,
                 arguments: arguments,
                 title: title,
@@ -353,7 +385,9 @@ public class ShortcutsService : IShortcutsService
         IList<int> titleHighlightData = default,
         string subtitle = null,
         string autoCompleteText = null,
-        int score = 0
+        int score = 0,
+        Action action = null,
+        bool? hideAfterAction = null
     )
     {
         var expandedArguments = ExpandShortcutArguments(shortcut, arguments);
@@ -362,7 +396,14 @@ public class ShortcutsService : IShortcutsService
         var result = ResultExtensions.Result(
             title: (string.IsNullOrEmpty(title) ? shortcut.GetTitle() : title) + " ",
             subtitle: subtitle ?? expandedArguments,
-            action: () => { _shortcutHandler.ExecuteShortcut(shortcut, arguments); },
+            action: action ?? (() =>
+            {
+                if (shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut)
+                {
+                    _shortcutHandler.ExecuteShortcut(shortcut, arguments);
+                }
+            }),
+            hideAfterAction: hideAfterAction ?? shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut,
             contextData: shortcut,
             iconPath: iconPath ?? GetIcon(shortcut),
             titleHighlightData: titleHighlightData,

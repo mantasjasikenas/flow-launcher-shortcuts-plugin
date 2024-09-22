@@ -10,6 +10,8 @@ public class GroupShortcut : Shortcut
 
     public List<string>? Keys { get; init; }
 
+    public bool GroupLaunch { get; init; } = true;
+
     public override object Clone()
     {
         return new GroupShortcut

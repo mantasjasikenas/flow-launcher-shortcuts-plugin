@@ -109,12 +109,13 @@ public class ShortcutsRepository : IShortcutsRepository
                          .ToList();
     }
 
-    public void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys)
+    public void GroupShortcuts(string groupKey, bool groupLaunch, IEnumerable<string> shortcutKeys)
     {
         var group = new GroupShortcut
         {
             Key = groupKey,
-            Keys = shortcutKeys.ToList()
+            Keys = shortcutKeys.ToList(),
+            GroupLaunch = groupLaunch
         };
 
         _shortcuts.TryGetValue(groupKey, out var value);
