@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.1] - 2024-xx-xx
+
+- Don't autocomplete result when pressed enter if argument is not literal type
+
 ## [1.2.0] - 2024-09-16
 
 - Fix group creation bug

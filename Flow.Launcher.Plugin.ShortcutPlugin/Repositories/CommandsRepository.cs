@@ -6,7 +6,6 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -105,13 +104,21 @@ public class CommandsRepository : ICommandsRepository
 
             return executor
                    .Arguments.Cast<Argument>()
-                   .Select(a =>
+                   .Select(argument =>
                        ResultExtensions.Result(
-                           title: a.ResponseInfo.Item1,
-                           subtitle: a.ResponseInfo.Item2,
-                           () => { _context.API.ChangeQuery($"{query.ActionKeyword} {a.ResponseInfo.Item1}"); },
+                           title: argument.ResponseInfo.Item1,
+                           subtitle: argument.ResponseInfo.Item2,
+                           () =>
+                           {
+                               if (argument is ArgumentLiteral)
+                               {
+                                   _context.API.ChangeQuery($"{query.ActionKeyword} {argument.ResponseInfo.Item1}");
+                               }
+                           },
                            hideAfterAction: false,
-                           autoCompleteText: $"{query.ActionKeyword} {a.ResponseInfo.Item1}"
+                           autoCompleteText: argument is ArgumentLiteral
+                               ? $"{query.ActionKeyword} {argument.ResponseInfo.Item1}"
+                               : $"{query.RawQuery}"
                        )
                    )
                    .ToList();
