@@ -46,7 +46,14 @@ public class ShortcutsService : IShortcutsService
                           arguments: arguments,
                           title: shortcut.GetTitle(),
                           subtitle: shortcut.GetSubTitle(),
-                          iconPath: GetIcon(shortcut)
+                          iconPath: GetIcon(shortcut),
+                          action: shortcut is GroupShortcut
+                              ? () => { _pluginManager.ChangeQueryWithAppendedKeyword(shortcut.Key); }
+                              : null,
+                          hideAfterAction: shortcut is GroupShortcut ? false : null,
+                          autoCompleteText: shortcut is GroupShortcut
+                              ? _pluginManager.AppendActionKeyword(shortcut.Key)
+                              : null
                       ))
                       .ToList();
 
@@ -389,17 +396,19 @@ public class ShortcutsService : IShortcutsService
         var expandedArguments = ExpandShortcutArguments(shortcut, arguments);
         var expandedAll = _variablesService.ExpandVariables(expandedArguments);
 
+        var executeShortcut = shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut;
+
         var result = ResultExtensions.Result(
             title: (string.IsNullOrEmpty(title) ? shortcut.GetTitle() : title) + " ",
             subtitle: subtitle ?? expandedArguments,
             action: action ?? (() =>
             {
-                if (shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut)
+                if (executeShortcut)
                 {
                     _shortcutHandler.ExecuteShortcut(shortcut, arguments);
                 }
             }),
-            hideAfterAction: hideAfterAction ?? shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut,
+            hideAfterAction: hideAfterAction ?? executeShortcut,
             contextData: shortcut,
             iconPath: iconPath ?? GetIcon(shortcut),
             titleHighlightData: titleHighlightData,
