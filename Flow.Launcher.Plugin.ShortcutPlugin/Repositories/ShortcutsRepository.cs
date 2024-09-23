@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
@@ -23,8 +24,11 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         _settingsService = settingsService;
         _pluginManager = pluginManager;
+    }
 
-        _shortcuts = ReadShortcuts(settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
+    public async Task InitializeAsync()
+    {
+        _shortcuts = await ReadShortcuts(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
     }
 
     public IList<Shortcut> GetShortcuts(string key)
@@ -145,14 +149,14 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
 
-        _shortcuts = ReadShortcuts(path);
+        _shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
     }
 
     public void ImportShortcuts(string path)
     {
         try
         {
-            var shortcuts = ReadShortcuts(path);
+            var shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
 
             if (shortcuts.Count == 0)
             {
@@ -192,7 +196,7 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    private Dictionary<string, List<Shortcut>> ReadShortcuts(string path)
+    private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts(string path)
     {
         if (!File.Exists(path))
         {
@@ -201,8 +205,8 @@ public class ShortcutsRepository : IShortcutsRepository
 
         try
         {
-            var json = File.ReadAllText(path);
-            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
+            await using var openStream = File.OpenRead(path);
+            var shortcuts = await JsonSerializer.DeserializeAsync<List<Shortcut>>(openStream);
 
             return shortcuts
                    .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),

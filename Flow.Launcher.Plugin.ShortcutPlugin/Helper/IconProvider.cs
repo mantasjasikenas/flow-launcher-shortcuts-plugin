@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
@@ -14,18 +15,28 @@ public class IconProvider : IIconProvider
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
-    private readonly Dictionary<string, string> _arguments = new();
+    private static readonly Dictionary<string, string> Arguments = new();
 
-    private readonly Dictionary<string, List<string>> _directoryCache = new();
-    private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(10);
-    private DateTime _lastCacheUpdate = DateTime.MinValue;
+    private List<string> _cachedIconsDirectory = [];
+    private string _cachedPath;
 
-    public IconProvider(IShortcutsRepository shortcutsRepository,
-        IVariablesService variablesService
-    )
+    public IconProvider(IShortcutsRepository shortcutsRepository, IVariablesService variablesService)
     {
         _shortcutsRepository = shortcutsRepository;
         _variablesService = variablesService;
+    }
+
+    public Task InitializeAsync()
+    {
+        CacheIconsDirectory();
+
+        return Task.CompletedTask;
+    }
+
+    public void Reload()
+    {
+        _cachedIconsDirectory.Clear();
+        CacheIconsDirectory();
     }
 
     public string GetIcon(Shortcut shortcut)
@@ -57,12 +68,6 @@ public class IconProvider : IIconProvider
             GroupShortcut => Icons.TabGroup,
             _ => Icons.Logo
         };
-    }
-
-    public void Reload()
-    {
-        _directoryCache.Clear();
-        _lastCacheUpdate = DateTime.MinValue;
     }
 
     private string GetShellShortcutIcon(ShellShortcut shellShortcut)
@@ -100,12 +105,12 @@ public class IconProvider : IIconProvider
 
     private string GetDirectoryShortcutIcon(DirectoryShortcut directoryShortcut)
     {
-        return _variablesService.ExpandVariables(directoryShortcut.Path, _arguments);
+        return _variablesService.ExpandVariables(directoryShortcut.Path, Arguments);
     }
 
     private string GetFileShortcutIcon(FileShortcut fileShortcut)
     {
-        var path = _variablesService.ExpandVariables(fileShortcut.Path, _arguments);
+        var path = _variablesService.ExpandVariables(fileShortcut.Path, Arguments);
 
         return string.IsNullOrEmpty(fileShortcut.App)
             ? path
@@ -114,16 +119,18 @@ public class IconProvider : IIconProvider
 
     private bool TryGetIconFromIcons(out string icon, string key)
     {
-        var shortcuts = _shortcutsRepository.GetShortcuts("icons");
-        icon = null;
-
-        if (shortcuts is null || shortcuts is {Count: < 1} ||
-            shortcuts.First() is not DirectoryShortcut directoryShortcut || !Directory.Exists(directoryShortcut.Path))
+        if (!TryGetIconsDirectoryPath(out var path))
         {
+            icon = null;
             return false;
         }
 
-        var files = GetCachedFiles(directoryShortcut.Path);
+        if (path != _cachedPath)
+        {
+            Reload();
+        }
+
+        var files = _cachedIconsDirectory;
 
         icon = files.FirstOrDefault(file =>
             Path.GetFileNameWithoutExtension(file)
@@ -134,19 +141,31 @@ public class IconProvider : IIconProvider
         return icon != null;
     }
 
-    private List<string> GetCachedFiles(string directoryPath)
+    private void CacheIconsDirectory()
     {
-        if (_directoryCache.TryGetValue(directoryPath, out var cachedFiles) &&
-            DateTime.Now - _lastCacheUpdate < _cacheDuration)
+        if (!TryGetIconsDirectoryPath(out var iconsPath))
         {
-            return cachedFiles;
+            return;
         }
 
-        var files = Directory.GetFiles(directoryPath).ToList();
+        _cachedPath = iconsPath;
+        _cachedIconsDirectory = Directory.GetFiles(iconsPath).ToList();
+    }
 
-        _directoryCache[directoryPath] = files;
-        _lastCacheUpdate = DateTime.Now;
+    private bool TryGetIconsDirectoryPath(out string path)
+    {
+        path = null;
 
-        return files;
+        var shortcuts = _shortcutsRepository.GetShortcuts("icons");
+
+        if (shortcuts is null || shortcuts is {Count: < 1} ||
+            shortcuts.First() is not DirectoryShortcut directoryShortcut || !Directory.Exists(directoryShortcut.Path))
+        {
+            return false;
+        }
+
+        path = directoryShortcut.Path;
+
+        return true;
     }
 }

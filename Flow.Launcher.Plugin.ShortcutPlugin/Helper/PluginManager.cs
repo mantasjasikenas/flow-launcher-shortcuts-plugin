@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
@@ -16,9 +17,7 @@ public class PluginManager : IPluginManager
     private IReloadable _reloadable;
 
 
-    public PluginManager(
-        PluginInitContext context
-    )
+    public PluginManager(PluginInitContext context)
     {
         Context = context;
         LastQuery = new Query();

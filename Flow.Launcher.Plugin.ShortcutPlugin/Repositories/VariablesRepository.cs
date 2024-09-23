@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
@@ -25,7 +26,11 @@ public class VariablesRepository : IVariablesRepository
     {
         _settingsService = settingsService;
         _pluginManager = pluginManager;
-        _variables = ReadVariables(VariablesPath);
+    }
+
+    public async Task InitializeAsync()
+    {
+        _variables = await ReadVariables(VariablesPath);
     }
 
     private string VariablesPath => _settingsService.GetSettingOrDefault(x => x.VariablesPath);
@@ -71,7 +76,7 @@ public class VariablesRepository : IVariablesRepository
 
     public void Reload()
     {
-        _variables = ReadVariables(VariablesPath);
+        _variables = Task.Run(() => ReadVariables(VariablesPath)).GetAwaiter().GetResult();
     }
 
     public string ExpandVariables(string value)
@@ -87,7 +92,7 @@ public class VariablesRepository : IVariablesRepository
     {
         try
         {
-            var variables = ReadVariables(path);
+            var variables = Task.Run(() => ReadVariables(path)).GetAwaiter().GetResult();
 
             if (variables.Count == 0)
             {
@@ -127,7 +132,7 @@ public class VariablesRepository : IVariablesRepository
         }
     }
 
-    private static Dictionary<string, Variable> ReadVariables(string path)
+    private static async Task<Dictionary<string, Variable>> ReadVariables(string path)
     {
         if (!File.Exists(path))
         {
@@ -136,7 +141,9 @@ public class VariablesRepository : IVariablesRepository
 
         try
         {
-            var variables = JsonSerializer.Deserialize<List<Variable>>(File.ReadAllText(path));
+            await using var openStream = File.OpenRead(path);
+            var variables = await JsonSerializer.DeserializeAsync<List<Variable>>(openStream);
+
             return variables.ToDictionary(variable => variable.Name);
         }
         catch (Exception)

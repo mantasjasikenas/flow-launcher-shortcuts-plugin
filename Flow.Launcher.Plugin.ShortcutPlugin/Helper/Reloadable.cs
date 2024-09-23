@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
@@ -24,8 +25,15 @@ public class Reloadable : IReloadable
     public void ReloadData()
     {
         _settingsService.Reload();
-        _shortcutsService.Reload();
-        _variablesService.Reload();
+
+        var reloadTasks = new[]
+        {
+            Task.Run(() => _variablesService.Reload()),
+            Task.Run(() => _shortcutsService.Reload())
+        };
+
+        Task.WhenAll(reloadTasks).GetAwaiter().GetResult();
+
         _iconProvider.Reload();
     }
 }

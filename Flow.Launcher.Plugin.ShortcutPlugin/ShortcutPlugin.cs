@@ -1,9 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Flow.Launcher.Plugin.ShortcutPlugin;
 
 // ReSharper disable once UnusedType.Global
-public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMenu
+public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMenu, IAsyncInitializable
 {
     internal ServiceProvider ServiceProvider { get; private set; }
 
@@ -28,21 +29,22 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public void Init(PluginInitContext context)
     {
-        var serviceProvider = new ServiceCollection()
-                              .ConfigureServices(context)
-                              .RegisterCommands()
-                              .BuildServiceProvider();
+        ServiceProvider = new ServiceCollection()
+                          .ConfigureServices(context)
+                          .RegisterCommands()
+                          .BuildServiceProvider();
 
-        _commandsService = serviceProvider.GetService<ICommandsService>();
-        _pluginManager = serviceProvider.GetService<IPluginManager>();
 
-        _contextMenu = serviceProvider.GetService<ContextMenu>();
-        _settingsViewModel = serviceProvider.GetService<SettingsViewModel>();
+        _commandsService = ServiceProvider.GetService<ICommandsService>();
+        _pluginManager = ServiceProvider.GetService<IPluginManager>();
 
-        _reloadable = serviceProvider.GetService<IReloadable>();
+        _contextMenu = ServiceProvider.GetService<ContextMenu>();
+        _settingsViewModel = ServiceProvider.GetService<SettingsViewModel>();
+
+        Task.Run(InitializeAsync).GetAwaiter().GetResult();
+
+        _reloadable = ServiceProvider.GetService<IReloadable>();
         _pluginManager.SetReloadable(_reloadable);
-
-        ServiceProvider = serviceProvider;
     }
 
     public List<Result> Query(Query query)
@@ -70,5 +72,21 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
         _settingWindow = new SettingsUserControl(_settingsViewModel);
 
         return _settingWindow;
+    }
+
+    public async Task InitializeAsync()
+    {
+        var shortcutsRepository = ServiceProvider.GetService<IShortcutsRepository>();
+        var variablesRepository = ServiceProvider.GetService<IVariablesRepository>();
+        var iconProvider = ServiceProvider.GetService<IIconProvider>();
+
+        Task[] tasks =
+        [
+            shortcutsRepository.InitializeAsync(),
+            variablesRepository.InitializeAsync()
+        ];
+
+        await Task.WhenAll(tasks);
+        await iconProvider.InitializeAsync();
     }
 }
