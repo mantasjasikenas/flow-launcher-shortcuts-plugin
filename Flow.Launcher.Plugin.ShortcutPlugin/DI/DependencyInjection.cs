@@ -17,6 +17,7 @@ public static class DependencyInjection
     )
     {
         services.AddSingleton(context);
+        services.AddSingleton<IPluginManager, PluginManager>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IShortcutsRepository, ShortcutsRepository>();
         services.AddSingleton<IShortcutsService, ShortcutsService>();

@@ -14,12 +14,12 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 internal class ContextMenu : IContextMenu
 {
     private readonly IVariablesService _variablesService;
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public ContextMenu(IVariablesService variablesService, PluginInitContext context)
+    public ContextMenu(IVariablesService variablesService, IPluginManager pluginManager)
     {
         _variablesService = variablesService;
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public List<Result> LoadContextMenus(Result selectedResult)
@@ -59,7 +59,7 @@ internal class ContextMenu : IContextMenu
             contextMenu.Add(ResultExtensions.Result(
                 "Key",
                 shortcut.Key,
-                () => { _context.API.CopyToClipboard(shortcut.Key, showDefaultNotification: false); }
+                () => { _pluginManager.API.CopyToClipboard(shortcut.Key, showDefaultNotification: false); }
             ));
         }
 
@@ -70,7 +70,8 @@ internal class ContextMenu : IContextMenu
                 string.Join(", ", shortcut.Alias),
                 () =>
                 {
-                    _context.API.CopyToClipboard(string.Join(", ", shortcut.Alias), showDefaultNotification: false);
+                    _pluginManager.API.CopyToClipboard(string.Join(", ", shortcut.Alias),
+                        showDefaultNotification: false);
                 }
             ));
         }
@@ -80,7 +81,7 @@ internal class ContextMenu : IContextMenu
             contextMenu.Add(ResultExtensions.Result(
                 "Description",
                 shortcut.Description,
-                () => { _context.API.CopyToClipboard(shortcut.Description, showDefaultNotification: false); }
+                () => { _pluginManager.API.CopyToClipboard(shortcut.Description, showDefaultNotification: false); }
             ));
         }
     }
@@ -90,13 +91,16 @@ internal class ContextMenu : IContextMenu
         var copyTitle = ResultExtensions.Result(
             "Copy result title",
             selectedResult.Title,
-            action: () => { _context.API.CopyToClipboard(selectedResult.Title, showDefaultNotification: false); },
+            action: () => { _pluginManager.API.CopyToClipboard(selectedResult.Title, showDefaultNotification: false); },
             iconPath: Icons.Copy
         );
         var copySubTitle = ResultExtensions.Result(
             "Copy result subtitle",
             selectedResult.SubTitle,
-            action: () => { _context.API.CopyToClipboard(selectedResult.SubTitle, showDefaultNotification: false); },
+            action: () =>
+            {
+                _pluginManager.API.CopyToClipboard(selectedResult.SubTitle, showDefaultNotification: false);
+            },
             iconPath: Icons.Copy
         );
 
@@ -148,13 +152,13 @@ internal class ContextMenu : IContextMenu
         contextMenu.Add(ResultExtensions.Result(
             "Copy path",
             filePath,
-            action: () => { _context.API.CopyToClipboard(filePath, showDefaultNotification: false); },
+            action: () => { _pluginManager.API.CopyToClipboard(filePath, showDefaultNotification: false); },
             iconPath: Icons.Copy
         ));
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy file",
-            action: () => { _context.API.CopyToClipboard(filePath, true, false); },
+            action: () => { _pluginManager.API.CopyToClipboard(filePath, true, false); },
             iconPath: Icons.Copy
         ));
 
@@ -243,7 +247,7 @@ internal class ContextMenu : IContextMenu
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy path",
-            action: () => { _context.API.CopyToClipboard(directoryPath, showDefaultNotification: false); },
+            action: () => { _pluginManager.API.CopyToClipboard(directoryPath, showDefaultNotification: false); },
             iconPath: Icons.Copy
         ));
 

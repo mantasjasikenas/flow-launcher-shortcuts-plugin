@@ -6,6 +6,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -14,20 +15,20 @@ public class CommandsRepository : ICommandsRepository
     private readonly Dictionary<string, Command> _commands =
         new(StringComparer.InvariantCultureIgnoreCase);
 
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IShortcutsService _shortcutsService;
 
     public CommandsRepository(
         IEnumerable<ICommand> commands,
-        PluginInitContext context,
         IShortcutsRepository shortcutsRepository,
-        IShortcutsService shortcutsService
+        IShortcutsService shortcutsService,
+        IPluginManager pluginManager
     )
     {
-        _context = context;
         _shortcutsRepository = shortcutsRepository;
         _shortcutsService = shortcutsService;
+        _pluginManager = pluginManager;
 
         RegisterCommands(commands);
     }
@@ -41,7 +42,7 @@ public class CommandsRepository : ICommandsRepository
     {
         if (arguments.Count == 0)
         {
-            return ShowAvailableCommands(query.ActionKeyword);
+            return ShowAvailableCommands();
         }
 
         var key = arguments[0];
@@ -62,7 +63,7 @@ public class CommandsRepository : ICommandsRepository
                                     .SelectMany(s => _shortcutsService.OpenShortcut(s, argsWithoutKey, false));
 
             // Return possible command matches
-            var possibleCommands = GetPossibleCommands(key, query.ActionKeyword);
+            var possibleCommands = GetPossibleCommands(key);
 
             var possibleResults = possibleShortcuts.Concat(possibleCommands).ToList();
 
@@ -112,12 +113,12 @@ public class CommandsRepository : ICommandsRepository
                            {
                                if (argument is ArgumentLiteral)
                                {
-                                   _context.API.ChangeQuery($"{query.ActionKeyword} {argument.ResponseInfo.Item1}");
+                                   _pluginManager.ChangeQueryWithAppendedKeyword(argument.ResponseInfo.Item1);
                                }
                            },
                            hideAfterAction: false,
                            autoCompleteText: argument is ArgumentLiteral
-                               ? $"{query.ActionKeyword} {argument.ResponseInfo.Item1}"
+                               ? _pluginManager.AppendActionKeyword(argument.ResponseInfo.Item1)
                                : $"{query.RawQuery}"
                        )
                    )
@@ -127,7 +128,7 @@ public class CommandsRepository : ICommandsRepository
         return Map(executor, executor.ResponseFailure, arguments);
     }
 
-    private List<Result> ShowAvailableCommands(string actionKeyword)
+    private List<Result> ShowAvailableCommands()
     {
         return _commands
                .Values.Select(c =>
@@ -136,14 +137,14 @@ public class CommandsRepository : ICommandsRepository
                        subtitle: c.ResponseInfo.Item2,
                        score: 1000 - _commands.Count,
                        hideAfterAction: false,
-                       action: () => { _context.API.ChangeQuery($"{actionKeyword} {c.Key}"); },
-                       autoCompleteText: $"{actionKeyword} {c.Key}"
+                       action: () => { _pluginManager.ChangeQueryWithAppendedKeyword(c.Key); },
+                       autoCompleteText: _pluginManager.AppendActionKeyword(c.Key)
                    )
                )
                .ToList();
     }
 
-    private IEnumerable<Result> GetPossibleCommands(string query, string actionKeyword)
+    private IEnumerable<Result> GetPossibleCommands(string query)
     {
         return _commands
                .Values
@@ -156,8 +157,8 @@ public class CommandsRepository : ICommandsRepository
                        subtitle: c.ResponseInfo.Item2,
                        score: 1000,
                        hideAfterAction: false,
-                       action: () => { _context.API.ChangeQuery($"{actionKeyword} {c.Key}"); },
-                       autoCompleteText: $"{actionKeyword} {c.Key}"
+                       action: () => { _pluginManager.ChangeQueryWithAppendedKeyword(c.Key); },
+                       autoCompleteText: _pluginManager.AppendActionKeyword(c.Key)
                    )
                )
                .ToList();

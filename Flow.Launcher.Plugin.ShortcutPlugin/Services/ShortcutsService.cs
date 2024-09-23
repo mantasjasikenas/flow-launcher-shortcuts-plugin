@@ -17,17 +17,18 @@ public class ShortcutsService : IShortcutsService
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
     public ShortcutsService(
         IShortcutsRepository shortcutsRepository,
         IShortcutHandler shortcutHandler,
-        IVariablesService variablesService, PluginInitContext context)
+        IVariablesService variablesService,
+        IPluginManager pluginManager)
     {
         _shortcutsRepository = shortcutsRepository;
         _shortcutHandler = shortcutHandler;
         _variablesService = variablesService;
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public List<Result> GetShortcuts(List<string> arguments)
@@ -77,10 +78,7 @@ public class ShortcutsService : IShortcutsService
                .Select(group => BuildShortcutResult(
                    shortcut: group,
                    arguments: [],
-                   action: () =>
-                   {
-                       _context.API.ChangeQuery($"{_context.CurrentPluginMetadata.ActionKeywords[0]} {group.Key}");
-                   },
+                   action: () => { _pluginManager.ChangeQueryWithAppendedKeyword(group.Key); },
                    hideAfterAction: false
                ))
                .ToList();
@@ -307,11 +305,9 @@ public class ShortcutsService : IShortcutsService
             title: title,
             subtitle: $"{groupShortcut} {joinedArguments}",
             titleHighlightData: highlightIndexes,
-            action: () =>
-            {
-                _context.API.ChangeQuery($"{_context.CurrentPluginMetadata.ActionKeywords[0]} {groupShortcut.Key}");
-            },
-            hideAfterAction: false
+            action: () => { _pluginManager.ChangeQueryWithAppendedKeyword(groupShortcut.Key); },
+            hideAfterAction: false,
+            autoCompleteText: _pluginManager.AppendActionKeyword(groupShortcut.Key)
         ));
 
         if (!expandGroups)

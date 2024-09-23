@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,9 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
     private SettingsViewModel _settingsViewModel;
     private ContextMenu _contextMenu;
 
+    private IPluginManager _pluginManager;
+
+
     public void Init(PluginInitContext context)
     {
         var serviceProvider = new ServiceCollection()
@@ -28,6 +32,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
                               .BuildServiceProvider();
 
         _commandsService = serviceProvider.GetService<ICommandsService>();
+        _pluginManager = serviceProvider.GetService<IPluginManager>();
         _contextMenu = serviceProvider.GetService<ContextMenu>();
         _settingsViewModel = serviceProvider.GetService<SettingsViewModel>();
 
@@ -36,6 +41,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public List<Result> Query(Query query)
     {
+        _pluginManager.SetLastQuery(query);
+
         var args = CommandLineExtensions.SplitArguments(query.Search);
         var results = _commandsService.ResolveCommand(args, query);
 
@@ -44,6 +51,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public void ReloadData()
     {
+        _pluginManager.ClearLastQuery();
         _commandsService.ReloadPluginData();
     }
 

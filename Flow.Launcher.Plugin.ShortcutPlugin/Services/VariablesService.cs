@@ -13,12 +13,12 @@ public class VariablesService : IVariablesService
 {
     private readonly IVariablesRepository _variablesRepository;
 
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public VariablesService(IVariablesRepository variablesRepository, PluginInitContext context)
+    public VariablesService(IVariablesRepository variablesRepository, IPluginManager pluginManager)
     {
         _variablesRepository = variablesRepository;
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public List<Result> GetVariables()
@@ -46,7 +46,7 @@ public class VariablesService : IVariablesService
                     IcoPath = Icons.Logo,
                     Action = _ =>
                     {
-                        _context.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
+                        _pluginManager.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
                         return true;
                     },
                     AutoCompleteText = $"Variable: {variable.Name} value: {variable.Value}"

@@ -2,16 +2,17 @@
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class KeywordCommand : ICommand
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public KeywordCommand(PluginInitContext context)
+    public KeywordCommand(IPluginManager pluginManager)
     {
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public Command Create()
@@ -91,7 +92,7 @@ public class KeywordCommand : ICommand
     private List<Result> GetKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
         return ResultExtensions.SingleResult("Plugin keywords",
-            string.Join(", ", _context.CurrentPluginMetadata.ActionKeywords));
+            string.Join(", ", _pluginManager.Context.CurrentPluginMetadata.ActionKeywords));
     }
 
     private List<Result> SetKeywordCommandHandler(ActionContext context, List<string> arguments)
@@ -101,20 +102,21 @@ public class KeywordCommand : ICommand
         return ResultExtensions.SingleResult("Setting plugin keyword (other will be removed)",
             $"New keyword will be `{newKeyword}`", () =>
             {
-                _context.CurrentPluginMetadata.ActionKeywords
-                        .ToList()
-                        .ForEach(oldKeyword =>
-                        {
-                            _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, oldKeyword);
-                        });
+                var metadata = _pluginManager.Context.CurrentPluginMetadata;
 
-                _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword);
+                metadata.ActionKeywords
+                        .ToList()
+                        .ForEach(oldKeyword => { _pluginManager.API.RemoveActionKeyword(metadata.ID, oldKeyword); });
+
+                _pluginManager.API.AddActionKeyword(metadata.ID, newKeyword);
+                _pluginManager.API.SaveAppAllSettings();
             });
     }
 
     private List<Result> AddKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
-        var actionKeywords = _context.CurrentPluginMetadata.ActionKeywords;
+        var metadata = _pluginManager.Context.CurrentPluginMetadata;
+        var actionKeywords = metadata.ActionKeywords;
         var newKeyword = arguments[2];
 
         if (actionKeywords.Contains(newKeyword))
@@ -123,12 +125,17 @@ public class KeywordCommand : ICommand
         }
 
         return ResultExtensions.SingleResult("Add plugin keyword", $"New keyword added will be `{newKeyword}`",
-            () => { _context.API.AddActionKeyword(_context.CurrentPluginMetadata.ID, newKeyword); });
+            () =>
+            {
+                _pluginManager.API.AddActionKeyword(metadata.ID, newKeyword);
+                _pluginManager.API.SaveAppAllSettings();
+            });
     }
 
     private List<Result> RemoveKeywordCommandHandler(ActionContext context, List<string> arguments)
     {
-        var actionKeywords = _context.CurrentPluginMetadata.ActionKeywords;
+        var metadata = _pluginManager.Context.CurrentPluginMetadata;
+        var actionKeywords = metadata.ActionKeywords;
 
         if (actionKeywords.Count == 1)
         {
@@ -141,6 +148,10 @@ public class KeywordCommand : ICommand
         }
 
         return ResultExtensions.SingleResult("Remove plugin keyword", $"Keyword `{arguments[2]}` will be removed",
-            () => { _context.API.RemoveActionKeyword(_context.CurrentPluginMetadata.ID, arguments[2]); });
+            () =>
+            {
+                _pluginManager.API.RemoveActionKeyword(metadata.ID, arguments[2]);
+                _pluginManager.API.SaveAppAllSettings();
+            });
     }
 }

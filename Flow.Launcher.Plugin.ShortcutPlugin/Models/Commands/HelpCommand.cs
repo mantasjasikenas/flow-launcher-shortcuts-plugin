@@ -7,11 +7,11 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class HelpCommand : ICommand
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public HelpCommand(PluginInitContext context)
+    public HelpCommand(IPluginManager pluginManager)
     {
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public Command Create()
@@ -50,7 +50,7 @@ public class HelpCommand : ICommand
         var discordResult = ResultExtensions.Result(
             "Contact the developer on Discord",
             "Username: " + Constants.DiscordUsername,
-            () => { _context.API.CopyToClipboard(Constants.DiscordUsername); },
+            () => { _pluginManager.API.CopyToClipboard(Constants.DiscordUsername); },
             iconPath: Icons.Discord,
             autoCompleteText: Constants.DiscordUsername
         );

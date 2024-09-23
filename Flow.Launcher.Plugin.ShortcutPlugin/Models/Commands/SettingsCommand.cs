@@ -1,16 +1,17 @@
 using System.Collections.Generic;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class SettingsCommand : ICommand
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public SettingsCommand(PluginInitContext context)
+    public SettingsCommand(IPluginManager pluginManager)
     {
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public Command Create()
@@ -21,16 +22,16 @@ public class SettingsCommand : ICommand
     private Command CreateSettingsCommand()
     {
         return new CommandBuilder()
-            .WithKey("settings")
-            .WithResponseInfo(("settings", "Open settings"))
-            .WithResponseFailure(("Failed to open settings", "Something went wrong"))
-            .WithHandler(SettingsCommandHandler)
-            .Build();
+               .WithKey("settings")
+               .WithResponseInfo(("settings", "Open settings"))
+               .WithResponseFailure(("Failed to open settings", "Something went wrong"))
+               .WithHandler(SettingsCommandHandler)
+               .Build();
     }
 
     private List<Result> SettingsCommandHandler(ActionContext context, List<string> arguments)
     {
         return ResultExtensions.SingleResult("Open Flow Launcher settings", "",
-            _context.API.OpenSettingDialog);
+            _pluginManager.API.OpenSettingDialog);
     }
 }

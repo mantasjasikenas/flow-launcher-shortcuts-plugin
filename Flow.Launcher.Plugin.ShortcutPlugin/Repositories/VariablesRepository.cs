@@ -15,15 +15,15 @@ public class VariablesRepository : IVariablesRepository
 {
     private readonly ISettingsService _settingsService;
 
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
     private Dictionary<string, Variable> _variables;
 
 
-    public VariablesRepository(ISettingsService settingsService, PluginInitContext context)
+    public VariablesRepository(ISettingsService settingsService, IPluginManager pluginManager)
     {
         _settingsService = settingsService;
-        _context = context;
+        _pluginManager = pluginManager;
         _variables = ReadVariables(VariablesPath);
     }
 
@@ -98,12 +98,12 @@ public class VariablesRepository : IVariablesRepository
             SaveVariables();
             Reload();
 
-            _context.API.ShowMsg("Variables imported successfully");
+            _pluginManager.API.ShowMsg("Variables imported successfully");
         }
         catch (Exception ex)
         {
-            _context.API.ShowMsg("Error while importing variables");
-            _context.API.LogException(nameof(VariablesRepository), "Error importing variables", ex);
+            _pluginManager.API.ShowMsg("Error while importing variables");
+            _pluginManager.API.LogException(nameof(VariablesRepository), "Error importing variables", ex);
         }
     }
 
@@ -111,7 +111,7 @@ public class VariablesRepository : IVariablesRepository
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.VariablesPath)))
         {
-            _context.API.ShowMsg("No variables to export");
+            _pluginManager.API.ShowMsg("No variables to export");
             return;
         }
 
@@ -121,8 +121,8 @@ public class VariablesRepository : IVariablesRepository
         }
         catch (Exception ex)
         {
-            _context.API.ShowMsg("Error while exporting variables");
-            _context.API.LogException(nameof(VariablesRepository), "Error exporting variables", ex);
+            _pluginManager.API.ShowMsg("Error while exporting variables");
+            _pluginManager.API.LogException(nameof(VariablesRepository), "Error exporting variables", ex);
         }
     }
 
