@@ -1,4 +1,6 @@
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
+
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 public class PluginManager : IPluginManager
 {
@@ -11,10 +13,20 @@ public class PluginManager : IPluginManager
     public Query LastQuery { get; private set; }
 
 
-    public PluginManager(PluginInitContext context)
+    private IReloadable _reloadable;
+
+
+    public PluginManager(
+        PluginInitContext context
+    )
     {
         Context = context;
         LastQuery = new Query();
+    }
+
+    public void SetReloadable(IReloadable reloadable)
+    {
+        _reloadable = reloadable;
     }
 
     public void SetLastQuery(Query query)
@@ -26,6 +38,13 @@ public class PluginManager : IPluginManager
     {
         LastQuery = new Query();
     }
+
+    public void ReloadPluginData()
+    {
+        ClearLastQuery();
+        _reloadable.ReloadData();
+    }
+
 
     public string GetActionKeyword()
     {

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -16,6 +16,7 @@ public class ShortcutsService : IShortcutsService
     private readonly IShortcutHandler _shortcutHandler;
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
+    private readonly IIconProvider _iconProvider;
 
     private readonly IPluginManager _pluginManager;
 
@@ -23,12 +24,15 @@ public class ShortcutsService : IShortcutsService
         IShortcutsRepository shortcutsRepository,
         IShortcutHandler shortcutHandler,
         IVariablesService variablesService,
-        IPluginManager pluginManager)
+        IPluginManager pluginManager,
+        IIconProvider iconProvider
+    )
     {
         _shortcutsRepository = shortcutsRepository;
         _shortcutHandler = shortcutHandler;
         _variablesService = variablesService;
         _pluginManager = pluginManager;
+        _iconProvider = iconProvider;
     }
 
     public List<Result> GetShortcuts(List<string> arguments)
@@ -46,7 +50,7 @@ public class ShortcutsService : IShortcutsService
                           arguments: arguments,
                           title: shortcut.GetTitle(),
                           subtitle: shortcut.GetSubTitle(),
-                          iconPath: GetIcon(shortcut),
+                          iconPath: _iconProvider.GetIcon(shortcut),
                           action: shortcut is GroupShortcut
                               ? () => { _pluginManager.ChangeQueryWithAppendedKeyword(shortcut.Key); }
                               : null,
@@ -161,7 +165,7 @@ public class ShortcutsService : IShortcutsService
                 shortcut,
                 args,
                 defaultKey,
-                GetIcon(shortcut),
+                _iconProvider.GetIcon(shortcut),
                 titleHighlightData: highlightIndexes
             )
         );
@@ -343,7 +347,10 @@ public class ShortcutsService : IShortcutsService
                 groupShortcut.Shortcuts
                              .Select(shortcut => BuildShortcutResult(
                                  shortcut: shortcut,
-                                 arguments: arguments
+                                 arguments: arguments,
+                                 title: string.IsNullOrWhiteSpace(shortcut.Description)
+                                     ? shortcut.GetTitle()
+                                     : shortcut.Description
                              ))
             );
         }
@@ -370,7 +377,13 @@ public class ShortcutsService : IShortcutsService
                                  }
 
                                  return shortcuts.Select(shortcut =>
-                                     BuildShortcutResult(shortcut: shortcut, arguments: arguments));
+                                     BuildShortcutResult(shortcut: shortcut,
+                                         arguments: arguments,
+                                         title: string.IsNullOrWhiteSpace(shortcut.Description)
+                                             ? shortcut.GetTitle()
+                                             : shortcut.Description
+                                     )
+                                 );
                              }
                          )
                          .SelectMany(x => x);
@@ -410,7 +423,7 @@ public class ShortcutsService : IShortcutsService
             }),
             hideAfterAction: hideAfterAction ?? executeShortcut,
             contextData: shortcut,
-            iconPath: iconPath ?? GetIcon(shortcut),
+            iconPath: iconPath ?? _iconProvider.GetIcon(shortcut),
             titleHighlightData: titleHighlightData,
             autoCompleteText: autoCompleteText ?? expandedAll,
             previewFilePath: expandedAll,
@@ -418,67 +431,5 @@ public class ShortcutsService : IShortcutsService
         );
 
         return result;
-    }
-
-    private string GetIcon(Shortcut shortcut)
-    {
-        if (!string.IsNullOrEmpty(shortcut.Icon))
-        {
-            return shortcut.Icon;
-        }
-
-        var arguments = new Dictionary<string, string>();
-
-        switch (shortcut)
-        {
-            case FileShortcut fileShortcut:
-            {
-                var path = _variablesService.ExpandVariables(fileShortcut.Path, arguments);
-
-                return string.IsNullOrEmpty(fileShortcut.App)
-                    ? path
-                    : AppUtilities.GetApplicationPath(fileShortcut.App);
-            }
-            case DirectoryShortcut directoryShortcut:
-            {
-                return _variablesService.ExpandVariables(directoryShortcut.Path, arguments);
-            }
-            case UrlShortcut urlShortcut:
-            {
-                if (!(urlShortcut.Url.Contains("www.") || urlShortcut.Url.Contains("http") ||
-                      urlShortcut.Url.Contains("https")))
-                {
-                    return AppUtilities.GetApplicationPath(urlShortcut.Url.Split(':')[0]);
-                }
-
-                if (string.IsNullOrEmpty(urlShortcut.App))
-                {
-                    return AppUtilities.GetSystemDefaultBrowser();
-                }
-
-                if (Path.Exists(urlShortcut.App))
-                {
-                    return urlShortcut.App;
-                }
-
-                var path = AppUtilities.GetApplicationPath(urlShortcut.App);
-
-                return !string.IsNullOrEmpty(path) ? path : Icons.Link;
-            }
-
-            case ShellShortcut shellShortcut:
-            {
-                return shellShortcut.ShellType switch
-                {
-                    ShellType.Cmd => Icons.WindowsTerminal,
-                    ShellType.Powershell => Icons.PowerShellBlack,
-                    _ => Icons.Terminal
-                };
-            }
-            case GroupShortcut:
-                return Icons.TabGroup;
-            default:
-                return Icons.Logo;
-        }
     }
 }

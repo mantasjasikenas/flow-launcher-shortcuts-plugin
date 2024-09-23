@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
     private ContextMenu _contextMenu;
 
     private IPluginManager _pluginManager;
+    private IReloadable _reloadable;
 
 
     public void Init(PluginInitContext context)
@@ -33,8 +35,12 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
         _commandsService = serviceProvider.GetService<ICommandsService>();
         _pluginManager = serviceProvider.GetService<IPluginManager>();
+
         _contextMenu = serviceProvider.GetService<ContextMenu>();
         _settingsViewModel = serviceProvider.GetService<SettingsViewModel>();
+
+        _reloadable = serviceProvider.GetService<IReloadable>();
+        _pluginManager.SetReloadable(_reloadable);
 
         ServiceProvider = serviceProvider;
     }
@@ -51,8 +57,7 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
     public void ReloadData()
     {
-        _pluginManager.ClearLastQuery();
-        _commandsService.ReloadPluginData();
+        _pluginManager.ReloadPluginData();
     }
 
     public List<Result> LoadContextMenus(Result selectedResult)

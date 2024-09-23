@@ -1,4 +1,4 @@
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
 public interface IPluginManager
 {
@@ -29,9 +29,20 @@ public interface IPluginManager
     void SetLastQuery(Query query);
 
     /// <summary>
+    /// Used to set the reloadable object (cannot inject it in the constructor because of circular dependency)
+    /// </summary>
+    /// <param name="reloadable"></param>
+    void SetReloadable(IReloadable reloadable);
+
+    /// <summary>
     /// Clear the last query
     /// </summary>
     void ClearLastQuery();
+
+    /// <summary>
+    /// Reload the data of the plugin
+    /// </summary>
+    void ReloadPluginData();
 
     /// <summary>
     /// Get the action keyword from the last query or the first action keyword from the plugin metadata

@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
@@ -118,6 +117,6 @@ public class BackupService : IBackupService
         var noResult = ResultExtensions.Result("No", "Selecting this will cancel the operation",
             score: 1000);
 
-        return new List<Result> {question, yesResult, noResult};
+        return [question, yesResult, noResult];
     }
 }

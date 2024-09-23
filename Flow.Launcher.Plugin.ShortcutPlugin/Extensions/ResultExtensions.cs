@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 

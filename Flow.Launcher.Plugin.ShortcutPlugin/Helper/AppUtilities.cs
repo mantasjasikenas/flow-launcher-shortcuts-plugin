@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Microsoft.Win32;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 public static class AppUtilities
 {
