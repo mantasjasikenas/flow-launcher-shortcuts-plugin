@@ -12,7 +12,8 @@ All notable changes to this project will be documented in this file.
 - When the group shortcut name (key) is not fully typed, selecting the group shortcut from the list will replace the
   query with the group shortcut name.
 - Icons folder support. If user add directory type shortcut with key `icons`, the plugin will search for icons for
-  shortcuts based on shortcut key and file name. Supported file extensions: `.png`, `.ico`, `.jpg`, `.jpeg`, `.webp`.
+  shortcuts based on shortcut key and file name. Supported file extensions: `.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`,
+  `.tiff`, `.ico`
 
 ## [1.2.0] - 2024-09-16
 

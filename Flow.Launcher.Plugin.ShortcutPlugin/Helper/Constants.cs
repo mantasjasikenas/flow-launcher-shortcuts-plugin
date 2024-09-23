@@ -27,10 +27,6 @@ public static class Constants
 
     public static readonly List<string> IconsExtensions =
     [
-        ".ico",
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".webp"
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".ico"
     ];
 }
