@@ -43,7 +43,8 @@ public class IconProvider : IIconProvider
     {
         if (!string.IsNullOrEmpty(shortcut.Icon))
         {
-            if (Path.Exists(shortcut.Icon))
+            if (Path.Exists(shortcut.Icon) || shortcut.Icon.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                shortcut.Icon.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 return shortcut.Icon;
             }
