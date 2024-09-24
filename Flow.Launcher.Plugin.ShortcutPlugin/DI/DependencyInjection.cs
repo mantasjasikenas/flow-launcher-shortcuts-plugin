@@ -1,9 +1,10 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Flow.Launcher.Plugin.ShortcutPlugin.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,8 @@ public static class DependencyInjection
     )
     {
         services.AddSingleton(context);
+        services.AddSingleton<IReloadable, Reloadable>();
+        services.AddSingleton<IPluginManager, PluginManager>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IShortcutsRepository, ShortcutsRepository>();
         services.AddSingleton<IShortcutsService, ShortcutsService>();
@@ -28,6 +31,7 @@ public static class DependencyInjection
         services.AddSingleton<IBackupService, BackupService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
+        services.AddSingleton<IIconProvider, IconProvider>();
         services.AddSingleton<SettingsViewModel, SettingsViewModel>();
         services.AddScoped<ContextMenu>();
 

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using Microsoft.Win32;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
@@ -13,12 +14,12 @@ public class VariablesService : IVariablesService
 {
     private readonly IVariablesRepository _variablesRepository;
 
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public VariablesService(IVariablesRepository variablesRepository, PluginInitContext context)
+    public VariablesService(IVariablesRepository variablesRepository, IPluginManager pluginManager)
     {
         _variablesRepository = variablesRepository;
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public List<Result> GetVariables()
@@ -46,7 +47,7 @@ public class VariablesService : IVariablesService
                     IcoPath = Icons.Logo,
                     Action = _ =>
                     {
-                        _context.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
+                        _pluginManager.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
                         return true;
                     },
                     AutoCompleteText = $"Variable: {variable.Name} value: {variable.Value}"

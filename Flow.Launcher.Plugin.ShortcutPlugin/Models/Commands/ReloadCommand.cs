@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
@@ -7,16 +8,11 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class ReloadCommand : ICommand
 {
-    private readonly IShortcutsService _shortcutsService;
-    private readonly ISettingsService _settingsService;
-    private readonly IVariablesService _variablesService;
+    private readonly IPluginManager _pluginManager;
 
-    public ReloadCommand(IShortcutsService shortcutsService, ISettingsService settingsService,
-        IVariablesService variablesService)
+    public ReloadCommand(IPluginManager pluginManager)
     {
-        _shortcutsService = shortcutsService;
-        _settingsService = settingsService;
-        _variablesService = variablesService;
+        _pluginManager = pluginManager;
     }
 
     public Command Create()
@@ -37,11 +33,7 @@ public class ReloadCommand : ICommand
 
     private List<Result> ReloadCommandHandler(ActionContext context, List<string> arguments)
     {
-        return ResultExtensions.SingleResult("Reload plugin data", "This action will reload all plugin data", () =>
-        {
-            _settingsService.Reload();
-            _shortcutsService.Reload();
-            _variablesService.Reload();
-        });
+        return ResultExtensions.SingleResult("Reload plugin data", "This action will reload all plugin data",
+            () => { _pluginManager.ReloadPluginData(); });
     }
 }

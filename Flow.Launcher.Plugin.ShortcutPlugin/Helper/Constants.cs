@@ -1,4 +1,6 @@
-﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+﻿using System.Collections.Generic;
+
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 public static class Constants
 {
@@ -22,4 +24,9 @@ public static class Constants
     public const string ReadmeUrl = GithubRepository + "/blob/master/README.md";
 
     public const string DiscordUsername = "mantelis130";
+
+    public static readonly List<string> IconsExtensions =
+    [
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".ico"
+    ];
 }

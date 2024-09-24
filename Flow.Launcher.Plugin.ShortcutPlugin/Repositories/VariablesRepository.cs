@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 using FuzzySharp;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
@@ -15,16 +17,20 @@ public class VariablesRepository : IVariablesRepository
 {
     private readonly ISettingsService _settingsService;
 
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
     private Dictionary<string, Variable> _variables;
 
 
-    public VariablesRepository(ISettingsService settingsService, PluginInitContext context)
+    public VariablesRepository(ISettingsService settingsService, IPluginManager pluginManager)
     {
         _settingsService = settingsService;
-        _context = context;
-        _variables = ReadVariables(VariablesPath);
+        _pluginManager = pluginManager;
+    }
+
+    public async Task InitializeAsync()
+    {
+        _variables = await ReadVariables(VariablesPath);
     }
 
     private string VariablesPath => _settingsService.GetSettingOrDefault(x => x.VariablesPath);
@@ -70,7 +76,7 @@ public class VariablesRepository : IVariablesRepository
 
     public void Reload()
     {
-        _variables = ReadVariables(VariablesPath);
+        _variables = Task.Run(() => ReadVariables(VariablesPath)).GetAwaiter().GetResult();
     }
 
     public string ExpandVariables(string value)
@@ -86,7 +92,7 @@ public class VariablesRepository : IVariablesRepository
     {
         try
         {
-            var variables = ReadVariables(path);
+            var variables = Task.Run(() => ReadVariables(path)).GetAwaiter().GetResult();
 
             if (variables.Count == 0)
             {
@@ -98,12 +104,12 @@ public class VariablesRepository : IVariablesRepository
             SaveVariables();
             Reload();
 
-            _context.API.ShowMsg("Variables imported successfully");
+            _pluginManager.API.ShowMsg("Variables imported successfully");
         }
         catch (Exception ex)
         {
-            _context.API.ShowMsg("Error while importing variables");
-            _context.API.LogException(nameof(VariablesRepository), "Error importing variables", ex);
+            _pluginManager.API.ShowMsg("Error while importing variables");
+            _pluginManager.API.LogException(nameof(VariablesRepository), "Error importing variables", ex);
         }
     }
 
@@ -111,7 +117,7 @@ public class VariablesRepository : IVariablesRepository
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.VariablesPath)))
         {
-            _context.API.ShowMsg("No variables to export");
+            _pluginManager.API.ShowMsg("No variables to export");
             return;
         }
 
@@ -121,12 +127,12 @@ public class VariablesRepository : IVariablesRepository
         }
         catch (Exception ex)
         {
-            _context.API.ShowMsg("Error while exporting variables");
-            _context.API.LogException(nameof(VariablesRepository), "Error exporting variables", ex);
+            _pluginManager.API.ShowMsg("Error while exporting variables");
+            _pluginManager.API.LogException(nameof(VariablesRepository), "Error exporting variables", ex);
         }
     }
 
-    private static Dictionary<string, Variable> ReadVariables(string path)
+    private static async Task<Dictionary<string, Variable>> ReadVariables(string path)
     {
         if (!File.Exists(path))
         {
@@ -135,7 +141,9 @@ public class VariablesRepository : IVariablesRepository
 
         try
         {
-            var variables = JsonSerializer.Deserialize<List<Variable>>(File.ReadAllText(path));
+            await using var openStream = File.OpenRead(path);
+            var variables = await JsonSerializer.DeserializeAsync<List<Variable>>(openStream);
+
             return variables.ToDictionary(variable => variable.Name);
         }
         catch (Exception)

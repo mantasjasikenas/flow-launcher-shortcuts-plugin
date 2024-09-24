@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 
-public interface IVariablesRepository
+public interface IVariablesRepository : IAsyncInitializable
 {
     public void AddVariable(string name, string value);
     public void RemoveVariable(string name);

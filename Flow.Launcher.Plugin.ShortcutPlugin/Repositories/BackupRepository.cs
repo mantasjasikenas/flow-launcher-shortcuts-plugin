@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public class BackupRepository : IBackupRepository
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
     private readonly ISettingsService _settingsService;
 
@@ -21,10 +22,10 @@ public class BackupRepository : IBackupRepository
 
     private string BackupPath => GetBackupPath();
 
-    public BackupRepository(PluginInitContext context, ISettingsService settingsService,
+    public BackupRepository(IPluginManager pluginManager, ISettingsService settingsService,
         IShortcutsRepository shortcutsRepository, IVariablesRepository variablesRepository)
     {
-        _context = context;
+        _pluginManager = pluginManager;
         _settingsService = settingsService;
         _shortcutsRepository = shortcutsRepository;
         _variablesRepository = variablesRepository;
@@ -42,7 +43,7 @@ public class BackupRepository : IBackupRepository
 
     private string GetBackupPath()
     {
-        var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var pluginDirectory = _pluginManager.Metadata.PluginDirectory;
         var parentDirectory = Directory.GetParent(pluginDirectory)?.Parent?.FullName;
 
         if (parentDirectory == null)

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 
@@ -8,7 +8,7 @@ public static class ResultExtensions
 {
     public static List<Result> ToList(this Result result)
     {
-        return new List<Result> {result};
+        return [result];
     }
 
     public static List<Result> EmptyResult()
@@ -31,9 +31,9 @@ public static class ResultExtensions
         IList<int> titleHighlightData = default
     )
     {
-        return new List<Result>
-        {
-            new()
+        return
+        [
+            new Result
             {
                 Title = title,
                 SubTitle = subtitle,
@@ -46,7 +46,7 @@ public static class ResultExtensions
                     return hideAfterAction;
                 }
             }
-        };
+        ];
     }
 
     public static Result Result(

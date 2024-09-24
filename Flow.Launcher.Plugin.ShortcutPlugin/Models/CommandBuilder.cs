@@ -4,17 +4,11 @@ using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models;
 
-public class CommandBuilder : BaseQueryBuilder<Command>
-{
-}
+public class CommandBuilder : BaseQueryBuilder<Command>;
 
-public class ArgumentBuilder : BaseQueryBuilder<Argument>
-{
-}
+public class ArgumentBuilder : BaseQueryBuilder<Argument>;
 
-public class ArgumentLiteralBuilder : BaseQueryBuilder<ArgumentLiteral>
-{
-}
+public class ArgumentLiteralBuilder : BaseQueryBuilder<ArgumentLiteral>;
 
 public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
 {
@@ -58,7 +52,7 @@ public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
 
     public BaseQueryBuilder<T> WithArgument(IQueryExecutor argument)
     {
-        _instance.Arguments ??= new List<IQueryExecutor>();
+        _instance.Arguments ??= [];
         _instance.Arguments.Add(argument);
 
         return this;
@@ -66,7 +60,7 @@ public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
 
     public BaseQueryBuilder<T> WithArguments(IEnumerable<IQueryExecutor> arguments)
     {
-        _instance.Arguments ??= new List<IQueryExecutor>();
+        _instance.Arguments ??= [];
         _instance.Arguments.AddRange(arguments);
 
         return this;
@@ -74,7 +68,7 @@ public abstract class BaseQueryBuilder<T> where T : BaseQueryExecutor, new()
 
     public BaseQueryBuilder<T> WithArguments(params IQueryExecutor[] arguments)
     {
-        _instance.Arguments ??= new List<IQueryExecutor>();
+        _instance.Arguments ??= [];
         _instance.Arguments.AddRange(arguments);
 
         return this;

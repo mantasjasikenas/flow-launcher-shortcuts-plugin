@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 public class VersionCommand : ICommand
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
-    public VersionCommand(PluginInitContext context)
+    public VersionCommand(IPluginManager pluginManager)
     {
-        _context = context;
+        _pluginManager = pluginManager;
     }
 
     public Command Create()
@@ -31,7 +32,7 @@ public class VersionCommand : ICommand
 
     private List<Result> VersionCommandHandler(ActionContext context, List<string> arguments)
     {
-        var version = _context.CurrentPluginMetadata.Version;
+        var version = _pluginManager.Context.CurrentPluginMetadata.Version;
 
         return ResultExtensions.SingleResult("Plugin version", version);
     }

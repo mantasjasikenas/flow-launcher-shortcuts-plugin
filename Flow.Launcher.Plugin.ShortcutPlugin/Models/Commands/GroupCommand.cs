@@ -40,7 +40,8 @@ public class GroupCommand : ICommand
     private ArgumentLiteral CreateAddSubCommand()
     {
         var addGroupKeysArgument = CreateAddGroupKeysArgument();
-        var addGroupNameArgument = CreateAddGroupNameArgument(addGroupKeysArgument);
+        var addGroupGroupLaunchArgument = CreateAddGroupGroupLaunchArgument(addGroupKeysArgument);
+        var addGroupNameArgument = CreateAddGroupNameArgument(addGroupGroupLaunchArgument);
 
         return new ArgumentLiteralBuilder()
                .WithKey("add")
@@ -63,7 +64,14 @@ public class GroupCommand : ICommand
     {
         return new ArgumentBuilder()
                .WithResponseInfo(("Enter group name", "How should your group be named?"))
-               .WithResponseSuccess(("Add", "Your group will be added"))
+               .WithArguments(addGroupKeysArgument)
+               .Build();
+    }
+
+    private Argument CreateAddGroupGroupLaunchArgument(IQueryExecutor addGroupKeysArgument)
+    {
+        return new ArgumentBuilder()
+               .WithResponseInfo(("Enable group launch", "Should the group be launched as a group? (true/false)"))
                .WithArguments(addGroupKeysArgument)
                .Build();
     }
@@ -107,12 +115,12 @@ public class GroupCommand : ICommand
 
     private List<Result> AddGroupCommandHandler(ActionContext context, List<string> arguments)
     {
-        var keys = arguments.Skip(3).ToList();
+        var launchGroup = !bool.TryParse(arguments[3], out var groupLaunch) || groupLaunch;
+        var keys = arguments.Skip(4).ToList();
+        var key = arguments[2];
 
-        return ResultExtensions.SingleResult("Creating group shortcut", "Keys : " + string.Join(", ", keys), () =>
-        {
-            var key = arguments[2];
-            _shortcutsRepository.GroupShortcuts(key, keys);
-        });
+        return ResultExtensions.SingleResult("Creating group shortcut",
+            $"Group launch : {launchGroup.ToString().ToLowerInvariant()}, keys : {string.Join(", ", keys)}",
+            () => { _shortcutsRepository.GroupShortcuts(key, launchGroup, keys); });
     }
 }

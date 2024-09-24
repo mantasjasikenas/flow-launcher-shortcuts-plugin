@@ -1,22 +1,23 @@
 ﻿using System;
 using System.IO;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 
 public class SettingsService : ISettingsService
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
     private Settings _settings;
 
     private readonly Settings _defaultSettings;
 
-    public SettingsService(PluginInitContext context)
+    public SettingsService(IPluginManager pluginManager)
     {
-        _context = context;
+        _pluginManager = pluginManager;
         _defaultSettings = GetDefaultSettings();
 
         LoadSettings();
@@ -69,7 +70,7 @@ public class SettingsService : ISettingsService
     {
         var modified = false;
 
-        var shortcutPluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var shortcutPluginDirectory = _pluginManager.Metadata.PluginDirectory;
         var pluginsDirectory = Directory.GetParent(shortcutPluginDirectory)?.Parent?.FullName;
 
         if (pluginsDirectory is null)
@@ -102,24 +103,24 @@ public class SettingsService : ISettingsService
 
         SaveSettings();
 
-        _context.API.ShowMsg("Settings paths have been migrated to the new location.",
+        _pluginManager.API.ShowMsg("Settings paths have been migrated to the new location.",
             "Settings have been migrated because you where using the default settings path. This should fix the issue when shortcuts disappear after updating the plugin.");
-        _context.API.ReloadAllPluginData();
+        _pluginManager.API.ReloadAllPluginData();
     }
 
     private void SaveSettings()
     {
-        _context.API.SaveSettingJsonStorage<Settings>();
+        _pluginManager.API.SaveSettingJsonStorage<Settings>();
     }
 
     private void LoadSettings()
     {
-        _settings = _context.API.LoadSettingJsonStorage<Settings>();
+        _settings = _pluginManager.API.LoadSettingJsonStorage<Settings>();
     }
 
     private Settings GetDefaultSettings()
     {
-        var pluginDirectory = _context.CurrentPluginMetadata.PluginDirectory;
+        var pluginDirectory = _pluginManager.Metadata.PluginDirectory;
         var parentDirectory = Directory.GetParent(pluginDirectory)?.Parent?.FullName;
 
         if (parentDirectory is null)

@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 public class ShortcutHandler : IShortcutHandler
 {
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
     public ShortcutHandler(
         IVariablesService variablesService,
-        PluginInitContext context,
+        IPluginManager pluginManager,
         IShortcutsRepository shortcutsRepository
     )
     {
         _variablesService = variablesService;
-        _context = context;
+        _pluginManager = pluginManager;
         _shortcutsRepository = shortcutsRepository;
     }
 
@@ -70,7 +71,7 @@ public class ShortcutHandler : IShortcutHandler
             }
             default:
             {
-                _context.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
+                _pluginManager.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
                 break;
             }
         }
@@ -124,7 +125,7 @@ public class ShortcutHandler : IShortcutHandler
             }
             default:
             {
-                _context.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
+                _pluginManager.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");
                 break;
             }
         }
@@ -148,7 +149,7 @@ public class ShortcutHandler : IShortcutHandler
 
         if (enumerable.Any(shortcut => IsRecursiveGroupShortcut(shortcut, groupKey)))
         {
-            _context.API.ShowMsg(Resources.Error_recursive_group_shortcut,
+            _pluginManager.API.ShowMsg(Resources.Error_recursive_group_shortcut,
                 "Remove the recursive group shortcut in shortcuts list of the group shortcut");
             return;
         }
@@ -176,7 +177,7 @@ public class ShortcutHandler : IShortcutHandler
 
         if (keysList.Contains(groupKey))
         {
-            _context.API.ShowMsg(Resources.Error_recursive_group_shortcut,
+            _pluginManager.API.ShowMsg(Resources.Error_recursive_group_shortcut,
                 "Remove the recursive group shortcut in keys list of the group shortcut");
             return;
         }
@@ -200,7 +201,7 @@ public class ShortcutHandler : IShortcutHandler
     }
 
     // ReSharper disable once UnusedMember.Local
-    /*private List<Result> ExecutePluginShortcut(PluginInitContext context, PluginShortcut shortcut)
+    /*private List<Result> ExecutePluginShortcut(IPluginManager pluginManager, PluginShortcut shortcut)
     {
         return ResultExtensions.SingleResult(
             "Executing plugin shortcut",
@@ -210,7 +211,7 @@ public class ShortcutHandler : IShortcutHandler
 
         void Action()
         {
-            var plugins = context.API.GetAllPlugins();
+            var plugins = pluginManager.API.GetAllPlugins();
             var plugin = plugins.First(x => x.Metadata.Name.Equals(shortcut.PluginName));
 
             var query = QueryBuilder.Build(shortcut.RawQuery);

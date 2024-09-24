@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Utilities;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 public static class QueryBuilder
 {

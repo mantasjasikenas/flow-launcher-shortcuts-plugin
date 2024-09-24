@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -14,16 +16,19 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 public class ShortcutsRepository : IShortcutsRepository
 {
     private readonly ISettingsService _settingsService;
-    private readonly PluginInitContext _context;
+    private readonly IPluginManager _pluginManager;
 
     private Dictionary<string, List<Shortcut>> _shortcuts;
 
-    public ShortcutsRepository(ISettingsService settingsService, PluginInitContext context)
+    public ShortcutsRepository(ISettingsService settingsService, IPluginManager pluginManager)
     {
         _settingsService = settingsService;
-        _context = context;
+        _pluginManager = pluginManager;
+    }
 
-        _shortcuts = ReadShortcuts(settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
+    public async Task InitializeAsync()
+    {
+        _shortcuts = await ReadShortcuts(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
     }
 
     public IList<Shortcut> GetShortcuts(string key)
@@ -109,12 +114,13 @@ public class ShortcutsRepository : IShortcutsRepository
                          .ToList();
     }
 
-    public void GroupShortcuts(string groupKey, IEnumerable<string> shortcutKeys)
+    public void GroupShortcuts(string groupKey, bool groupLaunch, IEnumerable<string> shortcutKeys)
     {
         var group = new GroupShortcut
         {
             Key = groupKey,
-            Keys = shortcutKeys.ToList()
+            Keys = shortcutKeys.ToList(),
+            GroupLaunch = groupLaunch
         };
 
         _shortcuts.TryGetValue(groupKey, out var value);
@@ -143,14 +149,14 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
 
-        _shortcuts = ReadShortcuts(path);
+        _shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
     }
 
     public void ImportShortcuts(string path)
     {
         try
         {
-            var shortcuts = ReadShortcuts(path);
+            var shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
 
             if (shortcuts.Count == 0)
             {
@@ -162,12 +168,12 @@ public class ShortcutsRepository : IShortcutsRepository
             SaveShortcuts();
             ReloadShortcuts();
 
-            _context.API.ShowMsg("Shortcuts imported successfully");
+            _pluginManager.API.ShowMsg("Shortcuts imported successfully");
         }
         catch (Exception ex)
         {
-            _context.API.ShowMsg("Error while importing shortcuts");
-            _context.API.LogException(nameof(ShortcutsRepository), "Error importing shortcuts", ex);
+            _pluginManager.API.ShowMsg("Error while importing shortcuts");
+            _pluginManager.API.LogException(nameof(ShortcutsRepository), "Error importing shortcuts", ex);
         }
     }
 
@@ -175,7 +181,7 @@ public class ShortcutsRepository : IShortcutsRepository
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath)))
         {
-            _context.API.ShowMsg("No shortcuts to export");
+            _pluginManager.API.ShowMsg("No shortcuts to export");
             return;
         }
 
@@ -185,12 +191,12 @@ public class ShortcutsRepository : IShortcutsRepository
         }
         catch (Exception ex)
         {
-            _context.API.ShowMsg("Error while exporting shortcuts");
-            _context.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
+            _pluginManager.API.ShowMsg("Error while exporting shortcuts");
+            _pluginManager.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
         }
     }
 
-    private Dictionary<string, List<Shortcut>> ReadShortcuts(string path)
+    private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts(string path)
     {
         if (!File.Exists(path))
         {
@@ -199,8 +205,8 @@ public class ShortcutsRepository : IShortcutsRepository
 
         try
         {
-            var json = File.ReadAllText(path);
-            var shortcuts = JsonSerializer.Deserialize<List<Shortcut>>(json);
+            await using var openStream = File.OpenRead(path);
+            var shortcuts = await JsonSerializer.DeserializeAsync<List<Shortcut>>(openStream);
 
             return shortcuts
                    .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
@@ -210,8 +216,8 @@ public class ShortcutsRepository : IShortcutsRepository
         }
         catch (Exception e)
         {
-            _context.API.ShowMsg("Error while reading shortcuts. Please check the shortcuts config file.");
-            _context.API.LogException(nameof(ShortcutsRepository), "Error reading shortcuts", e);
+            _pluginManager.API.ShowMsg("Error while reading shortcuts. Please check the shortcuts config file.");
+            _pluginManager.API.LogException(nameof(ShortcutsRepository), "Error reading shortcuts", e);
 
             return new Dictionary<string, List<Shortcut>>();
         }

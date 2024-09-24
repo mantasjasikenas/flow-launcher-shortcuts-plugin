@@ -3,18 +3,11 @@ using System.Collections.Generic;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.models;
 
-public class Command : BaseQueryExecutor
-{
-}
+public class Command : BaseQueryExecutor;
 
-public class Argument : BaseQueryExecutor
-{
-}
+public class Argument : BaseQueryExecutor;
 
-public class ArgumentLiteral : Argument
-{
-}
-
+public class ArgumentLiteral : Argument;
 
 public class BaseQueryExecutor : IQueryExecutor
 {
