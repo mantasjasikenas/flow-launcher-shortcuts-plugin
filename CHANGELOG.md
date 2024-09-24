@@ -4,16 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [1.2.1] - 2024-xx-xx
+## [1.2.1] - 2024-09-24
 
 - Do not autocomplete the result when Enter is pressed if the argument is not a literal type.
-- Added a `LaunchGroup` field to group shortcuts. If set to `true`, there will be ability to launch all shortcuts in the
-  group at the same time. Otherwise, the user will be able only to launch single shortcut from the group at a time.
+- Added a `LaunchGroup` field to group shortcuts. If set to `true`, you can launch all shortcuts in the group
+  simultaneously. Otherwise, you can only launch a single shortcut from the group at a time.
 - When the group shortcut name (key) is not fully typed, selecting the group shortcut from the list will replace the
   query with the group shortcut name.
-- Icons folder support. If user add directory type shortcut with key `icons`, the plugin will search for icons for
-  shortcuts based on shortcut key and file name. Supported file extensions: `.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`,
-  `.tiff`, `.ico`
+- Icons folder support: If a directory type shortcut with the key `icons` is added, the plugin will search for icons for
+  shortcuts based on the shortcut key matching the icon file name. The icon file name should be the same as the
+  shortcut. Supported file extensions: `.png`, `.jpg`, `.jpeg`, `.ico`.
 
 ## [1.2.0] - 2024-09-16
 
