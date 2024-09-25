@@ -3,5 +3,6 @@
 public enum ShellType
 {
     Cmd,
-    Powershell
+    Powershell,
+    Pwsh
 }

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.2] - 2024-xx-xx
+
+- Support for shell type `Pwsh`.
+
 ## [1.2.1] - 2024-09-24
 
 - Do not autocomplete the result when Enter is pressed if the argument is not a literal type.

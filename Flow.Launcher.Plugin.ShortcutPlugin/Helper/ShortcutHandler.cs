@@ -123,6 +123,11 @@ public class ShortcutHandler : IShortcutHandler
                 ShortcutUtilities.OpenPowershell(arguments, shortcut.Silent);
                 break;
             }
+            case ShellType.Pwsh:
+            {
+                ShortcutUtilities.OpenPwsh(arguments, shortcut.Silent);
+                break;
+            }
             default:
             {
                 _pluginManager.API.LogInfo(nameof(ShortcutHandler), "Shell type not supported");

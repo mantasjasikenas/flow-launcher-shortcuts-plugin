@@ -44,6 +44,8 @@ public static class Icons
 
     public const string PowerShellBlack = "Images\\powershell_black.png";
 
+    public const string PowerShell = "Images\\powershell.png";
+
     public const string WindowsTerminal = "Images\\windows-terminal.png";
 
     public const string Copy = "Images\\copy.png";

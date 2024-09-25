@@ -23,6 +23,24 @@ public static class ShortcutUtilities
         Process.Start(processStartInfo);
     }
 
+    public static void OpenPwsh(string arguments, bool silent)
+    {
+        if (silent)
+        {
+            Cli.Wrap("pwsh.exe").WithArguments(arguments).ExecuteAsync();
+            return;
+        }
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "pwsh.exe",
+            Arguments = $"-NoExit -Command \"{arguments}\"",
+            UseShellExecute = true,
+            CreateNoWindow = true
+        };
+        Process.Start(processStartInfo);
+    }
+
     public static void OpenCmd(string arguments, bool silent)
     {
         var processStartInfo = new ProcessStartInfo

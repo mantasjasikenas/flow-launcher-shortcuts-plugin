@@ -243,7 +243,7 @@ internal class ContextMenu : IContextMenu
                 };
                 Process.Start(processStartInfo);
             },
-            iconPath: Icons.PowerShellBlack
+            iconPath: Icons.PowerShell
         ));
 
         contextMenu.Add(ResultExtensions.Result(

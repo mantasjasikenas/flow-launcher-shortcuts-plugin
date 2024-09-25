@@ -76,7 +76,8 @@ public class IconProvider : IIconProvider
         return shellShortcut.ShellType switch
         {
             ShellType.Cmd => Icons.WindowsTerminal,
-            ShellType.Powershell => Icons.PowerShellBlack,
+            ShellType.Powershell => Icons.PowerShell,
+            ShellType.Pwsh => Icons.PowerShellBlack,
             _ => Icons.Terminal
         };
     }

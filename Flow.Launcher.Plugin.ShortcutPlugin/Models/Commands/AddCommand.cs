@@ -180,7 +180,7 @@ public class AddCommand : ICommand
                                    .Build();
 
         var shellTypeArgument = new ArgumentBuilder()
-                                .WithResponseInfo(("Enter shell type", "Which shell should be used? (cmd/powershell)"))
+                                .WithResponseInfo(("Enter shell type", "Which shell should be used? (cmd/powershell/pwsh)"))
                                 .WithArgument(shortcutNameArgument)
                                 .Build();
 
