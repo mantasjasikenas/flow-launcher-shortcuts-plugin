@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using FuzzySharp;
+using CommonShortcutUtilities = Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper.ShortcutUtilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -198,21 +197,9 @@ public class ShortcutsRepository : IShortcutsRepository
 
     private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts(string path)
     {
-        if (!File.Exists(path))
-        {
-            return new Dictionary<string, List<Shortcut>>();
-        }
-
         try
         {
-            await using var openStream = File.OpenRead(path);
-            var shortcuts = await JsonSerializer.DeserializeAsync<List<Shortcut>>(openStream);
-
-            return shortcuts
-                   .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
-                       (s, k) => new {Shortcut = s, Key = k})
-                   .GroupBy(x => x.Key)
-                   .ToDictionary(x => x.Key, x => x.Select(y => y.Shortcut).ToList());
+            return await CommonShortcutUtilities.ReadShortcuts(path);
         }
         catch (Exception e)
         {
@@ -225,26 +212,8 @@ public class ShortcutsRepository : IShortcutsRepository
 
     private void SaveShortcuts()
     {
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-
-        var flattenShortcuts = _shortcuts.Values
-                                         .SelectMany(x => x)
-                                         .Distinct()
-                                         .ToList();
-
-        var json = JsonSerializer.Serialize(flattenShortcuts, options);
         var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
-        var directory = Path.GetDirectoryName(path);
 
-        if (directory != null && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        File.WriteAllText(path, json);
+        CommonShortcutUtilities.SaveShortcuts(_shortcuts, path);
     }
 }

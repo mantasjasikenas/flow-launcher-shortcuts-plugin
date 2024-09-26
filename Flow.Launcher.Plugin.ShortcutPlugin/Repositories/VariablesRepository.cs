@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
@@ -10,6 +9,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using FuzzySharp;
+using CommonVariableUtilities = Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper.VariableUtilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -134,29 +134,11 @@ public class VariablesRepository : IVariablesRepository
 
     private static async Task<Dictionary<string, Variable>> ReadVariables(string path)
     {
-        if (!File.Exists(path))
-        {
-            return new Dictionary<string, Variable>();
-        }
-
-        try
-        {
-            await using var openStream = File.OpenRead(path);
-            var variables = await JsonSerializer.DeserializeAsync<List<Variable>>(openStream);
-
-            return variables.ToDictionary(variable => variable.Name);
-        }
-        catch (Exception)
-        {
-            return new Dictionary<string, Variable>();
-        }
+        return await CommonVariableUtilities.ReadVariables(path);
     }
 
     private void SaveVariables()
     {
-        var options = new JsonSerializerOptions {WriteIndented = true};
-        var json = JsonSerializer.Serialize(_variables.Values, options);
-
-        File.WriteAllText(VariablesPath, json);
+        CommonVariableUtilities.SaveVariables(_variables.Values.ToList(), VariablesPath);
     }
 }
