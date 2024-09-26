@@ -1,4 +1,5 @@
-using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+using System.Reflection;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Test.Helpers;
 using Microsoft.Extensions.DependencyInjection;
@@ -131,15 +132,29 @@ public class ShortcutPluginTest
             new PluginMetadata
             {
                 ActionKeyword = "q",
-                ActionKeywords = new List<string> {"q"}
+                ActionKeywords = new List<string> {"q"},
+                ExecuteFileName = "Flow.Launcher.Plugin.ShortcutPlugin.dll",
+                IcoPath = "icon.png"
             },
             new PublicApi(_shortcutsPath, _variablesPath)
         );
+
+        SetPluginDirectory(pluginInitContext.CurrentPluginMetadata, Directory.GetCurrentDirectory());
 
         _plugin = new ShortcutPlugin();
         _plugin.Init(pluginInitContext);
 
         _shortcutsRepository = _plugin.ServiceProvider.GetService<IShortcutsRepository>()!;
+    }
+
+    private void SetPluginDirectory(PluginMetadata pluginMetadata, string newDirectory)
+    {
+        var property =
+            typeof(PluginMetadata).GetProperty("PluginDirectory", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        if (property != null)
+        {
+            property.SetValue(pluginMetadata, newDirectory);
+        }
     }
 
     private void CreateEmptyFiles()

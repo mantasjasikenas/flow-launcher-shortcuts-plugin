@@ -1,8 +1,5 @@
 ﻿#nullable enable
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 public class GroupShortcut : Shortcut
 {

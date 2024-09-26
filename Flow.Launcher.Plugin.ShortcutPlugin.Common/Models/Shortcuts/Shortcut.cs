@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
 [JsonDerivedType(typeof(DirectoryShortcut), nameof(ShortcutType.Directory))]

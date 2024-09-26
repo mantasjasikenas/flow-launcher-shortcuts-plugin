@@ -60,5 +60,9 @@
         <InternalsVisibleTo Include="$(AssemblyName).Tests"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Flow.Launcher.Plugin.ShortcutPlugin.Common\Flow.Launcher.Plugin.ShortcutPlugin.Common.csproj" />
+    </ItemGroup>
+
 
 </Project>

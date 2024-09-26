@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 public class ShellShortcut : Shortcut
 {

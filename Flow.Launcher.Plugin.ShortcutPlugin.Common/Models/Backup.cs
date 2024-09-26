@@ -1,6 +1,4 @@
-using System;
-
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Models;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 public class Backup
 {

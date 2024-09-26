@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using CliWrap;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
-using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
@@ -16,12 +17,12 @@ public class ConfigCommand : ICommand
         _settingsService = settingsService;
     }
 
-    public models.Command Create()
+    public Command Create()
     {
         return CreateConfigCommand();
     }
 
-    private models.Command CreateConfigCommand()
+    private Command CreateConfigCommand()
     {
         return new CommandBuilder()
                .WithKey("config")

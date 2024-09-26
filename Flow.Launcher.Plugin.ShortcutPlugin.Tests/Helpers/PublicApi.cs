@@ -1,5 +1,5 @@
 ﻿using Flow.Launcher.Plugin.SharedModels;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Test.Helpers;
 
@@ -61,7 +61,8 @@ internal class PublicApi : IPublicAPI
 
     public Task ReloadAllPluginData()
     {
-        throw new NotImplementedException();
+        // throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 
     public void CheckForNewUpdate()
@@ -197,7 +198,7 @@ internal class PublicApi : IPublicAPI
 
     public void SaveSettingJsonStorage<T>() where T : new()
     {
-        throw new NotImplementedException();
+        // throw new NotImplementedException();
     }
 
     public void OpenDirectory(string DirectoryPath, string FileNameOrFilePath = null)

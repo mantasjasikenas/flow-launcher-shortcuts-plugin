@@ -1,4 +1,4 @@
-﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.models;
+﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 public record Variable
 {

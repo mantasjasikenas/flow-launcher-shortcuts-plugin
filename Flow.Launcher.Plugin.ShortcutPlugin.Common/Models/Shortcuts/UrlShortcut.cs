@@ -1,4 +1,4 @@
-﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 public class UrlShortcut : Shortcut
 {

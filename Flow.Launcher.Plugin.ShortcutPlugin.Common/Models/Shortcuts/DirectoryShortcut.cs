@@ -1,14 +1,12 @@
-﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
+﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
-public class FileShortcut : Shortcut
+public class DirectoryShortcut : Shortcut
 {
     public string Path { get; init; }
 
-    public string App { get; init; }
-
     public override object Clone()
     {
-        return new FileShortcut
+        return new DirectoryShortcut
         {
             Key = Key,
             Path = Path

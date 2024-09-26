@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Models;
+namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 public class CommandBuilder : BaseQueryBuilder<Command>;
 

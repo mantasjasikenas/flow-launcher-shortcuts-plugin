@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 
