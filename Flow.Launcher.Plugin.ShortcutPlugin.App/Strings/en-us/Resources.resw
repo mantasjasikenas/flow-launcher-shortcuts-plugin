@@ -129,8 +129,8 @@
   <data name="ListDetails_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>
   </data>
-  <data name="Shell_ListDetails.Content" xml:space="preserve">
-    <value>ListDetails</value>
+  <data name="Shell_Shortcuts.Content" xml:space="preserve">
+    <value>Shortcuts</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
     <value>Personalization</value>
@@ -150,8 +150,8 @@
   <data name="Settings_About.Text" xml:space="preserve">
     <value>About this application</value>
   </data>
-  <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>TODO: Replace with your app description.</value>
+  <data name="Settings_AboutDescription.Description" xml:space="preserve">
+    <value>© All rights reserved.</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
     <value>Privacy Statement</value>
@@ -172,5 +172,17 @@
     &lt;action content="Settings" arguments="action=Settings"/&gt;
   &lt;/actions&gt;
 &lt;/toast&gt;</value>
+  </data>
+  <data name="Appearance.Text" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="ColorModeHeader.Header" xml:space="preserve">
+    <value>App theme</value>
+  </data>
+  <data name="Windows_Color_Settings.Content" xml:space="preserve">
+    <value>Windows color settings</value>
+  </data>
+  <data name="Settings_AboutDescription.Header" xml:space="preserve">
+    <value>Shortcuts</value>
   </data>
 </root>

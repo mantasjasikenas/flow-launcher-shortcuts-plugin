@@ -48,7 +48,7 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe7c3;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_ListDetails" helpers:NavigationHelper.NavigateTo="Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels.ShortcutsViewModel">
+                <NavigationViewItem x:Uid="Shell_Shortcuts" helpers:NavigationHelper.NavigateTo="Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels.ShortcutsViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xea37;"/>
                     </NavigationViewItem.Icon>

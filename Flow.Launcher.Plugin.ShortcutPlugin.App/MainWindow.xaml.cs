@@ -15,7 +15,6 @@ public sealed partial class MainWindow : WindowEx
         InitializeComponent();
 
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/icon.png"));
-        PersistenceId = "ShortcutsMainWindow";
         Content = null;
         Title = "AppDisplayName".GetLocalized();
 

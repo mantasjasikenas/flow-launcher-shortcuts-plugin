@@ -1,10 +1,9 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
-
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
 
-// TODO: Set the URL for your privacy policy by updating SettingsPage_PrivacyTermsLink.NavigateUri in Resources.resw.
 public sealed partial class SettingsPage : Page
 {
     public SettingsViewModel ViewModel
@@ -16,5 +15,18 @@ public sealed partial class SettingsPage : Page
     {
         ViewModel = App.GetService<SettingsViewModel>();
         InitializeComponent();
+    }
+
+    private void OpenColorsSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var uri = new Uri("ms-settings:colors");
+
+            _ = Windows.System.Launcher.LaunchUriAsync(uri);
+        }
+        catch (Exception)
+        {
+        }
     }
 }

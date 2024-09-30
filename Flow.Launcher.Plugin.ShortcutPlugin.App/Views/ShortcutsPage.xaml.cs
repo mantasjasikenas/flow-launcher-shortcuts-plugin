@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.WinUI.UI.Controls;
 
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
-
 using Microsoft.UI.Xaml.Controls;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
