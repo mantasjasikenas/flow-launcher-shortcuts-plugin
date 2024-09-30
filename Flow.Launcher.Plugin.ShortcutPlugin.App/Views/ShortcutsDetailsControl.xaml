@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="Flow.Launcher.Plugin.ShortcutPlugin.App.Views.ShortcutsDetailsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <ScrollViewer Name="ForegroundElement"
+                  HorizontalAlignment="Stretch"
+                  VerticalScrollMode="Enabled"
+                  IsTabStop="True">
+        <StackPanel HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Stretch">
+                <!--<FontIcon
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="48"
+                    Glyph="{x:Bind ShortcutsDetailsMenuItem.Symbol, Mode=OneWay}"
+                    AutomationProperties.Name="{x:Bind ShortcutsDetailsMenuItem.SymbolName, Mode=OneWay}"  />-->
+                <TextBlock Margin="{StaticResource SmallLeftMargin}"
+                           VerticalAlignment="Center"
+                           Text="{x:Bind ShortcutsDetailsMenuItem.Key, Mode=OneWay}"
+                           Style="{ThemeResource TitleTextBlockStyle}" />
+            </StackPanel>
+
+            <StackPanel Padding="0,15,0,0">
+                <TextBlock Text="Key"
+                           Style="{StaticResource DetailSubTitleStyle}" />
+                <TextBlock Text="{x:Bind ShortcutsDetailsMenuItem.Key, Mode=OneWay}"
+                           Style="{StaticResource DetailBodyBaseMediumStyle}" />
+
+                <TextBlock Margin="{StaticResource SmallTopMargin}"
+                           Text="Description"
+                           Style="{StaticResource DetailSubTitleStyle}" />
+                <TextBlock Text="{x:Bind ShortcutsDetailsMenuItem.Description, Mode=OneWay}"
+                           Style="{StaticResource DetailBodyBaseMediumStyle}" />
+
+                <TextBlock Margin="{StaticResource SmallTopMargin}"
+                           Text="Alias"
+                           Style="{StaticResource DetailSubTitleStyle}" />
+                <TextBlock Text="{x:Bind ShortcutsDetailsMenuItem.Alias, Mode=OneWay}"
+                           Style="{StaticResource DetailBodyBaseMediumStyle}" />
+
+                <TextBlock Margin="{StaticResource SmallTopMargin}"
+                           Text="Type"
+                           Style="{StaticResource DetailSubTitleStyle}" />
+                <TextBlock Text="{x:Bind ShortcutsDetailsMenuItem.GetDerivedType(), Mode=OneWay}"
+                           Style="{StaticResource DetailBodyBaseMediumStyle}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
