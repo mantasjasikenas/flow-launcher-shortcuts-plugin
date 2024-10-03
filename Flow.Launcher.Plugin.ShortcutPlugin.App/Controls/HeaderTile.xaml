@@ -8,7 +8,7 @@
              Height="220"
              mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+    <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
           BorderBrush="{ThemeResource SurfaceStrokeColorFlyoutBrush}"
           CornerRadius="8">
         <Grid.Resources>

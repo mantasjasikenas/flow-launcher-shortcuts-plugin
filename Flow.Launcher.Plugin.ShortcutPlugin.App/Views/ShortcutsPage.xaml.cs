@@ -16,13 +16,14 @@ public sealed partial class ShortcutsPage : Page
     {
         ViewModel = App.GetService<ShortcutsViewModel>();
         InitializeComponent();
+        ViewModel.AutoSuggestBox = SearchBox;
     }
 
-    private void OnViewStateChanged(object sender, ListDetailsViewState e)
+    private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        if (e == ListDetailsViewState.Both)
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
-            ViewModel.EnsureItemSelected();
+            ViewModel.OnFilterChanged(sender.Text);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 public interface INavigationAware
 {
-    void OnNavigatedTo(object parameter);
+    Task OnNavigatedTo(object parameter);
 
-    void OnNavigatedFrom();
+    Task OnNavigatedFrom();
 }

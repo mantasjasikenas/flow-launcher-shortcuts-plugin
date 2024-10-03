@@ -6,31 +6,28 @@
       xmlns:controls="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Controls"
       mc:Ignorable="d">
 
-    <Grid x:Name="HeaderGrid"
-          Margin="-24,0,-24,0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="204" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <ScrollViewer>
+        <Grid x:Name="HeaderGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <Image Grid.RowSpan="2"
-               Height="396"
-               VerticalAlignment="Top" />
+            <StackPanel VerticalAlignment="Center"
+                        Orientation="Vertical"
+                        Margin="0,24,0,36"
+                        >
+                <TextBlock x:Name="smallHeaderSubtitleText"
+                           FontSize="18"
+                           Text="Flow Launcher Plugin" />
+                <TextBlock x:Name="smallHeaderText"
+                           Style="{StaticResource TitleLargeTextBlockStyle}"
+                           Text="Shortcuts" />
+            </StackPanel>
 
-        <StackPanel Margin="36,0,0,0"
-                    VerticalAlignment="Center"
-                    Orientation="Vertical">
-            <TextBlock x:Name="smallHeaderSubtitleText"
-                       FontSize="18"
-                       Text="Flow Launcher Plugin" />
-            <TextBlock x:Name="smallHeaderText"
-                       Style="{StaticResource TitleLargeTextBlockStyle}"
-                       Text="Shortcuts" />
-        </StackPanel>
-
-        <controls:TileGallery x:Name="headerTileGallery"
-                              Grid.Row="1"
-                              Margin="0,0,0,0" />
-    </Grid>
-
+            <controls:TileGallery x:Name="headerTileGallery"
+                                  Grid.Row="1"
+                                  Margin="-36,0,0,0" />
+        </Grid>
+    </ScrollViewer>
 </Page>
