@@ -73,8 +73,8 @@ public partial class App : Application
             services.AddTransient<SettingsPage>();
             services.AddTransient<ShortcutsViewModel>();
             services.AddTransient<ShortcutsPage>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<MainPage>();
+            services.AddTransient<HomeViewModel>();
+            services.AddTransient<HomePage>();
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
 

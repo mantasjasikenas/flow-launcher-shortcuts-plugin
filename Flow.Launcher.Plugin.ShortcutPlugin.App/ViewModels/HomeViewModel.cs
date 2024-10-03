@@ -2,9 +2,9 @@
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 
-public partial class MainViewModel : ObservableRecipient
+public partial class HomeViewModel : ObservableRecipient
 {
-    public MainViewModel()
+    public HomeViewModel()
     {
     }
 }

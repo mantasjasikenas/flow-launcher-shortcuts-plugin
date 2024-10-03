@@ -124,7 +124,7 @@
     <value>Flow.Launcher.Plugin.ShortcutPlugin.App</value>
   </data>
   <data name="Shell_Main" xml:space="preserve">
-    <value>Main</value>
+    <value>Home</value>
   </data>
   <data name="ListDetails_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>

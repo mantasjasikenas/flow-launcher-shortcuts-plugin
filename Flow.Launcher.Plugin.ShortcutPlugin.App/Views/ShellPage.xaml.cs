@@ -42,7 +42,7 @@ public sealed partial class ShellPage : Page
         {
             Content = "Shell_Main".GetLocalized(),
             Icon = new SymbolIcon(Symbol.Home),
-            Tag = typeof(MainPage)
+            Tag = typeof(HomePage)
         };
         var shortcuts = new NavigationViewItem
         {
@@ -51,7 +51,7 @@ public sealed partial class ShellPage : Page
             Tag = typeof(ShortcutsPage),
         };
 
-        NavigationHelper.SetNavigateTo(home, typeof(MainViewModel).FullName);
+        NavigationHelper.SetNavigateTo(home, typeof(HomeViewModel).FullName);
         NavigationHelper.SetNavigateTo(shortcuts, typeof(ShortcutsViewModel).FullName);
 
         NavigationViewControl.MenuItems.Add(home);
