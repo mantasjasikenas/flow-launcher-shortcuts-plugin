@@ -8,7 +8,6 @@
     xmlns:models="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
     xmlns:views="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Views"
     xmlns:behaviors="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Behaviors"
-    behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
     mc:Ignorable="d">
     <Page.Resources>
         <DataTemplate x:Key="ItemTemplate" x:DataType="models:Shortcut">
@@ -17,12 +16,6 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <!--<FontIcon
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    FontSize="32"
-                    Glyph="{x:Bind Symbol}"
-                    AutomationProperties.Name="{x:Bind SymbolName}" />-->
                 <StackPanel
                     Grid.Column="1"
                     Margin="{StaticResource SmallLeftMargin}"
@@ -83,6 +76,9 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+        
+        
+        
         <controls:ListDetailsView
             x:Uid="ListDetails"
             x:Name="ListDetailsViewControl"

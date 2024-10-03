@@ -123,13 +123,13 @@
   <data name="AppDescription" xml:space="preserve">
     <value>Flow.Launcher.Plugin.ShortcutPlugin.App</value>
   </data>
-  <data name="Shell_Main.Content" xml:space="preserve">
+  <data name="Shell_Main" xml:space="preserve">
     <value>Main</value>
   </data>
   <data name="ListDetails_NoSelection.Text" xml:space="preserve">
     <value>Select an item from the list.</value>
   </data>
-  <data name="Shell_Shortcuts.Content" xml:space="preserve">
+  <data name="Shell_Shortcuts" xml:space="preserve">
     <value>Shortcuts</value>
   </data>
   <data name="Settings_Personalization.Text" xml:space="preserve">
