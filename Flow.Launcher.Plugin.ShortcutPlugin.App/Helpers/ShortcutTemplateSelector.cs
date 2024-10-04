@@ -29,7 +29,15 @@ public class ShortcutTemplateSelector : DataTemplateSelector
         get; set;
     }
 
-    protected override DataTemplate SelectTemplateCore(object item)
+    public DataTemplate DefaultTemplate
+    {
+        get; set;
+    }
+
+    protected override DataTemplate SelectTemplateCore(object item) =>
+        SelectTemplateCore(item, null);
+
+    protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
     {
         var shortcut = item as Shortcut;
 
@@ -40,7 +48,7 @@ public class ShortcutTemplateSelector : DataTemplateSelector
             UrlShortcut => UrlShortcutTemplate,
             ShellShortcut => ShellShortcutTemplate,
             GroupShortcut => GroupShortcutTemplate,
-            _ => base.SelectTemplate(item)
+            _ => DefaultTemplate
         };
     }
 }

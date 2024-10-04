@@ -10,13 +10,14 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 
 public class PageService : IPageService
 {
-    private readonly Dictionary<string, Type> _pages = new();
+    private readonly Dictionary<string, Type> _pages = [];
 
     public PageService()
     {
         Configure<HomeViewModel, HomePage>();
         Configure<ShortcutsViewModel, ShortcutsPage>();
         Configure<SettingsViewModel, SettingsPage>();
+        Configure<ShortcutDetailsViewModel, ShortcutDetailsPage>();
     }
 
     public Type GetPageType(string key)

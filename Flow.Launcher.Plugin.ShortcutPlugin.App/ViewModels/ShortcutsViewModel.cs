@@ -12,6 +12,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
 {
     private readonly IShortcutsService _shortcutsService;
+    private readonly INavigationService _navigationService;
 
     private IEnumerable<Shortcut> Shortcuts = [];
 
@@ -32,11 +33,17 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
     }
 
 
-    public ShortcutsViewModel(IShortcutsService shortcutsService)
+    public ShortcutsViewModel(IShortcutsService shortcutsService, INavigationService navigationService)
     {
         _shortcutsService = shortcutsService;
+        _navigationService = navigationService;
         LoadShortcutsCommand = new AsyncRelayCommand(LoadShortcutsAsync);
 
+    }
+
+    public void OnShortcutClicked(Shortcut shortcut)
+    {
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), shortcut);
     }
 
     public async Task OnNavigatedTo(object parameter)

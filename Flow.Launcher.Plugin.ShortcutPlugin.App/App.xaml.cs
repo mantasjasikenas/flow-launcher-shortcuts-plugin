@@ -84,6 +84,7 @@ public partial class App : Application
         services.AddTransient<HomePage>();
         services.AddTransient<ShellPage>();
         services.AddTransient<ShellViewModel>();
+        services.AddTransient<ShortcutDetailsViewModel>();
 
         // Configuration
         services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));

@@ -13,41 +13,76 @@
     <Page.Resources>
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
-        <DataTemplate x:Key="ItemTemplate"
-                      x:DataType="models:Shortcut">
+        <!--<StaticResource x:Key="ListViewItemCornerRadius"
+                        ResourceKey="OverlayCornerRadius" />
 
-            <StackPanel VerticalAlignment="Center"
-                        Margin="0,0,0,6"
-                        Padding="12,8,12,8"
-                        CornerRadius="{StaticResource ControlCornerRadius}"
-                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                <TextBlock Text="{x:Bind Key}"
-                           Style="{StaticResource ListTitleStyle}" />
-                <TextBlock Text="{x:Bind GetDerivedType()}"
-                           Style="{StaticResource ListSubTitleStyle}" />
-            </StackPanel>
+        <StaticResource x:Key="ListViewItemBackground"
+                        ResourceKey="CardBackgroundFillColorDefaultBrush" />-->
 
-        </DataTemplate>
+        <!--<StaticResource x:Key="ListViewItemBackgroundPointerOver"
+                        ResourceKey="CardBackgroundFillColorSecondaryBrush" />-->
 
-        <DataTemplate x:Key="DetailsTemplate">
-            <Grid>
-                <views:ShortcutsDetailsView ShortcutsDetailsMenuItem="{Binding}" />
-            </Grid>
-        </DataTemplate>
+        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ListViewItemBackground">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ListViewItemBackgroundPressed">Transparent</SolidColorBrush>
+
+        <Style TargetType="ListViewItem"
+               BasedOn="{StaticResource DefaultListViewItemStyle}">
+            <Setter Property="Margin"
+                    Value="0,0,0,8" />
+            <Setter Property="Padding"
+                    Value="0,0,0,0" />
+        </Style>
     </Page.Resources>
 
     <Grid x:Name="ContentArea">
         <ProgressRing Visibility="{x:Bind ViewModel.LoadShortcutsCommand.IsRunning, Mode=OneWay}"
                       IsActive="True" />
+
         <ListView x:Name="ShortcutsListView"
                   SelectionMode="None"
                   ShowsScrollingPlaceholders="True"
                   ItemsSource="{x:Bind ViewModel.FilteredShortcuts}"
-                  ItemTemplate="{StaticResource ItemTemplate}"
-                  Margin="-16,0,0,0">
+                  ItemClick="ShortcutsListView_ItemClick"
+                  IsItemClickEnabled="True">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:Shortcut">
+                    <ItemContainer Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                   BorderBrush="{ThemeResource SurfaceStrokeColorFlyoutBrush}"
+                                   CornerRadius="8">
+
+                        <Grid VerticalAlignment="Center"
+                              Padding="16,8,16,8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="{x:Bind Key}"
+                                       Style="{StaticResource ListTitleStyle}" />
+                            <TextBlock Grid.Row="1"
+                                       Text="{x:Bind GetDerivedType()}"
+                                       Style="{StaticResource ListSubTitleStyle}" />
+
+                            <FontIcon Grid.RowSpan="2"
+                                      Grid.Column="1"
+                                      FontSize="14"
+                                      Glyph="&#xe76c;">
+
+                            </FontIcon>
+                        </Grid>
+                    </ItemContainer>
+
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
             <ListView.Header>
                 <StackPanel Orientation="Vertical"
-                            Margin="16,8,8,16"
+                            Margin="0,8,8,16"
                             Spacing="16">
 
                     <StackPanel Orientation="Horizontal"
@@ -69,7 +104,6 @@
                     <TextBlock Text="{x:Bind ViewModel.FoundShortcutsTitle, Mode=OneWay}" />
                 </StackPanel>
             </ListView.Header>
-
         </ListView>
     </Grid>
 </Page>
