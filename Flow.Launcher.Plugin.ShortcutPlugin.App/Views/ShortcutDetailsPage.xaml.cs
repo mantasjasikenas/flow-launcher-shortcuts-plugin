@@ -18,4 +18,40 @@ public sealed partial class ShortcutDetailsPage : Page
         ViewModel = App.GetService<ShortcutDetailsViewModel>();
         InitializeComponent();
     }
+
+    private async void EditButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.IsEditMode)
+        {
+            var result = await ShowSaveDialogAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+            }
+            else if (result == ContentDialogResult.Secondary)
+            {
+                ViewModel.IsEditMode = false;
+            }
+        }
+        else
+        {
+            // Turning on edit mode
+            ViewModel.IsEditMode = true;
+        }
+    }
+
+    private async Task<ContentDialogResult> ShowSaveDialogAsync()
+    {
+        var saveDialog = new ContentDialog
+        {
+            Title = "Save Changes",
+            Content = "Do you want to save changes before exiting edit mode?",
+            PrimaryButtonText = "Save",
+            SecondaryButtonText = "Discard",
+            CloseButtonText = "Cancel",
+            XamlRoot = XamlRoot
+        };
+
+        return await saveDialog.ShowAsync();
+    }
 }

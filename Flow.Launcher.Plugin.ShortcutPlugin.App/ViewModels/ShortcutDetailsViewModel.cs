@@ -9,6 +9,9 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     [ObservableProperty]
     private Shortcut shortcut;
 
+    [ObservableProperty]
+    private bool isEditMode;
+
     public ShortcutDetailsViewModel()
     {
 
