@@ -5,10 +5,10 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 public class ShellShortcut : Shortcut
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public ShellType ShellType { get; init; }
+    public ShellType ShellType { get; set; }
 
-    public string Arguments { get; init; }
-    public bool Silent { get; init; } = true;
+    public string Arguments { get; set; }
+    public bool Silent { get; set; } = true;
 
     public override object Clone()
     {
@@ -17,7 +17,10 @@ public class ShellShortcut : Shortcut
             Key = Key,
             Arguments = Arguments,
             ShellType = ShellType,
-            Silent = Silent
+            Silent = Silent  ,
+            Alias = Alias,
+            Description = Description,
+            Icon = Icon
         };
     }
 

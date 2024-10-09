@@ -3,11 +3,17 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 public class GroupShortcut : Shortcut
 {
-    public List<Shortcut>? Shortcuts { get; init; }
+    public List<Shortcut>? Shortcuts
+    {
+        get; set;
+    }
 
-    public List<string>? Keys { get; init; }
+    public List<string>? Keys
+    {
+        get; set;
+    }
 
-    public bool GroupLaunch { get; init; } = true;
+    public bool GroupLaunch { get; set; } = true;
 
     public override object Clone()
     {
@@ -15,7 +21,11 @@ public class GroupShortcut : Shortcut
         {
             Key = Key,
             Shortcuts = Shortcuts,
-            Keys = Keys
+            Keys = Keys,
+            GroupLaunch = GroupLaunch,
+            Alias = Alias,
+            Description = Description,
+            Icon = Icon
         };
     }
 

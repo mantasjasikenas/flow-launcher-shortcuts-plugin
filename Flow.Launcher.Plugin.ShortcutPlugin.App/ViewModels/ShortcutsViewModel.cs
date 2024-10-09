@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.ViewModels;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Microsoft.UI.Xaml.Controls;
 
@@ -43,7 +44,22 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
 
     public void OnShortcutClicked(Shortcut shortcut)
     {
-        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), shortcut);
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, ShortcutDetailsMode.Edit));
+    }
+
+    public void OnNewShortcutClicked(ShortcutType shortcutType)
+    {
+        Shortcut shortcut = shortcutType switch
+        {
+            ShortcutType.Directory => new DirectoryShortcut(),
+            ShortcutType.File => new FileShortcut(),
+            ShortcutType.Url => new UrlShortcut(),
+            ShortcutType.Group => new GroupShortcut(),
+            ShortcutType.Shell => new ShellShortcut(),
+            _ => throw new NotImplementedException()
+        };
+
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, ShortcutDetailsMode.New));
     }
 
     public async Task OnNavigatedTo(object parameter)

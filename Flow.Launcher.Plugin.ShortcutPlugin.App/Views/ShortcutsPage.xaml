@@ -99,6 +99,13 @@
                             <FontIcon FontSize="14"
                                       Glyph="&#xe72c;" />
                         </Button>
+
+                        <DropDownButton Content="New">
+                            <DropDownButton.Flyout>
+                                <MenuFlyout Placement="Bottom"
+                                            x:Name="NewShortcutFlyout" />
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
                     </StackPanel>
 
                     <TextBlock Text="{x:Bind ViewModel.FoundShortcutsTitle, Mode=OneWay}" />

@@ -2,14 +2,20 @@
 
 public class DirectoryShortcut : Shortcut
 {
-    public string Path { get; init; }
+    public string Path
+    {
+        get; set;
+    }
 
     public override object Clone()
     {
         return new DirectoryShortcut
         {
             Key = Key,
-            Path = Path
+            Path = Path,
+            Alias = Alias,
+            Description = Description,
+            Icon = Icon
         };
     }
 

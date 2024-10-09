@@ -1,4 +1,4 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -39,15 +39,15 @@ public class ShortcutTemplateSelector : DataTemplateSelector
 
     protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
     {
-        var shortcut = item as Shortcut;
+        var shortcut = item as ObservableShortcut;
 
         return shortcut switch
         {
-            FileShortcut => FileShortcutTemplate,
-            DirectoryShortcut => DirectoryShortcutTemplate,
-            UrlShortcut => UrlShortcutTemplate,
-            ShellShortcut => ShellShortcutTemplate,
-            GroupShortcut => GroupShortcutTemplate,
+            ObservableFileShortcut => FileShortcutTemplate,
+            ObservableDirectoryShortcut => DirectoryShortcutTemplate,
+            ObservableUrlShortcut => UrlShortcutTemplate,
+            ObservableShellShortcut => ShellShortcutTemplate,
+            ObservableGroupShortcut => GroupShortcutTemplate,
             _ => DefaultTemplate
         };
     }

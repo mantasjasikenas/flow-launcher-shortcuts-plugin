@@ -1,21 +1,25 @@
 ﻿<Page x:Class="Flow.Launcher.Plugin.ShortcutPlugin.App.Views.ShortcutDetailsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:models="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
-      xmlns:viewmodels="using:Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels"
-      xmlns:helpers="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers"
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"
-      xmlns:ui="using:CommunityToolkit.WinUI"
       xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:shortcutModels="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts"
+      xmlns:models="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Models"
+      xmlns:commonModels="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:viewmodels="using:Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels"
+      x:Name="thePage"
       d:DataContext="{d:DesignInstance Type=viewmodels:ShortcutDetailsViewModel}"
-      mc:Ignorable="d"
-      x:Name="thePage">
+      mc:Ignorable="d">
 
     <Page.Resources>
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <helpers:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
 
         <!--  Spacing between cards  -->
         <x:Double x:Key="SettingsCardSpacing">4</x:Double>
@@ -31,30 +35,30 @@
         </Style>
 
         <DataTemplate x:Key="FileShortcutTemplate"
-                      x:DataType="models:FileShortcut">
+                      x:DataType="shortcutModels:ObservableFileShortcut">
             <StackPanel>
                 <controls:SettingsCard Header="Path">
-                    <TextBox Text="{x:Bind Path}"
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                              IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                             Text="{x:Bind Path}" />
                 </controls:SettingsCard>
 
                 <controls:SettingsCard Header="App">
-                    <TextBox Text="{x:Bind App}"
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                              IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                             Text="{x:Bind App}" />
                 </controls:SettingsCard>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="DirectoryShortcutTemplate"
-                      x:DataType="models:DirectoryShortcut">
+                      x:DataType="shortcutModels:ObservableDirectoryShortcut">
 
             <StackPanel>
                 <controls:SettingsCard Header="Path">
-                    <TextBox Text="{x:Bind Path}"
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                              IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                             Text="{x:Bind Path}" />
 
                 </controls:SettingsCard>
 
@@ -63,57 +67,62 @@
         </DataTemplate>
 
         <DataTemplate x:Key="UrlShortcutTemplate"
-                      x:DataType="models:UrlShortcut">
+                      x:DataType="shortcutModels:ObservableUrlShortcut">
             <StackPanel>
                 <controls:SettingsCard Header="Url">
-                    <TextBox Text="{x:Bind Url}"
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                              IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                             Text="{x:Bind Url}" />
                 </controls:SettingsCard>
 
                 <controls:SettingsCard Header="App">
-                    <TextBox Text="{x:Bind App}"
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                              IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                             Text="{x:Bind App}" />
                 </controls:SettingsCard>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="ShellShortcutTemplate"
-                      x:DataType="models:ShellShortcut">
+                      x:DataType="shortcutModels:ObservableShellShortcut">
             <StackPanel>
                 <controls:SettingsCard Header="Shell type">
 
-                    <ComboBox xmlns:ui="using:CommunityToolkit.WinUI"
-                              xmlns:enums="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
+                    <ComboBox xmlns:enums="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
+                              xmlns:ui="using:CommunityToolkit.WinUI"
+                              IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}"
                               ItemsSource="{ui:EnumValues Type=enums:ShellType}"
-                              SelectedItem="{x:Bind ShellType, Mode=OneWay}"
-                              IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}" />
+                              SelectedItem="{x:Bind ShellType, Mode=OneWay}" />
 
                 </controls:SettingsCard>
 
                 <controls:SettingsCard Header="Arguments">
-                    <TextBox Text="{x:Bind Arguments}"
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                              IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                             Text="{x:Bind Arguments}" />
                 </controls:SettingsCard>
 
                 <controls:SettingsCard Header="Silent">
-                    <ToggleSwitch IsOn="{x:Bind Silent}"
-                                  IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}" />
+                    <ToggleSwitch IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}"
+                                  IsOn="{x:Bind Silent}" />
                 </controls:SettingsCard>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="GroupShortcutTemplate"
-                      x:DataType="models:GroupShortcut">
+                      x:DataType="shortcutModels:ObservableGroupShortcut">
             <StackPanel>
                 <controls:SettingsExpander Header="Shortcuts"
                                            ItemsSource="{x:Bind Shortcuts}">
                     <controls:SettingsExpander.ItemTemplate>
-                        <DataTemplate x:DataType="models:Shortcut">
+                        <DataTemplate x:DataType="commonModels:Shortcut">
                             <controls:SettingsCard Description="{x:Bind Key}"
                                                    Header="{x:Bind GetDerivedType()}">
+                                <Button Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <FontIcon FontSize="14"
+                                              Foreground="{StaticResource SystemFillColorCriticalBrush}"
+                                              Glyph="&#xE74D;" />
+                                </Button>
                             </controls:SettingsCard>
                         </DataTemplate>
                     </controls:SettingsExpander.ItemTemplate>
@@ -125,42 +134,46 @@
                         <DataTemplate x:DataType="x:String">
                             <controls:SettingsCard Description="{x:Bind}"
                                                    Header="{x:Bind}">
+                                <Button Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <FontIcon FontSize="14"
+                                              Foreground="{StaticResource SystemFillColorCriticalBrush}"
+                                              Glyph="&#xE74D;" />
+                                </Button>
                             </controls:SettingsCard>
                         </DataTemplate>
                     </controls:SettingsExpander.ItemTemplate>
 
-                    <!--
-                    uncomment later
                     <controls:SettingsExpander.ItemsFooter>
-                        <controls:SettingsCard Header="Add new key"
+                        <controls:SettingsCard Header="Create shortcut key"
+                                               IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}"
                                                Style="{StaticResource DefaultSettingsExpanderItemStyle}">
                             <Button Content="Add new key" />
 
                         </controls:SettingsCard>
-                    </controls:SettingsExpander.ItemsFooter>-->
+                    </controls:SettingsExpander.ItemsFooter>
                 </controls:SettingsExpander>
 
                 <controls:SettingsCard Header="Group launch">
-                    <ToggleSwitch IsOn="{x:Bind GroupLaunch}"
-                                  IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}" />
+                    <ToggleSwitch IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}"
+                                  IsOn="{x:Bind GroupLaunch}" />
                 </controls:SettingsCard>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="DefaultTemplate">
             <StackPanel>
-                <ProgressRing IsEnabled="True"
-                              IsActive="True" />
+                <ProgressRing IsActive="True"
+                              IsEnabled="True" />
             </StackPanel>
         </DataTemplate>
 
         <helpers:ShortcutTemplateSelector x:Key="ShortcutTemplateSelector"
-                                          FileShortcutTemplate="{StaticResource FileShortcutTemplate}"
-                                          UrlShortcutTemplate="{StaticResource UrlShortcutTemplate}"
+                                          DefaultTemplate="{StaticResource DefaultTemplate}"
                                           DirectoryShortcutTemplate="{StaticResource DirectoryShortcutTemplate}"
+                                          FileShortcutTemplate="{StaticResource FileShortcutTemplate}"
                                           GroupShortcutTemplate="{StaticResource GroupShortcutTemplate}"
                                           ShellShortcutTemplate="{StaticResource ShellShortcutTemplate}"
-                                          DefaultTemplate="{StaticResource DefaultTemplate}" />
+                                          UrlShortcutTemplate="{StaticResource UrlShortcutTemplate}" />
     </Page.Resources>
 
     <ScrollViewer HorizontalAlignment="Stretch"
@@ -169,14 +182,15 @@
         <StackPanel x:Name="ContentArea"
                     HorizontalAlignment="Stretch">
 
-            <CommandBar Background="Transparent"
-                        IsOpen="False"
+            <CommandBar HorizontalAlignment="Left"
+                        Background="Transparent"
                         DefaultLabelPosition="Right"
-                        HorizontalAlignment="Left">
-                <AppBarToggleButton  Icon="Edit"
-                                     Label="Edit mode"
-                                     IsChecked="{x:Bind ViewModel.IsEditMode, Mode=OneWay}"
-                                     Click="EditButton_Click" />
+                        IsOpen="False"
+                        Visibility="{x:Bind ViewModel.Mode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Edit}">
+                <AppBarToggleButton Click="EditButton_Click"
+                                    Icon="Edit"
+                                    IsChecked="{x:Bind ViewModel.IsEditMode, Mode=OneWay}"
+                                    Label="Edit mode" />
             </CommandBar>
 
             <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
@@ -185,42 +199,60 @@
             <controls:SettingsCard Description="This is used to invoke shortcut"
                                    Header="Key"
                                    IsEnabled="True">
-                <TextBox Text="{x:Bind ViewModel.Shortcut.Key}"
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                          IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                         Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                         Text="{x:Bind ViewModel.Shortcut.Key}" />
             </controls:SettingsCard>
 
             <controls:SettingsCard Header="Type">
-                <TextBlock Text="{x:Bind ViewModel.Shortcut.GetDerivedType()}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Text="{x:Bind ViewModel.Shortcut.GetDerivedType()}" />
             </controls:SettingsCard>
 
             <controls:SettingsCard Header="Description">
-                <TextBox Text="{x:Bind ViewModel.Shortcut.Description}"
-                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                         IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}" />
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                         IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                         Text="{x:Bind ViewModel.Shortcut.Description}" />
             </controls:SettingsCard>
 
-            <controls:SettingsCard Header="Alias">
-                <TextBlock Text="{x:Bind ViewModel.Shortcut.Alias.Count}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-            </controls:SettingsCard>
+            <controls:SettingsExpander Header="Alias"
+                                       ItemsSource="{x:Bind ViewModel.Shortcut.Alias, Mode=OneWay}">
+                <controls:SettingsExpander.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <controls:SettingsCard Header="{x:Bind}">
+                            <Button Click="DeleteAliasButton_Click"
+                                    Tag="{x:Bind}"
+                                    Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <FontIcon FontSize="14"
+                                          Foreground="{StaticResource SystemFillColorCriticalBrush}"
+                                          Glyph="&#xE74D;" />
+                            </Button>
+                        </controls:SettingsCard>
+                    </DataTemplate>
+                </controls:SettingsExpander.ItemTemplate>
+                <controls:SettingsExpander.ItemsFooter>
+                    <controls:SettingsCard Header="Create shortcut alias"
+                                           IsEnabled="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay}"
+                                           Style="{StaticResource DefaultSettingsExpanderItemStyle}">
+                        <Button Click="CreateAliasButton_Click"
+                                Content="Add new alias" />
+                    </controls:SettingsCard>
+                </controls:SettingsExpander.ItemsFooter>
+            </controls:SettingsExpander>
 
             <controls:SettingsCard Header="Icon">
-                <TextBox Text="{x:Bind ViewModel.Shortcut.Icon}"
-                         MaxWidth="450"
-                         HorizontalTextAlignment="Right"
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                          IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                         Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                         Text="{x:Bind ViewModel.Shortcut.Icon}" />
             </controls:SettingsCard>
 
             <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                        Text="Specific shortcut details" />
 
             <Grid>
-                <ContentControl Content="{x:Bind ViewModel.Shortcut, Mode=OneWay}"
+                <ContentControl HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
+                                Content="{x:Bind ViewModel.Shortcut, Mode=OneWay}"
                                 ContentTemplateSelector="{StaticResource ShortcutTemplateSelector}" />
             </Grid>
         </StackPanel>

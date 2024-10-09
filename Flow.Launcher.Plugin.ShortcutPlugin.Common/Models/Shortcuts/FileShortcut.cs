@@ -2,16 +2,19 @@
 
 public class FileShortcut : Shortcut
 {
-    public string Path { get; init; }
+    public string Path { get; set; }
 
-    public string App { get; init; }
+    public string App { get; set; }
 
     public override object Clone()
     {
         return new FileShortcut
         {
             Key = Key,
-            Path = Path
+            Path = Path ,
+            Alias = Alias,
+            Description = Description,
+            Icon = Icon
         };
     }
 

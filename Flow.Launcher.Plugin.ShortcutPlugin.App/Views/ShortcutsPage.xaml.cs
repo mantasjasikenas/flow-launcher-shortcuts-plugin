@@ -18,6 +18,8 @@ public sealed partial class ShortcutsPage : Page
         ViewModel = App.GetService<ShortcutsViewModel>();
         InitializeComponent();
         ViewModel.AutoSuggestBox = SearchBox;
+
+        SetupNewShortcutFlyoutMenuItems();
     }
 
     private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -25,6 +27,23 @@ public sealed partial class ShortcutsPage : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             ViewModel.OnFilterChanged(sender.Text);
+        }
+    }
+
+    private void SetupNewShortcutFlyoutMenuItems()
+    {
+        var shorcutTypes = Enum.GetValues<ShortcutType>();
+
+        foreach (var type in shorcutTypes)
+        {
+            var item = new MenuFlyoutItem
+            {
+                Text = type.ToString(),
+                DataContext = type
+            };
+
+            item.Click += NewShortcutMenuFlyoutItem_Click;
+            NewShortcutFlyout.Items.Add(item);
         }
     }
 
@@ -37,5 +56,13 @@ public sealed partial class ShortcutsPage : Page
 
         ViewModel.OnShortcutClicked(shortcut);
 
+    }
+
+    private void NewShortcutMenuFlyoutItem_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && item.DataContext is ShortcutType type)
+        {
+            ViewModel.OnNewShortcutClicked(type);
+        }
     }
 }
