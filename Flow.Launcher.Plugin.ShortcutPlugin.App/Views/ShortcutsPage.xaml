@@ -13,15 +13,6 @@
     <Page.Resources>
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
-        <!--<StaticResource x:Key="ListViewItemCornerRadius"
-                        ResourceKey="OverlayCornerRadius" />
-
-        <StaticResource x:Key="ListViewItemBackground"
-                        ResourceKey="CardBackgroundFillColorDefaultBrush" />-->
-
-        <!--<StaticResource x:Key="ListViewItemBackgroundPointerOver"
-                        ResourceKey="CardBackgroundFillColorSecondaryBrush" />-->
-
         <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver">Transparent</SolidColorBrush>
         <SolidColorBrush x:Key="ListViewItemBackground">Transparent</SolidColorBrush>
         <SolidColorBrush x:Key="ListViewItemBackgroundPressed">Transparent</SolidColorBrush>
@@ -108,7 +99,19 @@
                         </DropDownButton>
                     </StackPanel>
 
-                    <TextBlock Text="{x:Bind ViewModel.FoundShortcutsTitle, Mode=OneWay}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{x:Bind ViewModel.FoundShortcutsTitle, Mode=OneWay}" />
+                        <TextBlock Grid.Column="1"
+                                   TextAlignment="Right"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Text="{x:Bind ViewModel.LastUpdated, Mode=OneWay}" />
+                    </Grid>
+
                 </StackPanel>
             </ListView.Header>
         </ListView>

@@ -3,7 +3,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 
-public class ObservableDirectoryShortcut : ObservableShortcut
+public partial class ObservableDirectoryShortcut : ObservableShortcut
 {
     private readonly DirectoryShortcut _directoryShortcut;
 

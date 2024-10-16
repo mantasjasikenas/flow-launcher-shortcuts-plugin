@@ -23,6 +23,9 @@
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted"
+                                              TrueValue="Collapsed"
+                                              FalseValue="Visible" />
         <helpers:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
 
         <!--  Spacing between cards  -->
@@ -190,21 +193,21 @@
                         Background="Transparent"
                         DefaultLabelPosition="Right"
                         IsOpen="False">
-                <AppBarToggleButton Click="EditButton_Click"
-                                    Icon="Edit"
-                                    IsChecked="{x:Bind ViewModel.IsEditMode, Mode=OneWay}"
-                                    Label="Edit mode"
-                                    Visibility="{x:Bind ViewModel.Mode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Edit}" />
-
-                <AppBarButton Click="SaveButton_Click"
+                <AppBarButton Click="EditButton_Click"
                               Icon="Edit"
-                              Label="Save"
-                              Visibility="{x:Bind ViewModel.Mode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=New}" />
-            </CommandBar>
+                              Label="Edit mode"
+                              Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterInverted}}" />
 
-            <!--  Submit command  -->
-            <Button Command="{x:Bind ViewModel.Shortcut.SubmitCommand}"
-                    Content="Submit" />
+                <!--Following buttons are only visible in edit mode-->
+                <AppBarButton Command="{x:Bind ViewModel.SaveButtonCommand}"
+                              Icon="Save"
+                              Label="Save"
+                              Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <AppBarButton Command="{x:Bind ViewModel.DiscardButtonCommand}"
+                              Icon="Delete"
+                              Label="Discard"
+                              Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            </CommandBar>
 
             <!--  Validation Popups  -->
             <Grid>

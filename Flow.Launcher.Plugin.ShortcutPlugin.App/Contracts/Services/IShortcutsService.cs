@@ -7,5 +7,6 @@ public interface IShortcutsService
     Task<IEnumerable<Shortcut>> GetShortcutsAsync();
     Task SaveShortcutAsync(Shortcut shortcut);
     Task DeleteShortcutAsync(Shortcut shortcut);
-    Task UpdateShortcutAsync(Shortcut shortcut);
+    Task UpdateShortcutAsync(Shortcut oldShortcut, Shortcut updatedShortcut);
+    Task RefreshShortcutsAsync();
 }

@@ -20,6 +20,9 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
     [ObservableProperty]
     private string foundShortcutsTitle;
 
+    [ObservableProperty]
+    private string lastUpdated;
+
     public AutoSuggestBox AutoSuggestBox
     {
         get;
@@ -38,8 +41,8 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
     {
         _shortcutsService = shortcutsService;
         _navigationService = navigationService;
-        LoadShortcutsCommand = new AsyncRelayCommand(LoadShortcutsAsync);
 
+        LoadShortcutsCommand = new AsyncRelayCommand(LoadShortcutsAsync);
     }
 
     public void OnShortcutClicked(Shortcut shortcut)
@@ -76,7 +79,11 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
     {
         ClearSearchBox();
         FilteredShortcuts.Clear();
+
+        await _shortcutsService.RefreshShortcutsAsync();
         Shortcuts = await _shortcutsService.GetShortcutsAsync();
+
+        LastUpdated = "Last updated: " + DateTime.Now.ToString("HH:mm:ss");
 
         foreach (var shortcut in Shortcuts)
         {

@@ -1,7 +1,4 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
-using Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
-using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
-using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -21,57 +18,9 @@ public sealed partial class ShortcutDetailsPage : Page
         InitializeComponent();
     }
 
-    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    private void EditButton_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.Mode == ShortcutDetailsMode.New)
-        {
-            var result = await ViewModel.SaveNewShortcutAsync();
-
-            if (result)
-            {
-                ViewModel.NavigateBack();
-            }
-        }
-    }
-
-    private async void EditButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (!ViewModel.IsEditMode)
-        {
-            ViewModel.IsEditMode = true;
-
-            return;
-        }
-
-        switch (await ShowSaveDialogAsync())
-        {
-            case ContentDialogResult.Primary:
-                await ViewModel.SaveEditedShortcut();
-                ViewModel.IsEditMode = false;
-                break;
-            case ContentDialogResult.Secondary:
-                ViewModel.DiscardEditedShortcut();
-                ViewModel.IsEditMode = false;
-                break;
-            case ContentDialogResult.None:
-                ViewModel.IsEditMode = true;
-                break;
-        }
-    }
-
-    private async Task<ContentDialogResult> ShowSaveDialogAsync()
-    {
-        var saveDialog = new ContentDialog
-        {
-            Title = "Save Changes",
-            Content = "Do you want to save changes before exiting edit mode?",
-            PrimaryButtonText = "Save",
-            SecondaryButtonText = "Discard",
-            CloseButtonText = "Cancel",
-            XamlRoot = XamlRoot
-        };
-
-        return await saveDialog.ShowAsync();
+        ViewModel.IsEditMode = true;
     }
 
     private ContentDialog CreateAliasDialog()

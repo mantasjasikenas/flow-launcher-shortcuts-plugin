@@ -3,7 +3,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 
-public class ObservableUrlShortcut : ObservableShortcut
+public partial class ObservableUrlShortcut : ObservableShortcut
 {
     private readonly UrlShortcut _urlShortcut;
 

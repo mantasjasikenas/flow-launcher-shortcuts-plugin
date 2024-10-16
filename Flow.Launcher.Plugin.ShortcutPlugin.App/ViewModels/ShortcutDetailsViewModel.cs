@@ -1,28 +1,28 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
+using Microsoft.UI.Xaml;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 
 public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigationAware
 {
-    private Shortcut shortcut;
+    private readonly IShortcutsService _shortcutsService;
+    private readonly INavigationService _navigationService;
 
-    public ObservableShortcut Shortcut
-    {
-        get;
-        set;
-    }
+    private Shortcut _shortcut;
+
 
     [ObservableProperty]
     private bool isEditMode;
 
-    private readonly IShortcutsService _shortcutsService;
-    private readonly INavigationService _navigationService;
+    [ObservableProperty]
+    private ObservableShortcut shortcut;
 
     public ShortcutDetailsMode Mode
     {
@@ -43,7 +43,7 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     {
         var args = (ShorcutDetailsNavArgs)parameter;
 
-        shortcut = args.Shortcut;
+        _shortcut = args.Shortcut;
         Mode = args.Mode;
 
         if (Mode == ShortcutDetailsMode.New)
@@ -51,7 +51,7 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
             IsEditMode = true;
         }
 
-        Shortcut = ((Shortcut)shortcut.Clone()).ToObservableShortcut();
+        Shortcut = ((Shortcut)_shortcut.Clone()).ToObservableShortcut();
 
         return Task.CompletedTask;
     }
@@ -67,34 +67,43 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
         Shortcut.Alias.Remove(alias);
     }
 
-    public async Task<bool> SaveNewShortcutAsync()
-    {
-        var shortcut = Shortcut.ToShortcut();
-
-        if (shortcut == null || string.IsNullOrEmpty(shortcut.Key))
-        {
-            return false;
-        }
-
-        await _shortcutsService.SaveShortcutAsync(shortcut);
-
-        return true;
-    }
-
     public void NavigateBack()
     {
         _navigationService.GoBack();
     }
 
-    public void DiscardEditedShortcut()
+    [RelayCommand]
+    private async Task SaveButton()
     {
-        Shortcut = ((Shortcut)shortcut.Clone()).ToObservableShortcut();
+        if (!Shortcut.Validate())
+        {
+            return;
+        }
+
+        if (Mode == ShortcutDetailsMode.New)
+        {
+            await _shortcutsService.SaveShortcutAsync(Shortcut.ToShortcut());
+            NavigateBack();
+        }
+        else if (Mode == ShortcutDetailsMode.Edit)
+        {
+            IsEditMode = false;
+            await _shortcutsService.UpdateShortcutAsync(_shortcut, Shortcut.ToShortcut());
+        }
     }
 
-    public async Task SaveEditedShortcut()
+    [RelayCommand]
+    private void DiscardButton()
     {
-        // TODO: update doesnt work because memory reference is different
-        await _shortcutsService.UpdateShortcutAsync(Shortcut.ToShortcut());
+        if (Mode == ShortcutDetailsMode.New)
+        {
+            NavigateBack();
+        }
+        else if (Mode == ShortcutDetailsMode.Edit)
+        {
+            Shortcut = ((Shortcut)_shortcut.Clone()).ToObservableShortcut();
+            IsEditMode = false;
+        }
     }
 }
 

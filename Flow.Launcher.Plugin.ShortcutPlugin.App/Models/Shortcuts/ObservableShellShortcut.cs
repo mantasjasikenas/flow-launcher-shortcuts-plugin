@@ -3,7 +3,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 
-public class ObservableShellShortcut : ObservableShortcut
+public partial class ObservableShellShortcut : ObservableShortcut
 {
     private readonly ShellShortcut _shellShortcut;
 

@@ -52,8 +52,7 @@ public abstract partial class ObservableShortcut : ObservableValidator
     [ObservableProperty]
     private string errors;
 
-    [RelayCommand]
-    private void Submit()
+    public bool Validate()
     {
         ValidateAllProperties();
 
@@ -61,10 +60,14 @@ public abstract partial class ObservableShortcut : ObservableValidator
         {
             ShowErrors();
             FormSubmissionFailed?.Invoke(this, EventArgs.Empty);
+
+            return false;
         }
         else
         {
             FormSubmissionCompleted?.Invoke(this, EventArgs.Empty);
+
+            return true;
         }
     }
 

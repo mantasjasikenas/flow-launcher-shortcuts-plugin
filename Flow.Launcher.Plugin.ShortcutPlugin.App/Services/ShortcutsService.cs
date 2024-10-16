@@ -7,70 +7,93 @@ public class ShortcutsService : IShortcutsService
 {
     private const string ShortcutsPath = "C:\\Users\\tutta\\AppData\\Roaming\\FlowLauncher\\Settings\\Plugins\\Flow.Launcher.Plugin.ShortcutPlugin\\Backups\\20240925185136957\\shortcuts.json";
 
+    private Dictionary<string, List<Shortcut>> _shortcuts = [];
+
+
+    public ShortcutsService()
+    {
+        Task.Run(RefreshShortcutsAsync);
+    }
+
     public async Task<IEnumerable<Shortcut>> GetShortcutsAsync()
     {
-        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+        if (_shortcuts.Count == 0)
+        {
+            _shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+        }
 
-        return shortcuts.Values
+        return _shortcuts.Values
             .SelectMany(x => x)
             .Distinct()
             .ToList();
     }
 
+    public async Task RefreshShortcutsAsync()
+    {
+        _shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+    }
+
     public async Task SaveShortcutAsync(Shortcut shortcut)
     {
-        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
-
         var key = shortcut.Key;
 
-        if (!shortcuts.TryGetValue(key, out var value))
+        if (!_shortcuts.TryGetValue(key, out var value))
         {
             value = ([]);
-            shortcuts[key] = value;
+            _shortcuts[key] = value;
         }
 
         value.Add(shortcut);
 
-        ShortcutUtilities.SaveShortcuts(shortcuts, ShortcutsPath);
+        ShortcutUtilities.SaveShortcuts(_shortcuts, ShortcutsPath);
     }
 
     public async Task DeleteShortcutAsync(Shortcut shortcut)
     {
-        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
-
         var key = shortcut.Key;
 
-        if (shortcuts.TryGetValue(key, out var value))
+        if (_shortcuts.TryGetValue(key, out var value))
         {
             value.Remove(shortcut);
-        }
 
-        ShortcutUtilities.SaveShortcuts(shortcuts, ShortcutsPath);
-    }
-
-    // TODO not working
-    public async Task UpdateShortcutAsync(Shortcut shortcut)
-    {
-        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
-
-        var key = shortcut.Key;
-
-        if (shortcuts.TryGetValue(key, out var value))
-        {
-            // TODO: This is a temporary fix to update the shortcut
-            var existingShortcut = value.FirstOrDefault(x => x.Key == shortcut.Key && x.GetDerivedType() == shortcut.GetDerivedType());
-            
-            if (existingShortcut != null)
+            if (value.Count == 0)
             {
-                value.Remove(existingShortcut);
-                value.Add(shortcut);
+                _shortcuts.Remove(key);
             }
         }
-        else
+
+        ShortcutUtilities.SaveShortcuts(_shortcuts, ShortcutsPath);
+    }
+
+    // TODO: test properly because started working magicly
+    public async Task UpdateShortcutAsync(Shortcut oldShortcut, Shortcut updatedShortcut)
+    {
+        var oldKey = oldShortcut.Key;
+        var newKey = updatedShortcut.Key;
+
+        if (_shortcuts.TryGetValue(oldKey, out var oldKeyShortcuts))
         {
-            shortcuts[key] = [shortcut];
+            var removed = oldKeyShortcuts.Remove(oldShortcut);
+
+            if (!removed)
+            {
+                return;
+            }
+
+            if (oldKeyShortcuts.Count == 0)
+            {
+                _shortcuts.Remove(oldKey);
+            }
         }
 
-        ShortcutUtilities.SaveShortcuts(shortcuts, ShortcutsPath);
+        if (!_shortcuts.TryGetValue(newKey, out var newKeyShortcuts))
+        {
+            newKeyShortcuts = [];
+            _shortcuts[newKey] = newKeyShortcuts;
+        }
+
+        newKeyShortcuts.Add(updatedShortcut);
+
+        ShortcutUtilities.SaveShortcuts(_shortcuts, ShortcutsPath);
     }
 }
