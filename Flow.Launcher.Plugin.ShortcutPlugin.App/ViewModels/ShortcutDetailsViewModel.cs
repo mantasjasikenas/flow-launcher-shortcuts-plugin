@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
@@ -20,14 +21,18 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     [ObservableProperty]
     private bool isEditMode;
 
+    private readonly IShortcutsService _shortcutsService;
+    private readonly INavigationService _navigationService;
+
     public ShortcutDetailsMode Mode
     {
         get; private set;
     }
 
-    public ShortcutDetailsViewModel()
+    public ShortcutDetailsViewModel(IShortcutsService shortcutsService, INavigationService navigationService)
     {
-
+        _shortcutsService = shortcutsService;
+        _navigationService = navigationService;
     }
 
     public Task OnNavigatedFrom()
@@ -46,7 +51,7 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
             IsEditMode = true;
         }
 
-        Shortcut = shortcut.ToObservableShortcut();
+        Shortcut = ((Shortcut)shortcut.Clone()).ToObservableShortcut();
 
         return Task.CompletedTask;
     }
@@ -60,6 +65,36 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     public void RemoveAlias(string alias)
     {
         Shortcut.Alias.Remove(alias);
+    }
+
+    public async Task<bool> SaveNewShortcutAsync()
+    {
+        var shortcut = Shortcut.ToShortcut();
+
+        if (shortcut == null || string.IsNullOrEmpty(shortcut.Key))
+        {
+            return false;
+        }
+
+        await _shortcutsService.SaveShortcutAsync(shortcut);
+
+        return true;
+    }
+
+    public void NavigateBack()
+    {
+        _navigationService.GoBack();
+    }
+
+    public void DiscardEditedShortcut()
+    {
+        Shortcut = ((Shortcut)shortcut.Clone()).ToObservableShortcut();
+    }
+
+    public async Task SaveEditedShortcut()
+    {
+        // TODO: update doesnt work because memory reference is different
+        await _shortcutsService.UpdateShortcutAsync(Shortcut.ToShortcut());
     }
 }
 

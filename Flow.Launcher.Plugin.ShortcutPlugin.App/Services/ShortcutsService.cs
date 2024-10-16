@@ -16,4 +16,61 @@ public class ShortcutsService : IShortcutsService
             .Distinct()
             .ToList();
     }
+
+    public async Task SaveShortcutAsync(Shortcut shortcut)
+    {
+        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+
+        var key = shortcut.Key;
+
+        if (!shortcuts.TryGetValue(key, out var value))
+        {
+            value = ([]);
+            shortcuts[key] = value;
+        }
+
+        value.Add(shortcut);
+
+        ShortcutUtilities.SaveShortcuts(shortcuts, ShortcutsPath);
+    }
+
+    public async Task DeleteShortcutAsync(Shortcut shortcut)
+    {
+        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+
+        var key = shortcut.Key;
+
+        if (shortcuts.TryGetValue(key, out var value))
+        {
+            value.Remove(shortcut);
+        }
+
+        ShortcutUtilities.SaveShortcuts(shortcuts, ShortcutsPath);
+    }
+
+    // TODO not working
+    public async Task UpdateShortcutAsync(Shortcut shortcut)
+    {
+        var shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+
+        var key = shortcut.Key;
+
+        if (shortcuts.TryGetValue(key, out var value))
+        {
+            // TODO: This is a temporary fix to update the shortcut
+            var existingShortcut = value.FirstOrDefault(x => x.Key == shortcut.Key && x.GetDerivedType() == shortcut.GetDerivedType());
+            
+            if (existingShortcut != null)
+            {
+                value.Remove(existingShortcut);
+                value.Add(shortcut);
+            }
+        }
+        else
+        {
+            shortcuts[key] = [shortcut];
+        }
+
+        ShortcutUtilities.SaveShortcuts(shortcuts, ShortcutsPath);
+    }
 }

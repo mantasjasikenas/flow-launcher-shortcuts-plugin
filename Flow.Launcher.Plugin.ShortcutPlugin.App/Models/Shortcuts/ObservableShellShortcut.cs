@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
@@ -11,48 +12,36 @@ public class ObservableShellShortcut : ObservableShortcut
         _shellShortcut = shellShortcut;
     }
 
+    [Required(ErrorMessage = "Shell Type is required")]
     public ShellType ShellType
     {
         get => _shellShortcut.ShellType;
-        set
-        {
-            if (_shellShortcut.ShellType != value)
-            {
-                _shellShortcut.ShellType = value;
-                OnPropertyChanged();
-            }
-        }
+        set => SetProperty(_shellShortcut.ShellType, value, _shellShortcut, (u, n) => u.ShellType = n);
     }
 
+    [Required(ErrorMessage = "Arguments is required")]
     public string Arguments
     {
         get => _shellShortcut.Arguments;
-        set
-        {
-            if (_shellShortcut.Arguments != value)
-            {
-                _shellShortcut.Arguments = value;
-                OnPropertyChanged();
-            }
-        }
+        set => SetProperty(_shellShortcut.Arguments, value, _shellShortcut, (u, n) => u.Arguments = n);
     }
 
+    [Required(ErrorMessage = "Silent is required")]
     public bool Silent
     {
         get => _shellShortcut.Silent;
-        set
-        {
-            if (_shellShortcut.Silent != value)
-            {
-                _shellShortcut.Silent = value;
-                OnPropertyChanged();
-            }
-        }
+        set => SetProperty(_shellShortcut.Silent, value, _shellShortcut, (u, n) => u.Silent = n);
     }
 
     public new ObservableShellShortcut Clone()
     {
         return new ObservableShellShortcut((ShellShortcut)_shellShortcut.Clone());
+    }
+
+    public override Shortcut GetBaseShortcut()
+    {
+        base.GetBaseShortcut();
+        return _shellShortcut;
     }
 
     public override string ToString()

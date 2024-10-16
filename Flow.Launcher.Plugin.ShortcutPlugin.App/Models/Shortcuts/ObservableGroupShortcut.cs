@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
@@ -25,23 +26,28 @@ public class ObservableGroupShortcut : ObservableShortcut
         get;
     }
 
+    [Required(ErrorMessage = "Group launch is required")]
     public bool GroupLaunch
     {
         get => _groupShortcut.GroupLaunch;
-        set
-        {
-            if (_groupShortcut.GroupLaunch != value)
-            {
-                _groupShortcut.GroupLaunch = value;
-                OnPropertyChanged();
-            }
-        }
+        set => SetProperty(_groupShortcut.GroupLaunch, value, _groupShortcut, (u, n) => u.GroupLaunch = n);
     }
 
     public new ObservableGroupShortcut Clone()
     {
         return new ObservableGroupShortcut((GroupShortcut)_groupShortcut.Clone());
     }
+
+    public override Shortcut GetBaseShortcut()
+    {
+        base.GetBaseShortcut();
+
+        _groupShortcut.Keys = [.. Keys];
+        _groupShortcut.Shortcuts = [.. Shortcuts];
+
+        return _groupShortcut;
+    }
+
 
     public override string ToString()
     {

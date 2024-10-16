@@ -17,4 +17,9 @@ public static class ShortcutExtensions
             _ => throw new ArgumentException("Unknown shortcut type")
         };
     }
+
+    public static Shortcut ToShortcut(this ObservableShortcut observableShortcut)
+    {
+        return observableShortcut.GetBaseShortcut();
+    }
 }

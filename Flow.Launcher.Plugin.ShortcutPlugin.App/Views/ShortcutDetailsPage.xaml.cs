@@ -1,4 +1,5 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Microsoft.UI.Xaml;
@@ -20,25 +21,41 @@ public sealed partial class ShortcutDetailsPage : Page
         InitializeComponent();
     }
 
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.Mode == ShortcutDetailsMode.New)
+        {
+            var result = await ViewModel.SaveNewShortcutAsync();
+
+            if (result)
+            {
+                ViewModel.NavigateBack();
+            }
+        }
+    }
+
     private async void EditButton_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.IsEditMode)
+        if (!ViewModel.IsEditMode)
         {
-            var result = await ShowSaveDialogAsync();
-
-            if (result == ContentDialogResult.Primary)
-            {
-            }
-            else if (result == ContentDialogResult.Secondary)
-            {
-            }
-
-            ViewModel.IsEditMode = false;
-        }
-        else
-        {
-            // Turning on edit mode
             ViewModel.IsEditMode = true;
+
+            return;
+        }
+
+        switch (await ShowSaveDialogAsync())
+        {
+            case ContentDialogResult.Primary:
+                await ViewModel.SaveEditedShortcut();
+                ViewModel.IsEditMode = false;
+                break;
+            case ContentDialogResult.Secondary:
+                ViewModel.DiscardEditedShortcut();
+                ViewModel.IsEditMode = false;
+                break;
+            case ContentDialogResult.None:
+                ViewModel.IsEditMode = true;
+                break;
         }
     }
 
@@ -107,5 +124,26 @@ public sealed partial class ShortcutDetailsPage : Page
         var aliasName = (string)button.Tag;
 
         ViewModel.RemoveAlias(aliasName);
+    }
+
+    private void ShowErrorButton_Click(object sender, RoutedEventArgs e)
+    {
+        var errors = ViewModel.Shortcut.Errors;
+
+        if (string.IsNullOrEmpty(errors))
+        {
+            return;
+        }
+
+        var flyout = new Flyout
+        {
+            Content = new TextBlock
+            {
+                Text = errors,
+                TextWrapping = TextWrapping.WrapWholeWords
+            }
+        };
+
+        flyout.ShowAt((Button)sender);
     }
 }
