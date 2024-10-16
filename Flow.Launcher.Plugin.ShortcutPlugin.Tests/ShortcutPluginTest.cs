@@ -22,6 +22,13 @@ public class ShortcutPluginTest
         SeedShortcuts();
     }
 
+    [OneTimeTearDown]
+    public void TearDown()
+    {
+        File.Delete(_shortcutsPath);
+        File.Delete(_variablesPath);
+    }
+
     [Test]
     public void ListCommand_ShouldReturnAllShortcuts()
     {
@@ -40,39 +47,39 @@ public class ShortcutPluginTest
     [TestCase("add_dir_test")]
     public void AddDirectoryCommand_ShouldAddShortcut(string key)
     {
-        var before = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
         InvokeCommand($"q add directory {key} \"C:\\\"");
 
-        var after = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        Assert.That(after, Has.Count.EqualTo(before.Count + 1));
+        Assert.That(after, Is.EqualTo(before + 1));
     }
 
     [Test]
     [TestCase("add_url_test")]
     public void AddUrlCommand_ShouldAddShortcut(string key)
     {
-        var before = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
         InvokeCommand($"q add url {key} \"https://www.google.com\"");
 
-        var after = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        Assert.That(after, Has.Count.EqualTo(before.Count + 1));
+        Assert.That(after, Is.EqualTo(before + 1));
     }
 
     [Test]
     [TestCase("add_file_test")]
     public void AddFileCommand_ShouldAddShortcut(string key)
     {
-        var before = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
         InvokeCommand($"q add file {key} \"C:\\test.txt\"");
 
-        var after = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        Assert.That(after, Has.Count.EqualTo(before.Count + 1));
+        Assert.That(after, Is.EqualTo(before + 1));
     }
 
     [Test]
@@ -80,13 +87,13 @@ public class ShortcutPluginTest
     [TestCase("add_shell_powershell_test", "powershell")]
     public void AddShellCommand_ShouldAddShortcut(string key, string type)
     {
-        var before = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
         InvokeCommand($"q add shell {type} {key} true \"cmd /c echo test\"");
 
-        var after = _shortcutsRepository.GetShortcuts(key) ?? new List<Shortcut>();
+        var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        Assert.That(after, Has.Count.EqualTo(before.Count + 1));
+        Assert.That(after, Is.EqualTo(before + 1));
     }
 
 
@@ -150,7 +157,8 @@ public class ShortcutPluginTest
     private void SetPluginDirectory(PluginMetadata pluginMetadata, string newDirectory)
     {
         var property =
-            typeof(PluginMetadata).GetProperty("PluginDirectory", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            typeof(PluginMetadata).GetProperty("PluginDirectory",
+                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
         if (property != null)
         {
             property.SetValue(pluginMetadata, newDirectory);
