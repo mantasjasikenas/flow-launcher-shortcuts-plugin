@@ -8,7 +8,7 @@
     xmlns:windowex="using:WinUIEx"
     MinWidth="500"
     MinHeight="500"
-    PersistenceId="MainWindow"
+    PersistenceId="ShortcutsMainWindow"
     mc:Ignorable="d">
     <Window.SystemBackdrop>
         <MicaBackdrop Kind="BaseAlt"/>

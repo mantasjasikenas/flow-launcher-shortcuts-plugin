@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.WinUI.UI.Controls;
-using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
-using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Microsoft.UI.Xaml.Controls;
 
@@ -54,7 +52,7 @@ public sealed partial class ShortcutsPage : Page
             return;
         }
 
-        ViewModel.OnShortcutClicked(shortcut);
+        ViewModel.NavigateToShortcutDetails(shortcut, false);
 
     }
 
@@ -63,6 +61,28 @@ public sealed partial class ShortcutsPage : Page
         if (sender is MenuFlyoutItem item && item.DataContext is ShortcutType type)
         {
             ViewModel.OnNewShortcutClicked(type);
+        }
+    }
+
+    private async void MenuFlyoutItem_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is not MenuFlyoutItem item)
+        {
+            return;
+        }
+
+        if (item.DataContext is not Shortcut shortcut)
+        {
+            return;
+        }
+
+        if (item.Text == "Edit")
+        {
+            ViewModel.NavigateToShortcutDetails(shortcut, true);
+        }
+        else if (item.Text == "Delete")
+        {
+            await ViewModel.DeleteShortcutAsync(shortcut);
         }
     }
 }

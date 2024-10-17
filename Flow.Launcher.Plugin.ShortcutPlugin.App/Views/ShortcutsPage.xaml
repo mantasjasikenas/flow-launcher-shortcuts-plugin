@@ -59,12 +59,28 @@
                                        Text="{x:Bind GetDerivedType()}"
                                        Style="{StaticResource ListSubTitleStyle}" />
 
-                            <FontIcon Grid.RowSpan="2"
-                                      Grid.Column="1"
-                                      FontSize="14"
-                                      Glyph="&#xe76c;">
+                            <Button Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent">
+                                <FontIcon Grid.RowSpan="2"
+                                          Grid.Column="1"
+                                          FontSize="16"
+                                          Glyph="&#xE712;" />
 
-                            </FontIcon>
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Edit"
+                                                        Icon="Edit"
+                                                        Click="MenuFlyoutItem_Click" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Delete"
+                                                        Icon="Delete"
+                                                        Click="MenuFlyoutItem_Click" />
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+
                         </Grid>
                     </ItemContainer>
 

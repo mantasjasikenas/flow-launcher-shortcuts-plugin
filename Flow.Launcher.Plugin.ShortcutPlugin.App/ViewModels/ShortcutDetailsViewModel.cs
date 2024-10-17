@@ -45,11 +45,7 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
 
         _shortcut = args.Shortcut;
         Mode = args.Mode;
-
-        if (Mode == ShortcutDetailsMode.New)
-        {
-            IsEditMode = true;
-        }
+        IsEditMode = args.IsEditEnabled;
 
         Shortcut = ((Shortcut)_shortcut.Clone()).ToObservableShortcut();
 
@@ -107,4 +103,4 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     }
 }
 
-public record ShorcutDetailsNavArgs(Shortcut Shortcut, ShortcutDetailsMode Mode);
+public record ShorcutDetailsNavArgs(Shortcut Shortcut, ShortcutDetailsMode Mode, bool IsEditEnabled);
