@@ -1,5 +1,6 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
@@ -82,7 +83,32 @@ public sealed partial class ShortcutsPage : Page
         }
         else if (item.Text == "Delete")
         {
-            await ViewModel.DeleteShortcutAsync(shortcut);
+            var dialog = DeleteConfirmationDialog();
+
+            dialog.PrimaryButtonClick += async (s, e) =>
+            {
+                await ViewModel.DeleteShortcutAsync(shortcut);
+            };
+
+            await dialog.ShowAsync();
         }
+    }
+
+    private ContentDialog DeleteConfirmationDialog()
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "Are you sure?",
+            Content = new TextBlock
+            {
+                Text = "Do you want to delete this shortcut?",
+                TextWrapping = TextWrapping.WrapWholeWords
+            },
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No",
+            XamlRoot = XamlRoot
+        };
+
+        return dialog;
     }
 }

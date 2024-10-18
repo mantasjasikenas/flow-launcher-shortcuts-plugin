@@ -1,25 +1,59 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
+﻿using System.Text;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 public class ShortcutsService : IShortcutsService
 {
-    private const string ShortcutsPath = "C:\\Users\\tutta\\AppData\\Roaming\\FlowLauncher\\Settings\\Plugins\\Flow.Launcher.Plugin.ShortcutPlugin\\Backups\\20240925185136957\\shortcuts.json";
+    private const string TestShortcutsPath = "C:\\Users\\tutta\\AppData\\Roaming\\FlowLauncher\\Settings\\Plugins\\Flow.Launcher.Plugin.ShortcutPlugin\\Backups\\20240925185136957\\shortcuts.json";
+
+    private readonly ILocalSettingsService _localSettingsService;
 
     private Dictionary<string, List<Shortcut>> _shortcuts = [];
 
 
-    public ShortcutsService()
+    public ShortcutsService(ILocalSettingsService localSettingsService)
     {
         Task.Run(RefreshShortcutsAsync);
+        _localSettingsService = localSettingsService;
     }
+
+    private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts()
+    {
+        var path = await GetShortcutsPath();
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return [];
+        }
+
+        return await ShortcutUtilities.ReadShortcuts(path);
+    }
+
+    private async Task SaveShortcuts(Dictionary<string, List<Shortcut>> shortcuts)
+    {
+        var path = await GetShortcutsPath();
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
+        ShortcutUtilities.SaveShortcuts(shortcuts, path);
+    }
+
+    private async Task<string> GetShortcutsPath()
+    {
+        return await _localSettingsService.ReadSettingAsync<string>("ShortcutsPath") ?? TestShortcutsPath;
+    }
+
 
     public async Task<IEnumerable<Shortcut>> GetShortcutsAsync()
     {
         if (_shortcuts.Count == 0)
         {
-            _shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+            _shortcuts = await ReadShortcuts();
         }
 
         return _shortcuts.Values
@@ -30,7 +64,7 @@ public class ShortcutsService : IShortcutsService
 
     public async Task RefreshShortcutsAsync()
     {
-        _shortcuts = await ShortcutUtilities.ReadShortcuts(ShortcutsPath);
+        _shortcuts = await ReadShortcuts();
     }
 
     public async Task SaveShortcutAsync(Shortcut shortcut)
@@ -45,7 +79,7 @@ public class ShortcutsService : IShortcutsService
 
         value.Add(shortcut);
 
-        ShortcutUtilities.SaveShortcuts(_shortcuts, ShortcutsPath);
+        await SaveShortcuts(_shortcuts);
     }
 
     public async Task DeleteShortcutAsync(Shortcut shortcut)
@@ -62,10 +96,9 @@ public class ShortcutsService : IShortcutsService
             }
         }
 
-        ShortcutUtilities.SaveShortcuts(_shortcuts, ShortcutsPath);
+        await SaveShortcuts(_shortcuts);
     }
 
-    // TODO: test properly because started working magicly
     public async Task UpdateShortcutAsync(Shortcut oldShortcut, Shortcut updatedShortcut)
     {
         var oldKey = oldShortcut.Key;
@@ -94,6 +127,6 @@ public class ShortcutsService : IShortcutsService
 
         newKeyShortcuts.Add(updatedShortcut);
 
-        ShortcutUtilities.SaveShortcuts(_shortcuts, ShortcutsPath);
+        await SaveShortcuts(_shortcuts);
     }
 }
