@@ -2,11 +2,12 @@
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
+using Constants = Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers.Constants;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 public class ShortcutsService : IShortcutsService
 {
-    private const string TestShortcutsPath = "C:\\Users\\tutta\\AppData\\Roaming\\FlowLauncher\\Settings\\Plugins\\Flow.Launcher.Plugin.ShortcutPlugin\\Backups\\20240925185136957\\shortcuts.json";
+    private const string TestShortcutsPath = """C:\Users\tutta\AppData\Roaming\FlowLauncher\Settings\Plugins\Flow.Launcher.Plugin.ShortcutPlugin\Backups\20240925185136957\shortcuts.json""";
 
     private readonly ILocalSettingsService _localSettingsService;
 
@@ -45,7 +46,7 @@ public class ShortcutsService : IShortcutsService
 
     private async Task<string> GetShortcutsPath()
     {
-        return await _localSettingsService.ReadSettingAsync<string>("ShortcutsPath") ?? TestShortcutsPath;
+        return await _localSettingsService.ReadSettingAsync<string>(Constants.ShortcutPathKey) ?? TestShortcutsPath;
     }
 
 

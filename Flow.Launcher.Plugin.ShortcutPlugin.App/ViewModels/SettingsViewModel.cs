@@ -2,16 +2,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 
-public partial class SettingsViewModel : ObservableRecipient
+public partial class SettingsViewModel : ObservableRecipient, INavigationAware
 {
     private readonly IThemeSelectorService _themeSelectorService;
-
+    private readonly ILocalSettingsService _localSettingsService;
+    private readonly IShortcutsService _shortcutsService;
     [ObservableProperty]
     private ElementTheme _currentTheme;
 
@@ -36,13 +38,61 @@ public partial class SettingsViewModel : ObservableRecipient
         }
     }
 
-    public SettingsViewModel(IThemeSelectorService themeSelectorService)
+    [ObservableProperty]
+    private string shortcutsPath = string.Empty;
+
+    [ObservableProperty]
+    private string variablesPath = string.Empty;
+
+    public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService, IShortcutsService shortcutsService)
     {
         _themeSelectorService = themeSelectorService;
+        _localSettingsService = localSettingsService;
+        _shortcutsService = shortcutsService;
         _currentTheme = _themeSelectorService.Theme;
         _versionDescription = GetVersionDescription();
 
         ThemeIndex = (int)_themeSelectorService.Theme;
+
+    }
+
+    public async Task OnNavigatedTo(object parameter)
+    {
+        var shortcutsPath = await _localSettingsService.ReadSettingAsync<string>(Constants.ShortcutPathKey);
+
+        if (!string.IsNullOrEmpty(shortcutsPath))
+        {
+            ShortcutsPath = shortcutsPath;
+        }
+
+        var variablesPath = await _localSettingsService.ReadSettingAsync<string>(Constants.VariablesPathKey);
+
+        if (!string.IsNullOrEmpty(variablesPath))
+        {
+            VariablesPath = variablesPath;
+        }
+    }
+    public Task OnNavigatedFrom()
+    {
+        return Task.CompletedTask;
+    }
+
+    public async Task SetShortcutsPath(string path)
+    {
+        ShortcutsPath = path;
+
+        await _localSettingsService.SaveSettingAsync(Constants.ShortcutPathKey, path);
+
+        await _shortcutsService.RefreshShortcutsAsync();
+    }
+
+    public async Task SetVariablesPath(string path)
+    {
+        VariablesPath = path;
+
+        await _localSettingsService.SaveSettingAsync(Constants.VariablesPathKey, path);
+
+        // TODO Refresh variables
     }
 
     [RelayCommand]

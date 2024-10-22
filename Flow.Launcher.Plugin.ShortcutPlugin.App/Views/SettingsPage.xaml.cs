@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Controls;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -28,5 +29,33 @@ public sealed partial class SettingsPage : Page
         catch (Exception)
         {
         }
+    }
+
+    private async void PickShortcutPathButton_Click(object sender, RoutedEventArgs e)
+    {
+        var filePicker = Pickers.CreateFilePicker([".json"]);
+
+        var file = await filePicker.PickSingleFileAsync();
+
+        if (file == null)
+        {
+            return;
+        }
+
+        await ViewModel.SetShortcutsPath(file.Path);
+    }
+
+    private async void PickVariablePathButton_Click(object sender, RoutedEventArgs e)
+    {
+        var filePicker = Pickers.CreateFilePicker([".json"]);
+
+        var file = await filePicker.PickSingleFileAsync();
+
+        if (file == null)
+        {
+            return;
+        }
+
+        await ViewModel.SetVariablesPath(file.Path);
     }
 }

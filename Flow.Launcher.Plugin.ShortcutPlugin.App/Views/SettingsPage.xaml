@@ -47,6 +47,41 @@
         </controls:SettingsCard>
 
         <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                   Text="Other" />
+
+        <controls:SettingsCard Header="Shortcuts path"
+                               Description="Location where shortcuts saved"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xec50;}">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8">
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                         IsReadOnly="True"
+                         Text="{x:Bind ViewModel.ShortcutsPath, Mode=TwoWay}"
+                         MaxWidth="400" />
+                <Button Click="PickShortcutPathButton_Click">
+                    <FontIcon FontSize="16"
+                              Glyph="&#xE712;" />
+                </Button>
+            </StackPanel>
+        </controls:SettingsCard>
+
+        <controls:SettingsCard Header="Variables path"
+                               Description="Location where variables saved"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xec50;}">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8">
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                         IsReadOnly="True"
+                         Text="{x:Bind ViewModel.VariablesPath, Mode=TwoWay}"
+                         MaxWidth="400" />
+                <Button Click="PickVariablePathButton_Click">
+                    <FontIcon FontSize="16"
+                              Glyph="&#xE712;" />
+                </Button>
+            </StackPanel>
+        </controls:SettingsCard>
+
+        <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                    Text="About" />
 
         <controls:SettingsCard  x:Uid="Settings_AboutDescription"

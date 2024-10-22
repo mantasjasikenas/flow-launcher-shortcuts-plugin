@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Controls;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
@@ -102,7 +103,7 @@ public sealed partial class ShortcutDetailsPage : Page
 
     private async void PickIconButton_Click(object sender, RoutedEventArgs e)
     {
-        var picker = CreateFilePicker(Constants.IconsExtensions);
+        var picker = Pickers.CreateFilePicker(Constants.IconsExtensions);
 
         var file = await picker.PickSingleFileAsync();
 
@@ -118,7 +119,7 @@ public sealed partial class ShortcutDetailsPage : Page
 
     private async void PickDirectoryButton_Click(object sender, RoutedEventArgs e)
     {
-        var picker = CreateFolderPicker();
+        var picker = Pickers.CreateFolderPicker();
 
         var directoru = await picker.PickSingleFolderAsync();
 
@@ -135,7 +136,7 @@ public sealed partial class ShortcutDetailsPage : Page
 
     private async void PickFileButton_Click(object sender, RoutedEventArgs e)
     {
-        var picker = CreateFilePicker();
+        var picker = Pickers.CreateFilePicker();
 
         var file = await picker.PickSingleFileAsync();
 
@@ -150,43 +151,5 @@ public sealed partial class ShortcutDetailsPage : Page
         }
     }
 
-    private FileOpenPicker CreateFilePicker(List<string>? fileTypeFilter = null)
-    {
-        var filePicker = new FileOpenPicker();
-
-        var window = App.MainWindow;
-
-        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        WinRT.Interop.InitializeWithWindow.Initialize(filePicker, hWnd);
-
-        filePicker.ViewMode = PickerViewMode.Thumbnail;
-
-        if (fileTypeFilter is null)
-        {
-            filePicker.FileTypeFilter.Add("*");
-        }
-        else
-        {
-            foreach (var filter in fileTypeFilter)
-            {
-                filePicker.FileTypeFilter.Add(filter);
-            }
-        }
-
-        return filePicker;
-    }
-
-    private FolderPicker CreateFolderPicker()
-    {
-        var folderPicker = new FolderPicker();
-
-        var window = App.MainWindow;
-
-        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
-
-        folderPicker.ViewMode = PickerViewMode.Thumbnail;
-
-        return folderPicker;
-    }
+    
 }
