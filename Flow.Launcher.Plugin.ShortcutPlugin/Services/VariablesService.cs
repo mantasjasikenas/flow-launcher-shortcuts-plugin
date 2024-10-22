@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;

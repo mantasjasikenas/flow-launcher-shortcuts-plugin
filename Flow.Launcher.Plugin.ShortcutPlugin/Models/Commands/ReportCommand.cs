@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
@@ -26,7 +27,7 @@ public class ReportCommand : ICommand
         return ResultExtensions.SingleResult(
             "Report an issue",
             "",
-            () => { ShortcutUtilities.OpenUrl(Constants.GithubIssues); }
+            () => { Helper.ShortcutUtilities.OpenUrl(Constants.GithubIssues); }
         );
     }
 }

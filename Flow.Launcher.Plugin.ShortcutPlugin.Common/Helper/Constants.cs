@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
+﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 
 public static class Constants
 {

@@ -45,9 +45,17 @@
                       x:DataType="shortcutModels:ObservableFileShortcut">
             <StackPanel>
                 <controls:SettingsCard Header="Path">
-                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                             IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Text="{x:Bind Path, Mode=TwoWay}" />
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="8">
+                        <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                 IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                 Text="{x:Bind Path, Mode=TwoWay}" />
+                        <Button Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Click="PickFileButton_Click">
+                            <FontIcon FontSize="16"
+                                      Glyph="&#xE712;" />
+                        </Button>
+                    </StackPanel>
                 </controls:SettingsCard>
 
                 <controls:SettingsCard Header="App">
@@ -63,10 +71,17 @@
 
             <StackPanel>
                 <controls:SettingsCard Header="Path">
-                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                             IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                             Text="{x:Bind Path, Mode=TwoWay}" />
-
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="8">
+                        <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                 IsReadOnly="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                                 Text="{x:Bind Path, Mode=TwoWay}" />
+                        <Button Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Click="PickDirectoryButton_Click">
+                            <FontIcon FontSize="16"
+                                      Glyph="&#xE712;" />
+                        </Button>
+                    </StackPanel>
                 </controls:SettingsCard>
 
             </StackPanel>
@@ -297,9 +312,18 @@
             </controls:SettingsExpander>
 
             <controls:SettingsCard Header="Icon">
-                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                         IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
-                         Text="{x:Bind ViewModel.Shortcut.Icon, Mode=TwoWay}" />
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8">
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                             IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                             Text="{x:Bind ViewModel.Shortcut.Icon, Mode=TwoWay}" />
+
+                    <Button Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Click="PickIconButton_Click">
+                        <FontIcon FontSize="16"
+                                  Glyph="&#xE712;" />
+                    </Button>
+                </StackPanel>
             </controls:SettingsCard>
 
             <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
