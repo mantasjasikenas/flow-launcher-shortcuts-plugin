@@ -33,6 +33,10 @@ public static class DependencyInjection
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
         services.AddSingleton<IIconProvider, IconProvider>();
         services.AddSingleton<SettingsViewModel, SettingsViewModel>();
+        services.AddSingleton<IPCManagerServer>(provider => new IPCManagerServer(
+            (message) => { context.API.ShowMsg(message); },
+            provider.GetService<IReloadable>()
+        ));
         services.AddScoped<ContextMenu>();
 
         return services;

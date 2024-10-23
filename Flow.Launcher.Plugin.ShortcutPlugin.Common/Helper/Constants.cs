@@ -27,4 +27,6 @@ public static class Constants
     [
         ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".ico"
     ];
+
+    public const string ShortcutsPluginPipeName = "ShortcutsPluginPipeName";
 }

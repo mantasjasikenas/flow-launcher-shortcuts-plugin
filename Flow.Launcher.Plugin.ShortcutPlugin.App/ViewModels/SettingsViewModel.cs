@@ -46,6 +46,14 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
     [ObservableProperty]
     private string variablesPath = string.Empty;
 
+    public bool IsDevMode =>
+#if DEBUG
+            true;
+#else
+            false;
+#endif
+
+
     public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService, IShortcutsService shortcutsService, IVariablesService variablesService)
     {
         _themeSelectorService = themeSelectorService;

@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;

@@ -1,4 +1,5 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Controls;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -57,5 +58,21 @@ public sealed partial class SettingsPage : Page
         }
 
         await ViewModel.SetVariablesPath(file.Path);
+    }
+
+    private void SumbitIPCMessageButton_Click(object sender, RoutedEventArgs e)
+    {
+        var client = App.GetService<IPCManagerClient>();
+
+        var text = LogTextBox.Text;
+
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+
+        client.SendMessageAsync(text, CancellationToken.None);
+
+        LogTextBox.Text = string.Empty;
     }
 }

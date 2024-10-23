@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -15,7 +18,10 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin;
 // ReSharper disable once UnusedType.Global
 public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMenu, IAsyncInitializable
 {
-    internal ServiceProvider ServiceProvider { get; private set; }
+    internal ServiceProvider ServiceProvider
+    {
+        get; private set;
+    }
 
     private ICommandsService _commandsService;
 
@@ -45,6 +51,9 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 
         _reloadable = ServiceProvider.GetService<IReloadable>();
         _pluginManager.SetReloadable(_reloadable);
+
+        var ipcManagerServer = ServiceProvider.GetService<IPCManagerServer>();
+        Task.Run(() => ipcManagerServer.StartListeningAsync(CancellationToken.None));
     }
 
     public List<Result> Query(Query query)

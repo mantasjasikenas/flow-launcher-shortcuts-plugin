@@ -5,11 +5,18 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:helpers="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers"
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+      xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
       xmlns:ui="using:CommunityToolkit.WinUI"
       xmlns:xaml="using:Microsoft.UI.Xaml"
+      xmlns:viewmodels="using:Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels"
+      d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel}"
       mc:Ignorable="d">
     <Page.Resources>
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted"
+                                              TrueValue="Collapsed"
+                                              FalseValue="Visible" />
 
         <!--  Spacing between cards  -->
         <x:Double x:Key="SettingsCardSpacing">4</x:Double>
@@ -47,7 +54,7 @@
         </controls:SettingsCard>
 
         <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                   Text="Other" />
+                   Text="Config" />
 
         <controls:SettingsCard Header="Shortcuts path"
                                Description="Location where shortcuts saved"
@@ -91,6 +98,24 @@
 
         </controls:SettingsCard>
 
-    </StackPanel>
+        <StackPanel Orientation="Vertical"
+                    Visibility="{x:Bind ViewModel.IsDevMode, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Spacing="8">
+            <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                       Text="Development mode" />
 
+            <controls:SettingsCard Header="IPC messages"
+                                   Description="Allow to send messages to Shortcut plugin"
+                                   HeaderIcon="{ui:FontIcon Glyph=&#xebe8;}">
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8">
+                    <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                             x:Name="LogTextBox"
+                             MaxWidth="400" />
+                    <Button Content="Sumbit"
+                            Click="SumbitIPCMessageButton_Click" />
+                </StackPanel>
+            </controls:SettingsCard>
+        </StackPanel>
+    </StackPanel>
 </Page>

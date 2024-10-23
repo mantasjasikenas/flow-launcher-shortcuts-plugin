@@ -1,6 +1,7 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Activation;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Core.Contracts.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Notifications;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
@@ -65,6 +66,8 @@ public partial class App : Application
         services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
         services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
         services.AddTransient<INavigationViewService, NavigationViewService>();
+
+        services.AddTransient<IPCManagerClient>();
 
         services.AddSingleton<IActivationService, ActivationService>();
         services.AddSingleton<IPageService, PageService>();
