@@ -47,7 +47,7 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
 
     public void NavigateToShortcutDetails(Shortcut shortcut, bool isEditEnabled)
     {
-        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, ShortcutDetailsMode.Edit, isEditEnabled));
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, DetailsPageMode.Edit, isEditEnabled));
     }
 
     public async Task DeleteShortcutAsync(Shortcut shortcut)
@@ -68,7 +68,7 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
             _ => throw new NotImplementedException()
         };
 
-        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, ShortcutDetailsMode.New, true));
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, DetailsPageMode.New, true));
     }
 
     public async Task OnNavigatedTo(object parameter)

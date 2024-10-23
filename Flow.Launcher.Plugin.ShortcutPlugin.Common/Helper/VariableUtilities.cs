@@ -14,7 +14,7 @@ public static class VariableUtilities
     {
         if (!File.Exists(path))
         {
-            return new Dictionary<string, Variable>();
+            return [];
         }
 
         try
@@ -26,7 +26,7 @@ public static class VariableUtilities
         }
         catch (Exception)
         {
-            return new Dictionary<string, Variable>();
+            return [];
         }
     }
 

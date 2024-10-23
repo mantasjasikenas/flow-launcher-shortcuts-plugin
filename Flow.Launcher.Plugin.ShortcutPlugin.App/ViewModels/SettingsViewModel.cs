@@ -14,6 +14,8 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
     private readonly IThemeSelectorService _themeSelectorService;
     private readonly ILocalSettingsService _localSettingsService;
     private readonly IShortcutsService _shortcutsService;
+    private readonly IVariablesService _variablesService;
+
     [ObservableProperty]
     private ElementTheme _currentTheme;
 
@@ -44,16 +46,17 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
     [ObservableProperty]
     private string variablesPath = string.Empty;
 
-    public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService, IShortcutsService shortcutsService)
+    public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService, IShortcutsService shortcutsService, IVariablesService variablesService)
     {
         _themeSelectorService = themeSelectorService;
         _localSettingsService = localSettingsService;
         _shortcutsService = shortcutsService;
-        _currentTheme = _themeSelectorService.Theme;
+        _variablesService = variablesService;
+
         _versionDescription = GetVersionDescription();
 
+        _currentTheme = _themeSelectorService.Theme;
         ThemeIndex = (int)_themeSelectorService.Theme;
-
     }
 
     public async Task OnNavigatedTo(object parameter)
@@ -92,7 +95,7 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
 
         await _localSettingsService.SaveSettingAsync(Constants.VariablesPathKey, path);
 
-        // TODO Refresh variables
+        await _variablesService.RefreshVariablesAsync();
     }
 
     [RelayCommand]

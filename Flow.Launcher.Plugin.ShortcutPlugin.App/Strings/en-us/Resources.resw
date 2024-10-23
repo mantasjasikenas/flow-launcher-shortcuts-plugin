@@ -185,4 +185,7 @@
   <data name="Settings_AboutDescription.Header" xml:space="preserve">
     <value>Shortcuts</value>
   </data>
+  <data name="Shell_Variables" xml:space="preserve">
+    <value>Variables</value>
+  </data>
 </root>

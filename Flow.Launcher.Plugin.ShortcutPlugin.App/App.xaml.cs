@@ -6,7 +6,6 @@ using Flow.Launcher.Plugin.ShortcutPlugin.App.Notifications;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
@@ -73,6 +72,7 @@ public partial class App : Application
 
         // Core Services
         services.AddSingleton<IShortcutsService, ShortcutsService>();
+        services.AddSingleton<IVariablesService, VariablesService>();
         services.AddSingleton<IFileService, FileService>();
 
         // Views and ViewModels
@@ -85,6 +85,8 @@ public partial class App : Application
         services.AddTransient<ShellPage>();
         services.AddTransient<ShellViewModel>();
         services.AddTransient<ShortcutDetailsViewModel>();
+        services.AddTransient<VariableDetailsViewModel>();
+        services.AddTransient<VariablesViewModel>();
 
         // Configuration
         services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));

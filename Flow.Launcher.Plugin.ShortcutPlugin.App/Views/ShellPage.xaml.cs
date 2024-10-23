@@ -35,27 +35,24 @@ public sealed partial class ShellPage : Page
 
         SetupNavigationMenu();
     }
-
     private void SetupNavigationMenu()
     {
-        var home = new NavigationViewItem
+        AddNavigationMenuItem("Shell_Main", Symbol.Home, typeof(HomePage), typeof(HomeViewModel));
+        AddNavigationMenuItem("Shell_Shortcuts", Symbol.AllApps, typeof(ShortcutsPage), typeof(ShortcutsViewModel));
+        AddNavigationMenuItem("Shell_Variables", Symbol.Library, typeof(VariablesPage), typeof(VariablesViewModel));
+    }
+
+    private void AddNavigationMenuItem(string resourceKey, Symbol icon, Type pageType, Type viewModelType)
+    {
+        var item = new NavigationViewItem
         {
-            Content = "Shell_Main".GetLocalized(),
-            Icon = new SymbolIcon(Symbol.Home),
-            Tag = typeof(HomePage)
-        };
-        var shortcuts = new NavigationViewItem
-        {
-            Content = "Shell_Shortcuts".GetLocalized(),
-            Icon = new SymbolIcon(Symbol.AllApps),
-            Tag = typeof(ShortcutsPage),
+            Content = resourceKey.GetLocalized(),
+            Icon = new SymbolIcon(icon),
+            Tag = pageType
         };
 
-        NavigationHelper.SetNavigateTo(home, typeof(HomeViewModel).FullName);
-        NavigationHelper.SetNavigateTo(shortcuts, typeof(ShortcutsViewModel).FullName);
-
-        NavigationViewControl.MenuItems.Add(home);
-        NavigationViewControl.MenuItems.Add(shortcuts);
+        NavigationHelper.SetNavigateTo(item, viewModelType.FullName);
+        NavigationViewControl.MenuItems.Add(item);
     }
 
     private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

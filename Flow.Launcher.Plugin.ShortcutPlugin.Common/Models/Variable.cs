@@ -2,7 +2,7 @@
 
 public record Variable
 {
-    public string Name { get; init; }
+    public string Name { get; set; }
 
-    public string Value { get; init; }
+    public string Value { get; set; } 
 }

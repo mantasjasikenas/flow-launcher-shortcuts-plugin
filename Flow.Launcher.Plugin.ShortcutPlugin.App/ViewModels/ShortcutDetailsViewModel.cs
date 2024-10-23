@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.IO.Pipes;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.ViewModels;
@@ -24,7 +25,7 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     [ObservableProperty]
     private ObservableShortcut shortcut;
 
-    public ShortcutDetailsMode Mode
+    public DetailsPageMode Mode
     {
         get; private set;
     }
@@ -76,12 +77,12 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
             return;
         }
 
-        if (Mode == ShortcutDetailsMode.New)
+        if (Mode == DetailsPageMode.New)
         {
             await _shortcutsService.SaveShortcutAsync(Shortcut.ToShortcut());
             NavigateBack();
         }
-        else if (Mode == ShortcutDetailsMode.Edit)
+        else if (Mode == DetailsPageMode.Edit)
         {
             IsEditMode = false;
             await _shortcutsService.UpdateShortcutAsync(_shortcut, Shortcut.ToShortcut());
@@ -91,11 +92,11 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     [RelayCommand]
     private void DiscardButton()
     {
-        if (Mode == ShortcutDetailsMode.New)
+        if (Mode == DetailsPageMode.New)
         {
             NavigateBack();
         }
-        else if (Mode == ShortcutDetailsMode.Edit)
+        else if (Mode == DetailsPageMode.Edit)
         {
             Shortcut = ((Shortcut)_shortcut.Clone()).ToObservableShortcut();
             IsEditMode = false;
@@ -103,4 +104,4 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
     }
 }
 
-public record ShorcutDetailsNavArgs(Shortcut Shortcut, ShortcutDetailsMode Mode, bool IsEditEnabled);
+public record ShorcutDetailsNavArgs(Shortcut Shortcut, DetailsPageMode Mode, bool IsEditEnabled);

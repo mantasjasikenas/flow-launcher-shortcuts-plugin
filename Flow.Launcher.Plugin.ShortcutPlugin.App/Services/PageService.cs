@@ -3,7 +3,6 @@
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
-
 using Microsoft.UI.Xaml.Controls;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
@@ -16,8 +15,10 @@ public class PageService : IPageService
     {
         Configure<HomeViewModel, HomePage>();
         Configure<ShortcutsViewModel, ShortcutsPage>();
+        Configure<VariablesViewModel, VariablesPage>();
         Configure<SettingsViewModel, SettingsPage>();
         Configure<ShortcutDetailsViewModel, ShortcutDetailsPage>();
+        Configure<VariableDetailsViewModel, VariableDetailsPage>();
     }
 
     public Type GetPageType(string key)

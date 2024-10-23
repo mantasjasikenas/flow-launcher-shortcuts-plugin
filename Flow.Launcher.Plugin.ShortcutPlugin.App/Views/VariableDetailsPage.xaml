@@ -1,0 +1,129 @@
+﻿<Page x:Class="Flow.Launcher.Plugin.ShortcutPlugin.App.Views.VariableDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+      xmlns:mvvmControls="using:CommunityToolkit.Mvvm.Input"
+      xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:helpers="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:shortcutModels="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts"
+      xmlns:models="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Models"
+      xmlns:commonModels="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:viewmodels="using:Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels"
+      xmlns:localControls="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Controls"
+      x:Name="thePage"
+      d:DataContext="{d:DesignInstance Type=viewmodels:VariableDetailsViewModel}"
+      mc:Ignorable="d">
+
+    <Page.Resources>
+        <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted"
+                                              TrueValue="Collapsed"
+                                              FalseValue="Visible" />
+        <helpers:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+
+        <x:Double x:Key="SettingsCardSpacing">4</x:Double>
+
+        <Style x:Key="SettingsSectionHeaderTextBlockStyle"
+               BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+               TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="Margin"
+                        Value="1,30,0,6" />
+            </Style.Setters>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer HorizontalAlignment="Stretch"
+                  VerticalScrollMode="Enabled">
+
+        <StackPanel x:Name="ContentArea"
+                    HorizontalAlignment="Stretch">
+
+            <CommandBar HorizontalAlignment="Left"
+                        Background="Transparent"
+                        DefaultLabelPosition="Right"
+                        IsOpen="False">
+                <AppBarButton Click="EditButton_Click"
+                              Icon="Edit"
+                              Label="Edit mode"
+                              Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterInverted}}" />
+
+                <!--Following buttons are only visible in edit mode-->
+                <AppBarButton Command="{x:Bind ViewModel.SaveButtonCommand}"
+                              Icon="Save"
+                              Label="Save"
+                              Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <AppBarButton Command="{x:Bind ViewModel.DiscardButtonCommand}"
+                              Icon="Delete"
+                              Label="Discard"
+                              Visibility="{Binding ViewModel.IsEditMode, ElementName=thePage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            </CommandBar>
+
+            <!--  Validation Popups  -->
+            <Grid>
+                <InfoBar x:Name="SuccessInfoBar"
+                         Title="Success"
+                         Message="The form was filled in correctly."
+                         Severity="Success">
+                    <interactivity:Interaction.Behaviors>
+                        <interactions:EventTriggerBehavior EventName="FormSubmissionCompleted"
+                                                           SourceObject="{x:Bind ViewModel.Variable}">
+                            <interactions:ChangePropertyAction PropertyName="IsOpen"
+                                                               TargetObject="{x:Bind SuccessInfoBar}"
+                                                               Value="True" />
+                            <interactions:ChangePropertyAction PropertyName="IsOpen"
+                                                               TargetObject="{x:Bind FailureInfoBar}"
+                                                               Value="False" />
+                        </interactions:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </InfoBar>
+                <InfoBar x:Name="FailureInfoBar"
+                         Title="Error"
+                         Message="The form was filled in with some errors."
+                         Severity="Error">
+                    <InfoBar.ActionButton>
+                        <Button Click="ShowErrorButton_Click"
+                                Content="Show errors" />
+                    </InfoBar.ActionButton>
+                    <interactivity:Interaction.Behaviors>
+                        <interactions:EventTriggerBehavior EventName="FormSubmissionFailed"
+                                                           SourceObject="{x:Bind ViewModel.Variable}">
+                            <interactions:ChangePropertyAction PropertyName="IsOpen"
+                                                               TargetObject="{x:Bind SuccessInfoBar}"
+                                                               Value="False" />
+                            <interactions:ChangePropertyAction PropertyName="IsOpen"
+                                                               TargetObject="{x:Bind FailureInfoBar}"
+                                                               Value="True" />
+                        </interactions:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </InfoBar>
+            </Grid>
+
+            <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                       Text="Variable details" />
+
+            <controls:SettingsCard Description="This is variable name"
+                                   Header="Name"
+                                   IsEnabled="True">
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                         IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                         Text="{x:Bind ViewModel.Variable.Name, Mode=TwoWay}" />
+            </controls:SettingsCard>
+
+            <controls:SettingsCard Description="This is variable value"
+                                   Header="Value"
+                                   IsEnabled="True">
+                <TextBox Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                         IsReadOnly="{x:Bind ViewModel.IsEditMode, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"
+                         Text="{x:Bind ViewModel.Variable.Value, Mode=TwoWay}" />
+            </controls:SettingsCard>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
