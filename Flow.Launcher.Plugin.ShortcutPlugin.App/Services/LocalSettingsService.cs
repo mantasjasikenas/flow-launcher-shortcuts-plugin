@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
+﻿using System.Text.Json;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Core.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
@@ -53,7 +54,7 @@ public class LocalSettingsService : ILocalSettingsService
         {
             if (ApplicationData.Current.LocalSettings.Values.TryGetValue(key, out var obj))
             {
-                return await Json.ToObjectAsync<T>((string)obj);
+                return await Json.DeserializeAsync<T>((string)obj);
             }
         }
         else
@@ -62,7 +63,13 @@ public class LocalSettingsService : ILocalSettingsService
 
             if (_settings != null && _settings.TryGetValue(key, out var obj))
             {
-                return await Json.ToObjectAsync<T>((string)obj);
+                // Required check because deserializing to IDictionary<string, object> will return a JsonElement
+                if (obj is JsonElement jsonElement)
+                {
+                    return await Json.DeserializeAsync<T>(jsonElement.GetString());
+                }
+
+                return await Json.DeserializeAsync<T>((string)obj);
             }
         }
 
@@ -73,13 +80,13 @@ public class LocalSettingsService : ILocalSettingsService
     {
         if (RuntimeHelper.IsMSIX)
         {
-            ApplicationData.Current.LocalSettings.Values[key] = await Json.StringifyAsync(value);
+            ApplicationData.Current.LocalSettings.Values[key] = await Json.SerializeAsync(value);
         }
         else
         {
             await InitializeAsync();
 
-            _settings[key] = await Json.StringifyAsync(value);
+            _settings[key] = await Json.SerializeAsync(value);
 
             await Task.Run(() => _fileService.Save(_applicationDataFolder, _localsettingsFile, _settings));
         }

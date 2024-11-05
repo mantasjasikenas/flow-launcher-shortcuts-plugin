@@ -48,7 +48,7 @@ public class ThemeSelectorService : IThemeSelectorService
     {
         var themeName = await _localSettingsService.ReadSettingAsync<string>(SettingsKey);
 
-        if (Enum.TryParse(themeName, out ElementTheme cacheTheme))
+        if (themeName is not null && Enum.TryParse(themeName, out ElementTheme cacheTheme))
         {
             return cacheTheme;
         }

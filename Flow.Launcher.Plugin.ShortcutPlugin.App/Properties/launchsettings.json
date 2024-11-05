@@ -1,10 +1,10 @@
 ﻿{
     "profiles": {
-      "Flow.Launcher.Plugin.ShortcutPlugin.App (Package)": {
-        "commandName": "MsixPackage"
-      },
-      "Flow.Launcher.Plugin.ShortcutPlugin.App (Unpackaged)": {
+      "ShortcutPluginApp (Unpackaged)": {
         "commandName": "Project"
+      },
+      "ShortcutPluginApp (Packaged)": {
+        "commandName": "MsixPackage"
       }
     }
 }

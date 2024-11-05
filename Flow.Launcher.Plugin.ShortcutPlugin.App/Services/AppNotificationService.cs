@@ -26,7 +26,8 @@ public class AppNotificationService : IAppNotificationService
     {
         AppNotificationManager.Default.NotificationInvoked += OnNotificationInvoked;
 
-        AppNotificationManager.Default.Register();
+        // FIXME: throws sometimes exception
+         AppNotificationManager.Default.Register();
     }
 
     public void OnNotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)

@@ -4,7 +4,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 
 public static class Json
 {
-    public static async Task<T> ToObjectAsync<T>(string value)
+    public static async Task<T> DeserializeAsync<T>(string value)
     {
         return await Task.Run<T>(() =>
         {
@@ -12,7 +12,7 @@ public static class Json
         });
     }
 
-    public static async Task<string> StringifyAsync(object value)
+    public static async Task<string> SerializeAsync(object value)
     {
         return await Task.Run<string>(() =>
         {
