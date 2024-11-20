@@ -1,5 +1,6 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using Windows.UI.ViewManagement;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App;

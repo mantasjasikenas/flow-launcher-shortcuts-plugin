@@ -1,4 +1,5 @@
-﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Activation;
+﻿using System.Text.RegularExpressions;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Activation;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Core.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
@@ -9,7 +10,9 @@ using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App;
 
@@ -51,6 +54,16 @@ public partial class App : Application
         App.GetService<IAppNotificationService>().Initialize();
 
         UnhandledException += App_UnhandledException;
+    }
+
+    public async Task ShowMainWindowFromRedirectAsync(AppActivationArguments rawArgs)
+    {
+        while (MainWindow is null)
+        {
+            await Task.Delay(100);
+        }
+
+        MainWindow.DispatcherQueue.TryEnqueue(MainWindow.Activate);
     }
 
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
