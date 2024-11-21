@@ -1,6 +1,5 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Windows.UI.ViewManagement;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App;
@@ -15,11 +14,10 @@ public sealed partial class MainWindow : WindowEx
     {
         InitializeComponent();
 
-        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/icon.png"));
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/WindowIcon.ico"));
         Content = null;
         Title = "AppDisplayName".GetLocalized();
 
-        // Theme change code picked from https://github.com/microsoft/WinUI-Gallery/pull/1239
         _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         _settings = new UISettings();
         _settings.ColorValuesChanged += Settings_ColorValuesChanged; // cannot use FrameworkElement.ActualThemeChanged event
