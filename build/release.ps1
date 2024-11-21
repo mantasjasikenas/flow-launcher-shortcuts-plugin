@@ -2,17 +2,22 @@ param (
     [string]$userProfileDir = $env:USERPROFILE,
     [bool]$copyToDesktop = $false,
     [string]$pluginName = "Shortcuts",
-    [string]$configuration = "Release"
+    [string]$configuration = "Release",
+    [bool]$includeDesktopApp = $false
 )
 
 # Load functions
 . "$PSScriptRoot\utils.ps1"
 
+# Define projects
+$shortcutPlugin = "Flow.Launcher.Plugin.ShortcutPlugin"
+$shortcutApp = "Flow.Launcher.Plugin.ShortcutPlugin.App"
+
 # Define variables
 $parentDirectory = Split-Path -Path $PSScriptRoot -Parent
 $pluginsDirectory = Join-Path -Path $userProfileDir -ChildPath "AppData\Roaming\FlowLauncher\Plugins"
-$pluginJson = Join-Path -Path $parentDirectory -ChildPath "Flow.Launcher.Plugin.ShortcutPlugin\plugin.json"
-$publishDest = Join-Path -Path $parentDirectory -ChildPath "Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish"
+$pluginJson = Join-Path -Path $parentDirectory -ChildPath "$shortcutPlugin\plugin.json"
+$publishDest = Join-Path -Path $parentDirectory -ChildPath "$shortcutPlugin\bin\Release\win-x64\publish"
 $version = Get-PropertyFromJson -jsonFilePath $pluginJson -propertyName "Version"
 $pluginDest = Join-Path -Path $pluginsDirectory -ChildPath "$pluginName-$version"
 $desktopDest = Join-Path -Path $userProfileDir -ChildPath "Desktop\$pluginName-$version"
@@ -35,28 +40,23 @@ Print-Normal "Cleaning up directories..."
 Remove-Directory -Path $publishDest
 Remove-Directory -Path $desktopDest
 $directoriesToRemove = Get-ChildItem -Path $pluginsDirectory -Directory | Where-Object { $_.Name -like "$pluginName-*" }
-foreach ($directory in $directoriesToRemove)
-{
+foreach ($directory in $directoriesToRemove) {
     Remove-Item -Path $directory.FullName -Force -Recurse
 }
 
 
 # Publish plugin
-if ($configuration -eq "Debug")
-{
-    Print-Normal "Building and publishing plugin in Debug mode..."
-    $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Debug -r win-x64 --no-self-contained -o $publishDest
-}
-else
-{
-    Print-Normal "Building and publishing plugin in Release mode..."
-    $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Release -r win-x64 --no-self-contained -o $publishDest
+Print-Normal "Building and publishing plugin in $configuration mode..."
+dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -o $publishDest
+
+if ($includeDesktopApp) {
+    Print-Normal "Building WinUI app..."
+    dotnet publish $shortcutApp -c $configuration -r win-x64 -o $publishDest\App /p:Platform=x64
 }
 
 $publish_result = $LASTEXITCODE
 
-if ($publish_result -ne 0)
-{
+if ($publish_result -ne 0) {
     Print-Error "Publish failed with exit code $publish_result"
     exit $publish_result
 }
@@ -72,8 +72,7 @@ Start-Process (Join-Path -Path $userProfileDir -ChildPath "AppData\Local\FlowLau
 
 
 # Process publish to desktop
-if ($copyToDesktop)
-{
+if ($copyToDesktop) {
     Print-Normal "Copying plugin to desktop..."
     Copy-Item -Path $publishDest -Destination $desktopDest -Force -Recurse
     Compress-Archive -Path $desktopDest -DestinationPath "$desktopDest.zip" -Force

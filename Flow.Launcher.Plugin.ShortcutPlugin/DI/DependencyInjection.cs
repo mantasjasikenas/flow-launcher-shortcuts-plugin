@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddSingleton<ICommand, ListCommand>();
         services.AddSingleton<ICommand, ReloadCommand>();
         services.AddSingleton<ICommand, SettingsCommand>();
+        services.AddSingleton<ICommand, EditorCommand>();
         services.AddSingleton<ICommand, ConfigCommand>();
         services.AddSingleton<ICommand, ImportCommand>();
         services.AddSingleton<ICommand, ExportCommand>();
