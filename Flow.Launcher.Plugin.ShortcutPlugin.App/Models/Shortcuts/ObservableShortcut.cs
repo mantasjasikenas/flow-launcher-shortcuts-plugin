@@ -50,7 +50,10 @@ public abstract partial class ObservableShortcut : ObservableValidator
     }
 
     [ObservableProperty]
-    private string errors;
+    public partial string Errors
+    {
+        get; set;
+    }
 
     public bool Validate()
     {

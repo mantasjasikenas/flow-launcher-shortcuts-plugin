@@ -17,11 +17,18 @@ public partial class VariablesViewModel : ObservableRecipient, INavigationAware
 
     private IEnumerable<Variable> Variables = [];
 
-    [ObservableProperty]
-    private string foundVariablesTitle;
 
     [ObservableProperty]
-    private string lastUpdated;
+    public partial string FoundVariablesTitle
+    {
+        get; set;
+    }
+
+    [ObservableProperty]
+    public partial string LastUpdated
+    {
+        get; set;
+    }
 
     public AutoSuggestBox AutoSuggestBox
     {

@@ -3,10 +3,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Core.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
-
 using Microsoft.Extensions.Options;
-
-using Windows.ApplicationModel;
 using Windows.Storage;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;

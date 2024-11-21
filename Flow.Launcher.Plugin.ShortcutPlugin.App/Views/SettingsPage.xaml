@@ -65,10 +65,10 @@
                          IsReadOnly="True"
                          Text="{x:Bind ViewModel.ShortcutsPath, Mode=TwoWay}"
                          MaxWidth="400" />
-                <Button Click="PickShortcutPathButton_Click">
+                <!--<Button Click="PickShortcutPathButton_Click">
                     <FontIcon FontSize="16"
                               Glyph="&#xE712;" />
-                </Button>
+                </Button>-->
             </StackPanel>
         </controls:SettingsCard>
 
@@ -81,10 +81,10 @@
                          IsReadOnly="True"
                          Text="{x:Bind ViewModel.VariablesPath, Mode=TwoWay}"
                          MaxWidth="400" />
-                <Button Click="PickVariablePathButton_Click">
+                <!--<Button Click="PickVariablePathButton_Click">
                     <FontIcon FontSize="16"
                               Glyph="&#xE712;" />
-                </Button>
+                </Button>-->
             </StackPanel>
         </controls:SettingsCard>
 

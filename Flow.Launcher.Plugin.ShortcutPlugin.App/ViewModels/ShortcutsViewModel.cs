@@ -17,11 +17,19 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
 
     private IEnumerable<Shortcut> Shortcuts = [];
 
-    [ObservableProperty]
-    private string foundShortcutsTitle;
 
     [ObservableProperty]
-    private string lastUpdated;
+    public partial string FoundShortcutsTitle
+    {
+        get; set;
+    }
+
+    [ObservableProperty]
+    public partial string LastUpdated
+    {
+        get; set;
+    }
+
 
     public AutoSuggestBox AutoSuggestBox
     {

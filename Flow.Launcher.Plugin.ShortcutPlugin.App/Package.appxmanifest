@@ -18,9 +18,9 @@
   <mp:PhoneIdentity PhoneProductId="b4cc2b2e-70c3-44f4-9640-47870b9b96e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
     
   <Properties>
-    <DisplayName>Flow.Launcher.Plugin.ShortcutPlugin.App</DisplayName>
-    <PublisherDisplayName>tutta</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <DisplayName>Shortcuts</DisplayName>
+    <PublisherDisplayName>Mantelis</PublisherDisplayName>
+    <Logo>Assets\Square44x44Logo.altform-lightunplated_targetsize-256.png</Logo>
   </Properties>
 
   <Dependencies>

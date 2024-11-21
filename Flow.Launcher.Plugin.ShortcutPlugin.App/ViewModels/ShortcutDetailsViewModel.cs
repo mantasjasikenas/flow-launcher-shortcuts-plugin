@@ -7,7 +7,6 @@ using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
-using Microsoft.UI.Xaml;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 
@@ -20,10 +19,16 @@ public partial class ShortcutDetailsViewModel : ObservableRecipient, INavigation
 
 
     [ObservableProperty]
-    private bool isEditMode;
+    public partial bool IsEditMode
+    {
+        get; set;
+    }
 
     [ObservableProperty]
-    private ObservableShortcut shortcut;
+    public partial ObservableShortcut Shortcut
+    {
+        get; set;
+    }
 
     public DetailsPageMode Mode
     {

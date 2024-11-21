@@ -36,4 +36,25 @@ public static class VariableUtilities
 
         File.WriteAllText(variablesPath, json);
     }
+
+    public static string GetVariablesPath(string shortcutsPluginPath)
+    {
+        var settingsPath = SettingsUtilities.GetSettingsFilePath(shortcutsPluginPath);
+
+        if (string.IsNullOrEmpty(settingsPath))
+        {
+            return string.Empty;
+        }
+
+        var settings = SettingsUtilities.ReadSettings(settingsPath);
+
+        if (settings is not null && !string.IsNullOrEmpty(settings.VariablesPath))
+        {
+            return settings.VariablesPath;
+        }
+
+        var defaultSettings = SettingsUtilities.GetDefaultSettings(shortcutsPluginPath);
+
+        return defaultSettings.VariablesPath;
+    }
 }

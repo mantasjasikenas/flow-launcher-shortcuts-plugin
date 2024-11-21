@@ -1,23 +1,20 @@
 ﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
-using Constants = Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers.Constants;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 
 public class VariablesService : IVariablesService
 {
-    private const string TestVariablesPath = """C:\Users\tutta\AppData\Roaming\FlowLauncher\Settings\Plugins\Flow.Launcher.Plugin.VariablePlugin\Backups\20240925185136957\variables.json""";
-
-    private readonly ILocalSettingsService _localSettingsService;
-
     private Dictionary<string, Variable> _variables = [];
 
+    private readonly IPCManagerClient _iPCManagerClient;
 
-    public VariablesService(ILocalSettingsService localSettingsService)
+    public VariablesService(IPCManagerClient iPCManagerClient)
     {
         Task.Run(RefreshVariablesAsync);
-        _localSettingsService = localSettingsService;
+        _iPCManagerClient = iPCManagerClient;
     }
 
     private async Task<Dictionary<string, Variable>> ReadVariables()
@@ -42,13 +39,16 @@ public class VariablesService : IVariablesService
         }
 
         VariableUtilities.SaveVariables([.. variables.Values], path);
+        _ = _iPCManagerClient.SendMessageAsync(IPCCommand.ReloadPluginData.ToString(), CancellationToken.None);
     }
 
     private async Task<string> GetVariablesPath()
     {
-        return await _localSettingsService.ReadSettingAsync<string>(Constants.VariablesPathKey) ?? TestVariablesPath;
-    }
+        var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        var shortcutsPluginPath = Directory.GetParent(appDirectory)?.Parent?.FullName;
 
+        return VariableUtilities.GetVariablesPath(shortcutsPluginPath);
+    }
 
     public async Task<IEnumerable<Variable>> GetVariablesAsync()
     {

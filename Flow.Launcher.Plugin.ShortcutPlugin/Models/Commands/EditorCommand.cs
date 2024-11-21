@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using CliWrap;
+using System.Windows.Shapes;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
@@ -36,7 +38,7 @@ public class EditorCommand : ICommand
     {
         var pluginDirectory = _pluginManager.Metadata.PluginDirectory;
 
-        var editorPath = Path.Combine(pluginDirectory, "App/Shortcuts.exe");
+        var editorPath = System.IO.Path.Combine(pluginDirectory, "App/Shortcuts.exe");
 
         if (!File.Exists(editorPath))
         {
@@ -47,7 +49,10 @@ public class EditorCommand : ICommand
         {
             if (File.Exists(editorPath))
             {
-                Process.Start(editorPath);
+                Cli
+                .Wrap(editorPath)
+                .WithWorkingDirectory(pluginDirectory)
+                .ExecuteAsync();
             }
         });
     }

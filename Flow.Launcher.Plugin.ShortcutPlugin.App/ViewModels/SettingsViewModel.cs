@@ -4,8 +4,11 @@ using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel;
+using CommonConstants = Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper.Constants;
+using Constants = Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers.Constants;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 
@@ -17,10 +20,16 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
     private readonly IVariablesService _variablesService;
 
     [ObservableProperty]
-    private ElementTheme _currentTheme;
+    public partial ElementTheme CurrentTheme
+    {
+        get; set;
+    }
 
     [ObservableProperty]
-    private string _versionDescription;
+    public partial string VersionDescription
+    {
+        get; set;
+    }
 
     private int _themeIndex;
 
@@ -41,10 +50,17 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
     }
 
     [ObservableProperty]
-    private string shortcutsPath = string.Empty;
+    public partial string ShortcutsPath
+    {
+        get; set;
+    } = string.Empty;
 
     [ObservableProperty]
-    private string variablesPath = string.Empty;
+    public partial string VariablesPath
+    {
+        get; set;
+    } = string.Empty;
+
 
     public bool IsDevMode =>
 #if DEBUG
@@ -61,22 +77,23 @@ public partial class SettingsViewModel : ObservableRecipient, INavigationAware
         _shortcutsService = shortcutsService;
         _variablesService = variablesService;
 
-        _versionDescription = GetVersionDescription();
+        VersionDescription = GetVersionDescription();
 
-        _currentTheme = _themeSelectorService.Theme;
+        CurrentTheme = _themeSelectorService.Theme;
         ThemeIndex = (int)_themeSelectorService.Theme;
     }
 
     public async Task OnNavigatedTo(object parameter)
     {
-        var shortcutsPath = await _localSettingsService.ReadSettingAsync<string>(Constants.ShortcutPathKey);
+        var pluginDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory)?.Parent?.FullName;
+        var shortcutsPath = ShortcutUtilities.GetShortcutsPath(pluginDirectory);
 
         if (!string.IsNullOrEmpty(shortcutsPath))
         {
             ShortcutsPath = shortcutsPath;
         }
 
-        var variablesPath = await _localSettingsService.ReadSettingAsync<string>(Constants.VariablesPathKey);
+        var variablesPath = VariableUtilities.GetVariablesPath(pluginDirectory);
 
         if (!string.IsNullOrEmpty(variablesPath))
         {

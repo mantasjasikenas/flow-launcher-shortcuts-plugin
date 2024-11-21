@@ -97,7 +97,7 @@ public class VariablesService : IVariablesService
                             ResultExtensions.Result(
                                 $"Remove variable {variable.Name}",
                                 $"Value: {variable.Value}",
-                                () => { _variablesRepository.RemoveVariable(name); }
+                                () => { _variablesRepository.RemoveVariable(variable.Name); }
                             )
                         )
                         .ToList();

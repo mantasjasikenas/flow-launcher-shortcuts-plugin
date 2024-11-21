@@ -2,10 +2,8 @@
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.ViewModels;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
-using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Windows.Storage.Pickers;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Views;
 
@@ -151,5 +149,5 @@ public sealed partial class ShortcutDetailsPage : Page
         }
     }
 
-    
+
 }

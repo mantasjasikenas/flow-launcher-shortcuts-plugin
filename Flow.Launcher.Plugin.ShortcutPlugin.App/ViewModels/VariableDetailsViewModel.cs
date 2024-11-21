@@ -15,11 +15,18 @@ public partial class VariableDetailsViewModel : ObservableRecipient, INavigation
 
     private Variable _variable;
 
-    [ObservableProperty]
-    private bool isEditMode;
 
     [ObservableProperty]
-    private ObservableVariable variable;
+    public partial bool IsEditMode
+    {
+        get; set;
+    }
+
+    [ObservableProperty]
+    public partial ObservableVariable Variable
+    {
+        get; set;
+    }
 
     public DetailsPageMode Mode
     {

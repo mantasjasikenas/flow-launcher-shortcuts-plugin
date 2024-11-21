@@ -121,59 +121,7 @@ public class SettingsService : ISettingsService
     private Settings GetDefaultSettings()
     {
         var pluginDirectory = _pluginManager.Metadata.PluginDirectory;
-        var parentDirectory = Directory.GetParent(pluginDirectory)?.Parent?.FullName;
 
-        if (parentDirectory is null)
-        {
-            return new Settings();
-        }
-
-        var path = Path.Combine(parentDirectory, Constants.PluginDataPath);
-
-        return new Settings
-        {
-            ShortcutsPath = Path.Combine(path, Constants.ShortcutsFileName),
-            VariablesPath = Path.Combine(path, Constants.VariablesFileName)
-        };
+        return SettingsUtilities.GetDefaultSettings(pluginDirectory);
     }
-
-    /*
-    private void LoadDefaultSettings(ICollection<string> invalidProperties)
-    {
-        var defaultSettings = GetDefaultSettings();
-
-        if (invalidProperties.Contains(nameof(Settings.ShortcutsPath)))
-        {
-            _settings.ShortcutsPath = defaultSettings.ShortcutsPath;
-        }
-
-        if (invalidProperties.Contains(nameof(Settings.VariablesPath)))
-        {
-            _settings.VariablesPath = defaultSettings.VariablesPath;
-        }
-
-        SaveSettings();
-    }
-
-    private static (bool, List<string>) Validate(Settings settings)
-    {
-        var invalidProperties = new List<string>();
-
-        if (settings is null)
-        {
-            return (false, invalidProperties);
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.ShortcutsPath))
-        {
-            invalidProperties.Add(nameof(settings.ShortcutsPath));
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.VariablesPath))
-        {
-            invalidProperties.Add(nameof(settings.VariablesPath));
-        }
-
-        return (invalidProperties.Count == 0, invalidProperties);
-    }*/
 }

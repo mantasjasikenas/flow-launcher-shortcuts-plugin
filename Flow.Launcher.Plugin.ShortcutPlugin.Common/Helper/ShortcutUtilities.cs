@@ -24,7 +24,7 @@ public static class ShortcutUtilities
 
         return shortcuts
                .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
-                   (s, k) => new {Shortcut = s, Key = k})
+                   (s, k) => new { Shortcut = s, Key = k })
                .GroupBy(x => x.Key)
                .ToDictionary(x => x.Key, x => x.Select(y => y.Shortcut).ToList());
     }
@@ -45,5 +45,26 @@ public static class ShortcutUtilities
         }
 
         File.WriteAllText(shortcutPath, json);
+    }
+
+    public static string GetShortcutsPath(string shortcutsPluginPath)
+    {
+        var settingsPath = SettingsUtilities.GetSettingsFilePath(shortcutsPluginPath);
+
+        if (string.IsNullOrEmpty(settingsPath))
+        {
+            return string.Empty;
+        }
+
+        var settings = SettingsUtilities.ReadSettings(settingsPath);
+
+        if (settings is not null && !string.IsNullOrEmpty(settings.ShortcutsPath))
+        {
+            return settings.ShortcutsPath;
+        }
+
+        var defaultSettings = SettingsUtilities.GetDefaultSettings(shortcutsPluginPath);
+
+        return defaultSettings.ShortcutsPath;
     }
 }

@@ -58,6 +58,7 @@ public partial class App : Application
 
     public async Task ShowMainWindowFromRedirectAsync(AppActivationArguments rawArgs)
     {
+        // keep in mind this is not my implementation
         while (MainWindow is null)
         {
             await Task.Delay(100);

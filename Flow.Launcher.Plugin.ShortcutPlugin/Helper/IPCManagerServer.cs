@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
@@ -44,7 +45,7 @@ public class IPCManagerServer
 
     private void HandleMessage(string message)
     {
-        if (message == "reload")
+        if (message == IPCCommand.ReloadPluginData.ToString())
         {
             _reloadable.ReloadData();
             return;

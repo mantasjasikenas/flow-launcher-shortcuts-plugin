@@ -1,23 +1,20 @@
 ﻿using System.Text;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
+using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
-using Constants = Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers.Constants;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
 public class ShortcutsService : IShortcutsService
 {
-    private const string TestShortcutsPath = """C:\Users\tutta\AppData\Roaming\FlowLauncher\Settings\Plugins\Flow.Launcher.Plugin.ShortcutPlugin\Backups\20240925185136957\shortcuts.json""";
-
-    private readonly ILocalSettingsService _localSettingsService;
-
     private Dictionary<string, List<Shortcut>> _shortcuts = [];
+    private readonly IPCManagerClient _iPCManagerClient;
 
-
-    public ShortcutsService(ILocalSettingsService localSettingsService)
+    public ShortcutsService(IPCManagerClient iPCManagerClient)
     {
         Task.Run(RefreshShortcutsAsync);
-        _localSettingsService = localSettingsService;
+        this._iPCManagerClient = iPCManagerClient;
     }
 
     private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts()
@@ -42,11 +39,17 @@ public class ShortcutsService : IShortcutsService
         }
 
         ShortcutUtilities.SaveShortcuts(shortcuts, path);
+
+        _ = _iPCManagerClient.SendMessageAsync(IPCCommand.ReloadPluginData.ToString(), CancellationToken.None);
     }
+
 
     private async Task<string> GetShortcutsPath()
     {
-        return await _localSettingsService.ReadSettingAsync<string>(Constants.ShortcutPathKey) ?? TestShortcutsPath;
+        var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        var shortcutsPluginPath = Directory.GetParent(appDirectory)?.Parent?.FullName;
+
+        return ShortcutUtilities.GetShortcutsPath(shortcutsPluginPath);
     }
 
 
