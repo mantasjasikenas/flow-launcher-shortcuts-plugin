@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flow.Launcher.Plugin.Shortc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flow.Launcher.Plugin.ShortcutPlugin.App", "Flow.Launcher.Plugin.ShortcutPlugin.App\Flow.Launcher.Plugin.ShortcutPlugin.App.csproj", "{B85FDC24-7116-497E-9A42-2AD27805CBD9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flow.Launcher.Plugin.ShortcutPlugin.ConsoleApp", "Flow.Launcher.Plugin.ShortcutPlugin.ConsoleApp\Flow.Launcher.Plugin.ShortcutPlugin.ConsoleApp.csproj", "{0CCED81A-30EB-4C79-9301-369AB277D0EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,22 @@ Global
 		{B85FDC24-7116-497E-9A42-2AD27805CBD9}.Release|x86.ActiveCfg = Release|x86
 		{B85FDC24-7116-497E-9A42-2AD27805CBD9}.Release|x86.Build.0 = Release|x86
 		{B85FDC24-7116-497E-9A42-2AD27805CBD9}.Release|x86.Deploy.0 = Release|x86
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|arm64.Build.0 = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|x64.Build.0 = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Debug|x86.Build.0 = Debug|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|arm64.ActiveCfg = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|arm64.Build.0 = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|x64.ActiveCfg = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|x64.Build.0 = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|x86.ActiveCfg = Release|Any CPU
+		{0CCED81A-30EB-4C79-9301-369AB277D0EC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
