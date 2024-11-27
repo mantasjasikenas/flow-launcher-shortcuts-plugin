@@ -1,25 +1,25 @@
-﻿using System.Text;
-using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
+﻿using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Services;
+
 public class ShortcutsService : IShortcutsService
 {
     private Dictionary<string, List<Shortcut>> _shortcuts = [];
-    private readonly IPCManagerClient _iPCManagerClient;
+    private readonly IPCManagerClient _iPcManagerClient;
 
-    public ShortcutsService(IPCManagerClient iPCManagerClient)
+    public ShortcutsService(IPCManagerClient iPcManagerClient)
     {
         Task.Run(RefreshShortcutsAsync);
-        this._iPCManagerClient = iPCManagerClient;
+        _iPcManagerClient = iPcManagerClient;
     }
 
     private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts()
     {
-        var path = await GetShortcutsPath();
+        var path = GetShortcutsPath();
 
         if (string.IsNullOrEmpty(path))
         {
@@ -31,7 +31,7 @@ public class ShortcutsService : IShortcutsService
 
     private async Task SaveShortcuts(Dictionary<string, List<Shortcut>> shortcuts)
     {
-        var path = await GetShortcutsPath();
+        var path = GetShortcutsPath();
 
         if (string.IsNullOrEmpty(path))
         {
@@ -40,11 +40,11 @@ public class ShortcutsService : IShortcutsService
 
         ShortcutUtilities.SaveShortcuts(shortcuts, path);
 
-        _ = _iPCManagerClient.SendMessageAsync(IPCCommand.ReloadPluginData.ToString(), CancellationToken.None);
+        _ = _iPcManagerClient.SendMessageAsync(IPCCommand.ReloadPluginData.ToString(), CancellationToken.None);
     }
 
 
-    private async Task<string> GetShortcutsPath()
+    private static string GetShortcutsPath()
     {
         var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
         var shortcutsPluginPath = Directory.GetParent(appDirectory)?.Parent?.FullName;
@@ -61,9 +61,9 @@ public class ShortcutsService : IShortcutsService
         }
 
         return _shortcuts.Values
-            .SelectMany(x => x)
-            .Distinct()
-            .ToList();
+                         .SelectMany(x => x)
+                         .Distinct()
+                         .ToList();
     }
 
     public async Task RefreshShortcutsAsync()
@@ -77,7 +77,7 @@ public class ShortcutsService : IShortcutsService
 
         if (!_shortcuts.TryGetValue(key, out var value))
         {
-            value = ([]);
+            value = [];
             _shortcuts[key] = value;
         }
 

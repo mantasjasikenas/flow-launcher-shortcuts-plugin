@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.App.Contracts.Services;
@@ -21,13 +20,15 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
     [ObservableProperty]
     public partial string FoundShortcutsTitle
     {
-        get; set;
+        get;
+        set;
     }
 
     [ObservableProperty]
     public partial string LastUpdated
     {
-        get; set;
+        get;
+        set;
     }
 
 
@@ -37,7 +38,11 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
         set;
     }
 
-    public ObservableCollection<Shortcut> FilteredShortcuts { get; private set; } = [];
+    public ObservableCollection<Shortcut> FilteredShortcuts
+    {
+        get;
+        private set;
+    } = [];
 
     public IAsyncRelayCommand LoadShortcutsCommand
     {
@@ -55,12 +60,24 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
 
     public void NavigateToShortcutDetails(Shortcut shortcut, bool isEditEnabled)
     {
-        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, DetailsPageMode.Edit, isEditEnabled));
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(),
+            new ShorcutDetailsNavArgs(shortcut, DetailsPageMode.Edit, isEditEnabled));
     }
 
     public async Task DeleteShortcutAsync(Shortcut shortcut)
     {
         await _shortcutsService.DeleteShortcutAsync(shortcut);
+        await LoadShortcutsCommand.ExecuteAsync(null);
+    }
+
+    public async Task DuplicateShortcutAsync(Shortcut shortcut)
+    {
+        var newShortcut = (Shortcut)shortcut.Clone();
+
+        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+        newShortcut.Key = $"{newShortcut.Key} {timestamp}";
+
+        await _shortcutsService.SaveShortcutAsync(newShortcut);
         await LoadShortcutsCommand.ExecuteAsync(null);
     }
 
@@ -77,7 +94,8 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
             _ => throw new NotImplementedException()
         };
 
-        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(), new ShorcutDetailsNavArgs(shortcut, DetailsPageMode.New, true));
+        _navigationService.NavigateTo(typeof(ShortcutDetailsViewModel).ToString(),
+            new ShorcutDetailsNavArgs(shortcut, DetailsPageMode.New, true));
     }
 
     public async Task OnNavigatedTo(object parameter)
@@ -115,7 +133,7 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
 
     public void OnFilterChanged(string filter)
     {
-        var filtered = Shortcuts.Where(shortcut => Filter(shortcut, filter));
+        var filtered = Shortcuts.Where(shortcut => Filter(shortcut, filter)).ToList();
 
         RemoveNonMatchingShortcuts(filtered);
         AddMatchingShortcuts(filtered);
@@ -138,10 +156,11 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
     private static bool Filter(Shortcut shortcut, string query)
     {
         return shortcut.Key.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-            (shortcut.Alias != null && shortcut.Alias.Any(key => key.Contains(query, StringComparison.InvariantCultureIgnoreCase)));
+               (shortcut.Alias != null &&
+                shortcut.Alias.Any(key => key.Contains(query, StringComparison.InvariantCultureIgnoreCase)));
     }
 
-    private void RemoveNonMatchingShortcuts(IEnumerable<Shortcut> filteredData)
+    private void RemoveNonMatchingShortcuts(List<Shortcut> filteredData)
     {
         for (var i = FilteredShortcuts.Count - 1; i >= 0; i--)
         {
@@ -154,7 +173,7 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
         }
     }
 
-    private void AddMatchingShortcuts(IEnumerable<Shortcut> filteredData)
+    private void AddMatchingShortcuts(List<Shortcut> filteredData)
     {
         foreach (var item in filteredData)
         {

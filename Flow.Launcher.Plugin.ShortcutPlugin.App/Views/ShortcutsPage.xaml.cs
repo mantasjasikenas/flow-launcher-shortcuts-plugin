@@ -81,6 +81,10 @@ public sealed partial class ShortcutsPage : Page
         {
             ViewModel.NavigateToShortcutDetails(shortcut, true);
         }
+        else if (item.Text == "Duplicate")
+        {
+            await ViewModel.DuplicateShortcutAsync(shortcut);
+        }
         else if (item.Text == "Delete")
         {
             var dialog = DeleteConfirmationDialog();

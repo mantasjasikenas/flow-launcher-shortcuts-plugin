@@ -29,7 +29,7 @@ Print-Normal "Script started..."
 
 
 # Stop Flow Launcher
-$process = Get-Process -Name "Flow.Launcher"
+$process = Get-Process -Name "Flow.Launcher" -ErrorAction SilentlyContinue
 if ($process)
 {
     Print-Normal "Stopping Flow Launcher..."
@@ -38,7 +38,7 @@ if ($process)
 }
 
 # Stop Shortcuts
-$process = Get-Process -Name "Shortcuts"
+$process = Get-Process -Name "Shortcuts" -ErrorAction SilentlyContinue
 if ($process)
 {
     Print-Normal "Stopping Shortcuts app..."

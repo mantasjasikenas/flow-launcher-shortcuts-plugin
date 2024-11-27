@@ -73,6 +73,9 @@
                                         <MenuFlyoutItem Text="Edit"
                                                         Icon="Edit"
                                                         Click="MenuFlyoutItem_Click" />
+                                        <MenuFlyoutItem Text="Duplicate"
+                                                        Icon="Copy"
+                                                        Click="MenuFlyoutItem_Click" />
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem Text="Delete"
                                                         Icon="Delete"
