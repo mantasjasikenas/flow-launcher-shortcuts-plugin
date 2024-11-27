@@ -73,6 +73,7 @@ public partial class ShortcutsViewModel : ObservableRecipient, INavigationAware
             ShortcutType.Url => new UrlShortcut(),
             ShortcutType.Group => new GroupShortcut(),
             ShortcutType.Shell => new ShellShortcut(),
+            ShortcutType.Snippet => new SnippetShortcut(),
             _ => throw new NotImplementedException()
         };
 

@@ -13,6 +13,7 @@ public static class ShortcutExtensions
             UrlShortcut urlShortcut => new ObservableUrlShortcut(urlShortcut),
             ShellShortcut shellShortcut => new ObservableShellShortcut(shellShortcut),
             GroupShortcut groupShortcut => new ObservableGroupShortcut(groupShortcut),
+            SnippetShortcut snippetShortcut => new ObservableSnippetShortcut(snippetShortcut),
             _ => throw new ArgumentException("Unknown shortcut type")
         };
     }

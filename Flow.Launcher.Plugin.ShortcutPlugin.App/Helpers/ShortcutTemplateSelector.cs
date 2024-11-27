@@ -3,35 +3,49 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.App.Helpers;
+
 public class ShortcutTemplateSelector : DataTemplateSelector
 {
     public DataTemplate FileShortcutTemplate
     {
-        get; set;
+        get;
+        set;
     }
+
     public DataTemplate DirectoryShortcutTemplate
     {
-        get; set;
+        get;
+        set;
     }
 
     public DataTemplate UrlShortcutTemplate
     {
-        get; set;
+        get;
+        set;
     }
 
     public DataTemplate GroupShortcutTemplate
     {
-        get; set;
+        get;
+        set;
     }
 
     public DataTemplate ShellShortcutTemplate
     {
-        get; set;
+        get;
+        set;
+    }
+
+    public DataTemplate SnippetShortcutTemplate
+    {
+        get;
+        set;
     }
 
     public DataTemplate DefaultTemplate
     {
-        get; set;
+        get;
+        set;
     }
 
     protected override DataTemplate SelectTemplateCore(object item) =>
@@ -48,8 +62,8 @@ public class ShortcutTemplateSelector : DataTemplateSelector
             ObservableUrlShortcut => UrlShortcutTemplate,
             ObservableShellShortcut => ShellShortcutTemplate,
             ObservableGroupShortcut => GroupShortcutTemplate,
+            ObservableSnippetShortcut => SnippetShortcutTemplate,
             _ => DefaultTemplate
         };
     }
 }
-

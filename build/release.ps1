@@ -50,7 +50,7 @@ Print-Normal "Building and publishing plugin in $configuration mode..."
 dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -o $publishDest
 
 if ($includeDesktopApp) {
-    Print-Normal "Building WinUI app..."
+    Print-Normal "Building desktop app..."
     dotnet publish $shortcutApp -c $configuration -r win-x64 -o $publishDest\App /p:Platform=x64
 }
 

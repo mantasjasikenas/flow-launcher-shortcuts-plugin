@@ -119,16 +119,16 @@ public sealed partial class ShortcutDetailsPage : Page
     {
         var picker = Pickers.CreateFolderPicker();
 
-        var directoru = await picker.PickSingleFolderAsync();
+        var folder = await picker.PickSingleFolderAsync();
 
-        if (directoru == null)
+        if (folder == null)
         {
             return;
         }
 
         if (ViewModel.Shortcut is ObservableDirectoryShortcut shortcut)
         {
-            shortcut.Path = directoru.Path;
+            shortcut.Path = folder.Path;
         }
     }
 

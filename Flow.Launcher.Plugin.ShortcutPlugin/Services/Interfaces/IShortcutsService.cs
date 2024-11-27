@@ -12,7 +12,7 @@ public interface IShortcutsService
     List<Result> DuplicateShortcut(string existingKey, string newKey);
     List<Result> ImportShortcuts();
     List<Result> ExportShortcuts();
-    List<Result> GetShortcuts(List<string> arguments);
+    List<Result> GetShortcuts(List<string> arguments, ShortcutType? shortcutType = null);
     List<Result> GetGroups();
     void Reload();
 }

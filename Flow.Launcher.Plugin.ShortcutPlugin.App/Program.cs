@@ -13,9 +13,9 @@ public class Program
         {
             _ = AsyncMain();
         }
-        catch (Exception)
+        catch
         {
-
+            // ignored
         }
     }
 
@@ -28,18 +28,17 @@ public class Program
 
             if (!isRedirect)
             {
-                Application.Start((_) =>
-                 {
-                     DispatcherQueueSynchronizationContext context = new(
-                         DispatcherQueue.GetForCurrentThread());
-                     SynchronizationContext.SetSynchronizationContext(context);
-                     var app = new App();
-                 });
+                Application.Start(_ =>
+                {
+                    DispatcherQueueSynchronizationContext context = new(
+                        DispatcherQueue.GetForCurrentThread());
+                    SynchronizationContext.SetSynchronizationContext(context);
+                    var app = new App();
+                });
             }
         }
         catch (Exception)
         {
-
         }
     }
 
@@ -68,6 +67,7 @@ public class Program
 
                 await keyInstance.RedirectActivationToAsync(args);
             }
+
             return isRedirect;
         }
         catch (Exception)

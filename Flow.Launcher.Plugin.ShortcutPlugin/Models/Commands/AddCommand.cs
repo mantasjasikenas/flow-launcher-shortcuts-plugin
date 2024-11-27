@@ -39,7 +39,8 @@ public class AddCommand : ICommand
             CreateShortcutType("directory", CreateDirectoryShortcutHandler),
             CreateShortcutType("file", CreateFileShortcutHandler),
             CreateShortcutType("url", CreateUrlShortcutHandler),
-            CreateShellShortcut()
+            CreateShellShortcut(),
+            CreateSnippetShortcut()
         };
     }
 
@@ -180,7 +181,8 @@ public class AddCommand : ICommand
                                    .Build();
 
         var shellTypeArgument = new ArgumentBuilder()
-                                .WithResponseInfo(("Enter shell type", "Which shell should be used? (cmd/powershell/pwsh)"))
+                                .WithResponseInfo(("Enter shell type",
+                                    "Which shell should be used? (cmd/powershell/pwsh)"))
                                 .WithArgument(shortcutNameArgument)
                                 .Build();
 
@@ -189,5 +191,45 @@ public class AddCommand : ICommand
                .WithResponseInfo(("add shell", ""))
                .WithArgument(shellTypeArgument)
                .Build();
+    }
+
+    private IQueryExecutor CreateSnippetShortcut()
+    {
+        var snippetValueArgument = new ArgumentBuilder()
+                                   .WithResponseInfo(("Enter snippet value", "What should the snippet value be?"))
+                                   .WithHandler(CreateSnippetShortcutHandler)
+                                   .Build();
+
+        var shortcutNameArgument = new ArgumentBuilder()
+                                   .WithResponseInfo(("Enter shortcut name", "How should your shortcut be named?"))
+                                   .WithArgument(snippetValueArgument)
+                                   .Build();
+
+        return new ArgumentLiteralBuilder()
+               .WithKey("snippet")
+               .WithResponseInfo(("add snippet", ""))
+               .WithArgument(shortcutNameArgument)
+               .Build();
+    }
+
+    private List<Result> CreateSnippetShortcutHandler(ActionContext context, List<string> arguments)
+    {
+        if (arguments.Count < 4)
+        {
+            return ResultExtensions.SingleResult("Invalid snippet shortcut arguments",
+                "Please provide valid snippet shortcut arguments");
+        }
+
+        var key = arguments[2];
+        var value = arguments[3];
+
+        return ResultExtensions.SingleResult("Create snippet shortcut", $"Snippet: {value}", () =>
+        {
+            _shortcutsRepository.AddShortcut(new SnippetShortcut
+            {
+                Key = key,
+                Value = value
+            });
+        });
     }
 }

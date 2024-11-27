@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,8 @@ public class ShortcutPlugin : IPlugin, ISettingProvider, IReloadable, IContextMe
 {
     internal ServiceProvider ServiceProvider
     {
-        get; private set;
+        get;
+        private set;
     }
 
     private ICommandsService _commandsService;

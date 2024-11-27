@@ -40,10 +40,11 @@ public class ShortcutsRepository : IShortcutsRepository
         return _shortcuts.TryGetValue(key, out shortcuts);
     }
 
-    public IList<Shortcut> GetShortcuts()
+    public IList<Shortcut> GetShortcuts(ShortcutType? shortcutType = null)
     {
         return _shortcuts.Values
                          .SelectMany(x => x)
+                         .Where(x => shortcutType == null || x.GetShortcutType() == shortcutType)
                          .Distinct()
                          .ToList();
     }
@@ -137,7 +138,7 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void DuplicateShortcut(Shortcut shortcut, string duplicateKey)
     {
-        var duplicateShortcut = (Shortcut) shortcut.Clone();
+        var duplicateShortcut = (Shortcut)shortcut.Clone();
 
         duplicateShortcut.Key = duplicateKey;
 

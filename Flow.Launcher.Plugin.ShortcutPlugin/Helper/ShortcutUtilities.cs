@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using CliWrap;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
-public static class ShortcutUtilities
+public static partial class ShortcutUtilities
 {
     public static void OpenPowershell(string arguments, bool silent)
     {

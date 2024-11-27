@@ -6,5 +6,6 @@ public enum ShortcutType
     File,
     Url,
     Group,
-    Shell
+    Shell,
+    Snippet
 }

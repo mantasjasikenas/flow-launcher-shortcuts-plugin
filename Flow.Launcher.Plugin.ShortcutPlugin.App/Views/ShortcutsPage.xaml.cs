@@ -31,9 +31,9 @@ public sealed partial class ShortcutsPage : Page
 
     private void SetupNewShortcutFlyoutMenuItems()
     {
-        var shorcutTypes = Enum.GetValues<ShortcutType>();
+        var shortcutTypes = Enum.GetValues<ShortcutType>();
 
-        foreach (var type in shorcutTypes)
+        foreach (var type in shortcutTypes)
         {
             var item = new MenuFlyoutItem
             {

@@ -1,7 +1,9 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
@@ -69,6 +71,11 @@ public class ShortcutHandler : IShortcutHandler
                 ExecuteShellShortcut(shellShortcut, parsedArguments);
                 break;
             }
+            case SnippetShortcut snippetShortcut:
+            {
+                ExecuteSnippetShortcut(snippetShortcut, parsedArguments);
+                break;
+            }
             default:
             {
                 _pluginManager.API.LogInfo(nameof(ShortcutHandler), "Shortcut type not supported");
@@ -134,6 +141,22 @@ public class ShortcutHandler : IShortcutHandler
                 break;
             }
         }
+    }
+
+    private void ExecuteSnippetShortcut(
+        SnippetShortcut shortcut,
+        IReadOnlyDictionary<string, string> parsedArguments
+    )
+    {
+        var value = _variablesService.ExpandVariables(shortcut.Value, parsedArguments);
+
+        var thread = new Thread(() => {
+            Clipboard.SetText(value);
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
     }
 
     private void ExecuteGroupShortcut(GroupShortcut groupShortcut, IReadOnlyDictionary<string, string> parsedArguments)
