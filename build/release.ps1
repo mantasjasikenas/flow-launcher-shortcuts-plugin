@@ -29,9 +29,23 @@ Print-Normal "Script started..."
 
 
 # Stop Flow Launcher
-Print-Normal "Stopping Flow Launcher..."
-Stop-Process -Name "Flow.Launcher" -Force
-Wait-Process -Name "Flow.Launcher"
+$process = Get-Process -Name "Flow.Launcher"
+if ($process)
+{
+    Print-Normal "Stopping Flow Launcher..."
+    Stop-Process -Name "Flow.Launcher" -Force
+    Wait-Process -Name "Flow.Launcher"
+}
+
+# Stop Shortcuts
+$process = Get-Process -Name "Shortcuts"
+if ($process)
+{
+    Print-Normal "Stopping Shortcuts app..."
+    Stop-Process -Name "Shortcuts" -Force
+    Wait-Process -Name "Shortcuts"
+}
+
 
 Start-Sleep -Milliseconds 500
 
@@ -40,7 +54,8 @@ Print-Normal "Cleaning up directories..."
 Remove-Directory -Path $publishDest
 Remove-Directory -Path $desktopDest
 $directoriesToRemove = Get-ChildItem -Path $pluginsDirectory -Directory | Where-Object { $_.Name -like "$pluginName-*" }
-foreach ($directory in $directoriesToRemove) {
+foreach ($directory in $directoriesToRemove)
+{
     Remove-Item -Path $directory.FullName -Force -Recurse
 }
 
@@ -49,14 +64,16 @@ foreach ($directory in $directoriesToRemove) {
 Print-Normal "Building and publishing plugin in $configuration mode..."
 dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -o $publishDest
 
-if ($includeDesktopApp) {
+if ($includeDesktopApp)
+{
     Print-Normal "Building desktop app..."
     dotnet publish $shortcutApp -c $configuration -r win-x64 -o $publishDest\App /p:Platform=x64
 }
 
 $publish_result = $LASTEXITCODE
 
-if ($publish_result -ne 0) {
+if ($publish_result -ne 0)
+{
     Print-Error "Publish failed with exit code $publish_result"
     exit $publish_result
 }
@@ -72,7 +89,8 @@ Start-Process (Join-Path -Path $userProfileDir -ChildPath "AppData\Local\FlowLau
 
 
 # Process publish to desktop
-if ($copyToDesktop) {
+if ($copyToDesktop)
+{
     Print-Normal "Copying plugin to desktop..."
     Copy-Item -Path $publishDest -Destination $desktopDest -Force -Recurse
     Compress-Archive -Path $desktopDest -DestinationPath "$desktopDest.zip" -Force
