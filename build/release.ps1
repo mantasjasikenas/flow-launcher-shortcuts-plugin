@@ -62,7 +62,8 @@ foreach ($directory in $directoriesToRemove)
 
 # Publish plugin
 Print-Normal "Building and publishing plugin in $configuration mode..."
-dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -o $publishDest
+$includeEditorParam = if ($includeDesktopApp) { "true" } else { "false" }
+dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -p:INCLUDE_EDITOR=$includeEditorParam -o $publishDest
 
 if ($includeDesktopApp)
 {

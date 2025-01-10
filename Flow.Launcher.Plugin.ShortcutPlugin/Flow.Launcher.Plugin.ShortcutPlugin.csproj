@@ -13,10 +13,12 @@
         <LangVersion>latest</LangVersion>
         <UseWpf>true</UseWpf>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     </PropertyGroup>
 
     <PropertyGroup>
-        <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+        <DefineConstants Condition="'$(INCLUDE_EDITOR)' == ''">INCLUDE_EDITOR=false</DefineConstants>
+        <DefineConstants Condition="'$(INCLUDE_EDITOR)' != ''">INCLUDE_EDITOR=$(INCLUDE_EDITOR)</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -35,8 +37,8 @@
 
     <ItemGroup>
         <PackageReference Include="CliWrap" Version="3.6.4"/>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-        <PackageReference Include="Flow.Launcher.Plugin" Version="4.4.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2"/>
+        <PackageReference Include="Flow.Launcher.Plugin" Version="4.4.0"/>
         <PackageReference Include="FuzzySharp" Version="2.0.2"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
     </ItemGroup>
@@ -62,7 +64,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Flow.Launcher.Plugin.ShortcutPlugin.Common\Flow.Launcher.Plugin.ShortcutPlugin.Common.csproj" />
+        <ProjectReference Include="..\Flow.Launcher.Plugin.ShortcutPlugin.Common\Flow.Launcher.Plugin.ShortcutPlugin.Common.csproj"/>
     </ItemGroup>
 
 

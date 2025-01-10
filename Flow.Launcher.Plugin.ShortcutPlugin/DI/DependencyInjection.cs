@@ -52,7 +52,9 @@ public static class DependencyInjection
         services.AddSingleton<ICommand, ReloadCommand>();
         services.AddSingleton<ICommand, SnippetsCommand>();
         services.AddSingleton<ICommand, SettingsCommand>();
+#if INCLUDE_EDITOR
         services.AddSingleton<ICommand, EditorCommand>();
+#endif
         services.AddSingleton<ICommand, ConfigCommand>();
         services.AddSingleton<ICommand, ImportCommand>();
         services.AddSingleton<ICommand, ExportCommand>();

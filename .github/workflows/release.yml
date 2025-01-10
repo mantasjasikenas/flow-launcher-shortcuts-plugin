@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: |
           cd Flow.Launcher.Plugin.ShortcutPlugin
-          dotnet publish -c Release -r win-x64 --no-self-contained Flow.Launcher.Plugin.ShortcutPlugin.csproj
+          dotnet publish -c Release -r win-x64 --no-self-contained -p:INCLUDE_EDITOR=false Flow.Launcher.Plugin.ShortcutPlugin.csproj
           7z a -tzip "Flow.Launcher.Plugin.ShortcutPlugin.zip" "./bin/Release/win-x64/publish/*"
 
       - name: Publish
