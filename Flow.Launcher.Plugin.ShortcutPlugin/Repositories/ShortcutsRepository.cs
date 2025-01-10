@@ -145,18 +145,17 @@ public class ShortcutsRepository : IShortcutsRepository
         AddShortcut(duplicateShortcut);
     }
 
-    public void ReloadShortcuts()
+    public async Task ReloadShortcutsAsync()
     {
         var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
-
-        _shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
+        _shortcuts = await ReadShortcuts(path);
     }
 
-    public void ImportShortcuts(string path)
+    public async Task ImportShortcuts(string path)
     {
         try
         {
-            var shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
+            var shortcuts = await ReadShortcuts(path);
 
             if (shortcuts.Count == 0)
             {
@@ -166,7 +165,7 @@ public class ShortcutsRepository : IShortcutsRepository
             _shortcuts = shortcuts;
 
             SaveShortcuts();
-            ReloadShortcuts();
+            await ReloadShortcutsAsync();
 
             _pluginManager.API.ShowMsg("Shortcuts imported successfully");
         }
@@ -177,12 +176,12 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    public void ExportShortcuts(string path)
+    public Task ExportShortcuts(string path)
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath)))
         {
             _pluginManager.API.ShowMsg("No shortcuts to export");
-            return;
+            return Task.CompletedTask;
         }
 
         try
@@ -194,6 +193,8 @@ public class ShortcutsRepository : IShortcutsRepository
             _pluginManager.API.ShowMsg("Error while exporting shortcuts");
             _pluginManager.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts(string path)

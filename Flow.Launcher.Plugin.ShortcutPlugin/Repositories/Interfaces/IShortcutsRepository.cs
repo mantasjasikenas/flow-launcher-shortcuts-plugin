@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
@@ -14,9 +15,9 @@ public interface IShortcutsRepository : IAsyncInitializable
     void AddShortcut(Shortcut shortcut);
     void RemoveShortcut(Shortcut shortcut);
     void DuplicateShortcut(Shortcut shortcut, string duplicateKey);
-    void ReloadShortcuts();
-    void ImportShortcuts(string path);
-    void ExportShortcuts(string path);
     IList<GroupShortcut> GetGroups();
     void GroupShortcuts(string groupKey, bool groupLaunch, IEnumerable<string> shortcutKeys);
+    Task ReloadShortcutsAsync();
+    Task ImportShortcuts(string path);
+    Task ExportShortcuts(string path);
 }

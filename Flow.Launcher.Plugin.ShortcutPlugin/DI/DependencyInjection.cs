@@ -18,7 +18,7 @@ public static class DependencyInjection
     )
     {
         services.AddSingleton(context);
-        services.AddSingleton<IReloadable, Reloadable>();
+        services.AddSingleton<IAsyncReloadable, Reloadable>();
         services.AddSingleton<IPluginManager, PluginManager>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IShortcutsRepository, ShortcutsRepository>();

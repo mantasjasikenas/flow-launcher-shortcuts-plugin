@@ -24,6 +24,10 @@
 		<PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<StartupObject>Flow.Launcher.Plugin.ShortcutPlugin.App.Program</StartupObject>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
 		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 	</PropertyGroup>

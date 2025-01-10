@@ -105,7 +105,7 @@ public class GroupCommand : ICommand
 
     private List<Result> ListGroupsCommandHandler(ActionContext context, List<string> arguments)
     {
-        return _shortcutsService.GetGroups();
+        return _shortcutsService.GetGroupsList();
     }
 
     private List<Result> RemoveGroupCommandHandler(ActionContext context, List<string> arguments)

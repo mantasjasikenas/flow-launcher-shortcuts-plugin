@@ -4,7 +4,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
-public class Reloadable : IReloadable
+public class Reloadable : IAsyncReloadable
 {
     private readonly ISettingsService _settingsService;
     private readonly IShortcutsService _shortcutsService;
@@ -22,17 +22,14 @@ public class Reloadable : IReloadable
         _iconProvider = iconProvider;
     }
 
-    public void ReloadData()
+    public async Task ReloadDataAsync()
     {
         _settingsService.Reload();
 
-        var reloadTasks = new[]
-        {
-            Task.Run(() => _variablesService.Reload()),
-            Task.Run(() => _shortcutsService.Reload())
-        };
-
-        Task.WhenAll(reloadTasks).GetAwaiter().GetResult();
+        await Task.WhenAll(
+            Task.Run(() => _variablesService.ReloadAsync()),
+            Task.Run(() => _shortcutsService.ReloadAsync())
+        );
 
         _iconProvider.Reload();
     }

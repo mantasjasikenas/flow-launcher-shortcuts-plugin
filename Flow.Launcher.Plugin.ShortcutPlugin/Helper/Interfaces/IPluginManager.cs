@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
 public interface IPluginManager
@@ -5,22 +7,34 @@ public interface IPluginManager
     /// <summary>
     /// The context of the plugin
     /// </summary>
-    PluginInitContext Context { get; }
+    PluginInitContext Context
+    {
+        get;
+    }
 
     /// <summary>
     /// The public API of the plugin
     /// </summary>
-    IPublicAPI API { get; }
+    IPublicAPI API
+    {
+        get;
+    }
 
     /// <summary>
     /// The metadata of the plugin
     /// </summary>
-    PluginMetadata Metadata { get; }
+    PluginMetadata Metadata
+    {
+        get;
+    }
 
     /// <summary>
     /// The last query that was sent to the plugin
     /// </summary>
-    Query LastQuery { get; }
+    Query LastQuery
+    {
+        get;
+    }
 
     /// <summary>
     /// Set the last query that was sent to the plugin
@@ -32,7 +46,7 @@ public interface IPluginManager
     /// Used to set the reloadable object (cannot inject it in the constructor because of circular dependency)
     /// </summary>
     /// <param name="reloadable"></param>
-    void SetReloadable(IReloadable reloadable);
+    void SetReloadable(IAsyncReloadable reloadable);
 
     /// <summary>
     /// Clear the last query
@@ -42,7 +56,7 @@ public interface IPluginManager
     /// <summary>
     /// Reload the data of the plugin
     /// </summary>
-    void ReloadPluginData();
+    Task ReloadDataAsync();
 
     /// <summary>
     /// Get the action keyword from the last query or the first action keyword from the plugin metadata
@@ -62,4 +76,11 @@ public interface IPluginManager
     /// </summary>
     /// <param name="text">The text to append</param>
     void ChangeQueryWithAppendedKeyword(string text);
+
+    /// <summary>
+    /// Find the action keyword of a plugin by its name
+    /// </summary>
+    /// <param name="pluginName">The name of the plugin</param>
+    /// <returns>The action keyword of the plugin</returns>
+    string FindPluginActionKeyword(string pluginName);
 }

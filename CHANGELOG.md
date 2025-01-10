@@ -4,9 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Editor app
+
 ## [1.2.2] - 2024-xx-xx
 
 - Support for shell type `Pwsh`.
+- If action is not specified for query result, pressing `Enter` will not close the launcher.
+- Snippet shortcut type. Executing a snippet shortcut will copy the snippet value to the clipboard. Better would be if
+  executing a snippet shortcut will paste the snippet value to the active window but didn't find a way to do that so
+  far. Example:
+
+  ```json
+  {
+    "Type": "Snippet",
+    "Value": "Hello\rworld",
+    "Key": "hi"
+  }
+  ```
+- Autocompleting on Shell shortcut type changes the query to shell plugin keyword followed by the shell shortcut
+  arguments.
+- Changed the default behavior of list commands (`q list`, `q snippets`, `q group list`). Now invoking item from the
+  list will replace the query with the selected item.
 
 ## [1.2.1] - 2024-09-24
 

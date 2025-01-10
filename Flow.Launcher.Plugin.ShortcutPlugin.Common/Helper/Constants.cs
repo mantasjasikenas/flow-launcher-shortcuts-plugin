@@ -30,5 +30,7 @@ public static class Constants
         ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".ico"
     ];
 
+    public const string ShellPluginName = "Shell";
+
     public const string ShortcutsPluginPipeName = "ShortcutsPluginPipeName";
 }

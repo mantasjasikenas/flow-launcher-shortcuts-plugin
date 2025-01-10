@@ -74,9 +74,9 @@ public class VariablesRepository : IVariablesRepository
         SaveVariables();
     }
 
-    public void Reload()
+    public async Task ReloadVariablesAsync()
     {
-        _variables = Task.Run(() => ReadVariables(VariablesPath)).GetAwaiter().GetResult();
+        _variables = await ReadVariables(VariablesPath);
     }
 
     public string ExpandVariables(string value)
@@ -88,11 +88,11 @@ public class VariablesRepository : IVariablesRepository
         return Environment.ExpandEnvironmentVariables(result);
     }
 
-    public void ImportVariables(string path)
+    public async Task ImportVariables(string path)
     {
         try
         {
-            var variables = Task.Run(() => ReadVariables(path)).GetAwaiter().GetResult();
+            var variables = await ReadVariables(path);
 
             if (variables.Count == 0)
             {
@@ -102,7 +102,7 @@ public class VariablesRepository : IVariablesRepository
             _variables = variables;
 
             SaveVariables();
-            Reload();
+            await ReloadVariablesAsync();
 
             _pluginManager.API.ShowMsg("Variables imported successfully");
         }
@@ -113,12 +113,12 @@ public class VariablesRepository : IVariablesRepository
         }
     }
 
-    public void ExportVariables(string path)
+    public Task ExportVariables(string path)
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.VariablesPath)))
         {
             _pluginManager.API.ShowMsg("No variables to export");
-            return;
+            return Task.CompletedTask;
         }
 
         try
@@ -130,6 +130,8 @@ public class VariablesRepository : IVariablesRepository
             _pluginManager.API.ShowMsg("Error while exporting variables");
             _pluginManager.API.LogException(nameof(VariablesRepository), "Error exporting variables", ex);
         }
+
+        return Task.CompletedTask;
     }
 
     private static async Task<Dictionary<string, Variable>> ReadVariables(string path)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -12,7 +13,7 @@ public interface IShortcutsService
     List<Result> DuplicateShortcut(string existingKey, string newKey);
     List<Result> ImportShortcuts();
     List<Result> ExportShortcuts();
-    List<Result> GetShortcuts(List<string> arguments, ShortcutType? shortcutType = null);
-    List<Result> GetGroups();
-    void Reload();
+    List<Result> GetShortcutsList(List<string> arguments, ShortcutType? shortcutType = null);
+    List<Result> GetGroupsList();
+    Task ReloadAsync();
 }

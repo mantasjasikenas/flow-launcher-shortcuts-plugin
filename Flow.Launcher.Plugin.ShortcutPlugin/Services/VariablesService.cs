@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
@@ -23,7 +24,7 @@ public class VariablesService : IVariablesService
         _pluginManager = pluginManager;
     }
 
-    public List<Result> GetVariables()
+    public List<Result> GetVariablesList()
     {
         var variables = _variablesRepository.GetVariables();
 
@@ -32,28 +33,29 @@ public class VariablesService : IVariablesService
             return ResultExtensions.EmptyResult("No variables found.");
         }
 
-        var header = new Result
-        {
-            Title = "Variables",
-            SubTitle = "List of all variables",
-            IcoPath = Icons.Logo
-        };
+        var header =
+            ResultExtensions.Result(
+                title: "Variables",
+                subtitle: "List of all variables",
+                iconPath: Icons.Logo,
+                score: 100000
+            );
 
-        var results =
-            variables
-                .Select(variable => new Result
-                {
-                    Title = $"{variable.Name}",
-                    SubTitle = $"{variable.Value}",
-                    IcoPath = Icons.Logo,
-                    Action = _ =>
-                    {
-                        _pluginManager.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
-                        return true;
-                    },
-                    AutoCompleteText = $"Variable: {variable.Name} value: {variable.Value}"
-                })
-                .ToList();
+        var results = variables
+                      .Select(variable =>
+                          ResultExtensions.Result(
+                              title: $"{variable.Name}",
+                              subtitle: $"{variable.Value}",
+                              iconPath: Icons.Logo,
+                              action: () =>
+                              {
+                                  _pluginManager.API.CopyToClipboard($"{variable.Name}:{variable.Value}");
+                              },
+                              hideAfterAction: false,
+                              autoCompleteText: $"{variable.Name}:{variable.Value}"
+                          )
+                      )
+                      .ToList();
 
         results.Insert(0, header);
 
@@ -65,7 +67,9 @@ public class VariablesService : IVariablesService
         var variable = _variablesRepository.GetVariable(name);
 
         if (variable == null)
+        {
             return ResultExtensions.EmptyResult($"Variable '{name}' not found.");
+        }
 
         return ResultExtensions.SingleResult(
             $"Variable '{variable.Name}'",
@@ -78,7 +82,10 @@ public class VariablesService : IVariablesService
         return ResultExtensions.SingleResult(
             $"Add variable '{name}'",
             $"Value: '{value}'",
-            () => { _variablesRepository.AddVariable(name, value); }
+            () =>
+            {
+                _variablesRepository.AddVariable(name, value);
+            }
         );
     }
 
@@ -97,7 +104,10 @@ public class VariablesService : IVariablesService
                             ResultExtensions.Result(
                                 $"Remove variable {variable.Name}",
                                 $"Value: {variable.Value}",
-                                () => { _variablesRepository.RemoveVariable(variable.Name); }
+                                () =>
+                                {
+                                    _variablesRepository.RemoveVariable(variable.Name);
+                                }
                             )
                         )
                         .ToList();
@@ -113,13 +123,16 @@ public class VariablesService : IVariablesService
         return ResultExtensions.SingleResult(
             $"Update variable {name}",
             $"Old value: {variable.Value} | New value: {value}",
-            () => { _variablesRepository.UpdateVariable(name, value); }
+            () =>
+            {
+                _variablesRepository.UpdateVariable(name, value);
+            }
         );
     }
 
-    public void Reload()
+    public async Task ReloadAsync()
     {
-        _variablesRepository.Reload();
+        await _variablesRepository.ReloadVariablesAsync();
     }
 
     public string ExpandVariables(string value)

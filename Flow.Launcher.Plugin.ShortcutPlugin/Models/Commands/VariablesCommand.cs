@@ -68,7 +68,7 @@ public class VariablesCommand : ICommand
 
     private List<Result> ListVariablesCommandHandler(ActionContext context, List<string> arguments)
     {
-        return _variablesService.GetVariables();
+        return _variablesService.GetVariablesList();
     }
 
     private List<Result> RemoveVariableCommandHandler(ActionContext context, List<string> arguments)

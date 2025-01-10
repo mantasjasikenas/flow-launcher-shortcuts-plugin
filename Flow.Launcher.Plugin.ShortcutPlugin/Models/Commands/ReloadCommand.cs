@@ -34,6 +34,9 @@ public class ReloadCommand : ICommand
     private List<Result> ReloadCommandHandler(ActionContext context, List<string> arguments)
     {
         return ResultExtensions.SingleResult("Reload plugin data", "This action will reload all plugin data",
-            () => { _pluginManager.ReloadPluginData(); });
+            asyncAction: async () =>
+            {
+                await _pluginManager.ReloadDataAsync();
+            });
     }
 }

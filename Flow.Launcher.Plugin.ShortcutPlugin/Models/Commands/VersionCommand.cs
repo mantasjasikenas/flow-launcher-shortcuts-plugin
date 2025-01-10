@@ -34,6 +34,6 @@ public class VersionCommand : ICommand
     {
         var version = _pluginManager.Context.CurrentPluginMetadata.Version;
 
-        return ResultExtensions.SingleResult("Plugin version", version);
+        return ResultExtensions.SingleResult("Plugin version", version, hideAfterAction: false);
     }
 }

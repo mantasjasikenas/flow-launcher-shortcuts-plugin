@@ -15,10 +15,10 @@ public class ShortcutPluginTest
     private readonly string _variablesPath = Path.Combine(Directory.GetCurrentDirectory(), "variables.json");
 
     [OneTimeSetUp]
-    public void Setup()
+    public async Task Setup()
     {
         CreateEmptyFiles();
-        InitializePlugin();
+        await InitializePlugin();
         SeedShortcuts();
     }
 
@@ -30,26 +30,26 @@ public class ShortcutPluginTest
     }
 
     [Test]
-    public void ListCommand_ShouldReturnAllShortcuts()
+    public async Task ListCommand_ShouldReturnAllShortcuts()
     {
         var query = QueryExtensions.BuildQuery("q list");
-        var results = _plugin.Query(query);
+        var results = await _plugin.QueryAsync(query, CancellationToken.None);
 
         var shortcutsCount = _shortcutsRepository.GetShortcuts().Count;
 
         Assert.That(results.Count - 1, Is.EqualTo(shortcutsCount));
 
-        TestContext.Out.WriteLine($"Shortcuts count: {shortcutsCount}");
-        TestContext.Out.WriteLine($"Results count: {results.Count}");
+        await TestContext.Out.WriteLineAsync($"Shortcuts count: {shortcutsCount}");
+        await TestContext.Out.WriteLineAsync($"Results count: {results.Count}");
     }
 
     [Test]
     [TestCase("add_dir_test")]
-    public void AddDirectoryCommand_ShouldAddShortcut(string key)
+    public async Task AddDirectoryCommand_ShouldAddShortcut(string key)
     {
         var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        InvokeCommand($"q add directory {key} \"C:\\\"");
+        await InvokeCommand($"q add directory {key} \"C:\\\"");
 
         var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
@@ -58,11 +58,11 @@ public class ShortcutPluginTest
 
     [Test]
     [TestCase("add_url_test")]
-    public void AddUrlCommand_ShouldAddShortcut(string key)
+    public async Task AddUrlCommand_ShouldAddShortcut(string key)
     {
         var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        InvokeCommand($"q add url {key} \"https://www.google.com\"");
+        await InvokeCommand($"q add url {key} \"https://www.google.com\"");
 
         var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
@@ -71,11 +71,11 @@ public class ShortcutPluginTest
 
     [Test]
     [TestCase("add_file_test")]
-    public void AddFileCommand_ShouldAddShortcut(string key)
+    public async Task AddFileCommand_ShouldAddShortcut(string key)
     {
         var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        InvokeCommand($"q add file {key} \"C:\\test.txt\"");
+        await InvokeCommand($"q add file {key} \"C:\\test.txt\"");
 
         var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
@@ -85,11 +85,11 @@ public class ShortcutPluginTest
     [Test]
     [TestCase("add_shell_cmd_test", "cmd")]
     [TestCase("add_shell_powershell_test", "powershell")]
-    public void AddShellCommand_ShouldAddShortcut(string key, string type)
+    public async Task AddShellCommand_ShouldAddShortcut(string key, string type)
     {
         var before = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
-        InvokeCommand($"q add shell {type} {key} true \"cmd /c echo test\"");
+        await InvokeCommand($"q add shell {type} {key} true \"cmd /c echo test\"");
 
         var after = _shortcutsRepository.GetShortcuts(key)?.Count ?? 0;
 
@@ -98,11 +98,11 @@ public class ShortcutPluginTest
 
 
     [Test]
-    public void RemoveCommand_ShouldRemoveShortcut()
+    public async Task RemoveCommand_ShouldRemoveShortcut()
     {
         var removeShortcut = _shortcutsRepository.GetShortcuts().First();
 
-        InvokeCommand("q remove " + removeShortcut.Key);
+        await InvokeCommand("q remove " + removeShortcut.Key);
 
         var after = _shortcutsRepository.GetShortcuts().Contains(removeShortcut);
 
@@ -110,12 +110,12 @@ public class ShortcutPluginTest
     }
 
     [Test]
-    public void DuplicateCommand_ShouldDuplicateShortcut()
+    public async Task DuplicateCommand_ShouldDuplicateShortcut()
     {
         var duplicateShortcut = _shortcutsRepository.GetShortcuts().First();
         const string duplicateShortcutKey = "test";
 
-        InvokeCommand($"q duplicate {duplicateShortcut.Key} {duplicateShortcutKey}");
+        await InvokeCommand($"q duplicate {duplicateShortcut.Key} {duplicateShortcutKey}");
 
         var after = _shortcutsRepository.GetShortcuts()
                                         .FirstOrDefault(x =>
@@ -125,15 +125,15 @@ public class ShortcutPluginTest
         Assert.That(after, Is.Not.Null);
     }
 
-    private void InvokeCommand(string rawQuery)
+    private async Task InvokeCommand(string rawQuery)
     {
         var query = QueryExtensions.BuildQuery(rawQuery);
 
-        _plugin.Query(query)
-               .ForEach(result => result.Action.Invoke(null));
+        (await _plugin.QueryAsync(query, CancellationToken.None))
+            .ForEach(result => result.Action.Invoke(null));
     }
 
-    private void InitializePlugin()
+    private async Task InitializePlugin()
     {
         var pluginInitContext = new PluginInitContext(
             new PluginMetadata
@@ -149,7 +149,7 @@ public class ShortcutPluginTest
         SetPluginDirectory(pluginInitContext.CurrentPluginMetadata, Directory.GetCurrentDirectory());
 
         _plugin = new ShortcutPlugin();
-        _plugin.Init(pluginInitContext);
+        await _plugin.InitAsync(pluginInitContext);
 
         _shortcutsRepository = _plugin.ServiceProvider.GetService<IShortcutsRepository>()!;
     }

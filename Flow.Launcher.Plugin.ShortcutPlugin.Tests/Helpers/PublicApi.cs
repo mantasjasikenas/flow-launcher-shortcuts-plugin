@@ -19,7 +19,7 @@ internal class PublicApi : IPublicAPI
     {
         if (typeof(T) == typeof(Settings))
         {
-            return (T) (object) new Settings
+            return (T)(object)new Settings
             {
                 ShortcutsPath = _shortcutsPath,
                 VariablesPath = _variablesPath
@@ -96,6 +96,11 @@ internal class PublicApi : IPublicAPI
         TestContext.Out.WriteLine("Subtitle: " + subTitle);
     }
 
+    public List<PluginPair> GetAllPlugins()
+    {
+        return [];
+    }
+
     public void ShowMsg(string title, string subTitle, string iconPath, bool useMainWindowAsOwner = true)
     {
         throw new NotImplementedException();
@@ -107,11 +112,6 @@ internal class PublicApi : IPublicAPI
     }
 
     public string GetTranslation(string key)
-    {
-        throw new NotImplementedException();
-    }
-
-    public List<PluginPair> GetAllPlugins()
     {
         throw new NotImplementedException();
     }

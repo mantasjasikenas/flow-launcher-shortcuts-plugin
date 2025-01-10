@@ -28,7 +28,7 @@ public class SnippetsCommand : ICommand
                .WithResponseSuccess(("snippets", "List all snippets"))
                .WithMultipleValuesForSingleArgument()
                .WithHandler((_, arguments) =>
-                   _shortcutsService.GetShortcuts(arguments.Skip(1).ToList(), ShortcutType.Snippet))
+                   _shortcutsService.GetShortcutsList(arguments.Skip(1).ToList(), ShortcutType.Snippet))
                .Build();
     }
 }

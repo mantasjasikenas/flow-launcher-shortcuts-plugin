@@ -1,31 +1,41 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
-public class PluginManager : IPluginManager
+public class PluginManager : IPluginManager, IAsyncReloadable
 {
-    public PluginInitContext Context { get; }
+    public PluginInitContext Context
+    {
+        get;
+    }
 
     public IPublicAPI API => Context.API;
 
     public PluginMetadata Metadata => Context.CurrentPluginMetadata;
 
-    public Query LastQuery { get; private set; }
+    public Query LastQuery
+    {
+        get;
+        private set;
+    }
 
-
-    private IReloadable _reloadable;
+    private IAsyncReloadable _asyncReloadable;
+    private IList<PluginPair> _plugins;
 
 
     public PluginManager(PluginInitContext context)
     {
         Context = context;
         LastQuery = new Query();
+        _plugins = context.API.GetAllPlugins();
     }
 
-    public void SetReloadable(IReloadable reloadable)
+    public void SetReloadable(IAsyncReloadable reloadable)
     {
-        _reloadable = reloadable;
+        _asyncReloadable = reloadable;
     }
 
     public void SetLastQuery(Query query)
@@ -38,12 +48,17 @@ public class PluginManager : IPluginManager
         LastQuery = new Query();
     }
 
-    public void ReloadPluginData()
+    public async Task ReloadDataAsync()
     {
-        ClearLastQuery();
-        _reloadable.ReloadData();
+        ReloadData();
+        await _asyncReloadable.ReloadDataAsync();
     }
 
+    private void ReloadData()
+    {
+        ClearLastQuery();
+        _plugins = Context.API.GetAllPlugins();
+    }
 
     public string GetActionKeyword()
     {
@@ -66,5 +81,12 @@ public class PluginManager : IPluginManager
         var query = AppendActionKeyword(text);
 
         API.ChangeQuery(query);
+    }
+
+    public string FindPluginActionKeyword(string pluginName)
+    {
+        var plugin = _plugins.FirstOrDefault(p => p.Metadata.Name == pluginName);
+
+        return plugin?.Metadata.ActionKeyword ?? string.Empty;
     }
 }

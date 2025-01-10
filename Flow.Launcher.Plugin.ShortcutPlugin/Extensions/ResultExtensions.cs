@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
@@ -24,41 +25,46 @@ public static class ResultExtensions
     public static List<Result> SingleResult(
         string title,
         string subtitle = "",
-        Action action = default,
+        Action action = null,
+        Func<Task> asyncAction = null,
         bool hideAfterAction = true,
-        string autocomplete = default,
-        string iconPath = default,
-        IList<int> titleHighlightData = default
+        string iconPath = null,
+        object contextData = null,
+        string autoCompleteText = null,
+        IList<int> titleHighlightData = null,
+        int score = 0,
+        string previewFilePath = null
     )
     {
         return
         [
-            new Result
-            {
-                Title = title,
-                SubTitle = subtitle,
-                IcoPath = iconPath ?? Icons.Logo,
-                AutoCompleteText = autocomplete,
-                TitleHighlightData = titleHighlightData,
-                Action = _ =>
-                {
-                    action?.Invoke();
-                    return hideAfterAction;
-                }
-            }
+            Result(
+                title,
+                subtitle,
+                action,
+                asyncAction,
+                hideAfterAction,
+                iconPath,
+                contextData,
+                autoCompleteText,
+                titleHighlightData,
+                score,
+                previewFilePath
+            )
         ];
     }
 
     public static Result Result(
         string title,
         string subtitle = "",
-        Action action = default,
+        Action action = null,
+        Func<Task> asyncAction = null,
         bool hideAfterAction = true,
-        string iconPath = default,
-        object contextData = default,
+        string iconPath = null,
+        object contextData = null,
         string autoCompleteText = null,
-        IList<int> titleHighlightData = default,
-        int score = default,
+        IList<int> titleHighlightData = null,
+        int score = 0,
         string previewFilePath = null
     )
     {
@@ -70,11 +76,20 @@ public static class ResultExtensions
             TitleHighlightData = titleHighlightData,
             ContextData = contextData,
             Score = score,
-            Action = _ =>
-            {
-                action?.Invoke();
-                return hideAfterAction;
-            },
+            Action = action == null
+                ? null
+                : _ =>
+                {
+                    action();
+                    return hideAfterAction;
+                },
+            AsyncAction = asyncAction == null
+                ? null
+                : async _ =>
+                {
+                    await asyncAction();
+                    return hideAfterAction;
+                },
             AutoCompleteText = autoCompleteText ?? title,
             Preview = new Result.PreviewInfo
             {
