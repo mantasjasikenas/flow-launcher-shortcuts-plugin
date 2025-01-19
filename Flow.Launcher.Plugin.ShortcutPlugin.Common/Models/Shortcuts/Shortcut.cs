@@ -35,6 +35,9 @@ public abstract class Shortcut : ICloneable
         set;
     }
 
+
+    public abstract object Clone();
+
     public string GetDerivedType()
     {
         return this switch
@@ -67,17 +70,11 @@ public abstract class Shortcut : ICloneable
         return string.IsNullOrWhiteSpace(title) ? GetDerivedType() : title;
     }
 
-    public virtual string GetSubTitle()
-    {
-        return ToString();
-    }
+    public virtual string GetSubTitle() => ToString();
 
     private string GetAlias()
     {
         // Alternative symbols: ⨯ ⇒ ⪢ ⌗
         return Alias is {Count: > 0} ? $" ⌗ {string.Join(" ⌗ ", Alias)}" : string.Empty;
     }
-
-
-    public abstract object Clone();
 }
