@@ -34,7 +34,7 @@ public class EditorCommand : ICommand
                .Build();
     }
 
-    private List<Result> EditorCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> EditorCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         var pluginDirectory = _pluginManager.Metadata.PluginDirectory;
 

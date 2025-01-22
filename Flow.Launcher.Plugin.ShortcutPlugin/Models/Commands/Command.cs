@@ -17,7 +17,7 @@ public class BaseQueryExecutor : IQueryExecutor
 
     public bool AllowsMultipleValuesForSingleArgument { get; set; }
 
-    public Func<ActionContext, List<string>, List<Result>> Handler { get; set; }
+    public Func<ActionContext, ParsedQuery, List<Result>> Handler { get; set; }
 
     public (string, string)? ResponseFailure { get; set; }
 
@@ -28,7 +28,7 @@ public class BaseQueryExecutor : IQueryExecutor
 
 public interface IQueryExecutor
 {
-    public Func<ActionContext, List<string>, List<Result>> Handler { get; set; }
+    public Func<ActionContext, ParsedQuery, List<Result>> Handler { get; set; }
 
     public (string, string)? ResponseFailure { get; set; }
 

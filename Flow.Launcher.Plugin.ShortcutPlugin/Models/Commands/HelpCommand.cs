@@ -30,7 +30,7 @@ public class HelpCommand : ICommand
                .Build();
     }
 
-    private List<Result> HelpCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> HelpCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         var readmeResult = ResultExtensions.Result(
             "Open the plugin's documentation",

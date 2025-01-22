@@ -89,14 +89,15 @@ public class KeywordCommand : ICommand
                .Build();
     }
 
-    private List<Result> GetKeywordCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> GetKeywordCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return ResultExtensions.SingleResult("Plugin keywords",
             string.Join(", ", _pluginManager.Context.CurrentPluginMetadata.ActionKeywords));
     }
 
-    private List<Result> SetKeywordCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> SetKeywordCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         var newKeyword = arguments[2];
 
         return ResultExtensions.SingleResult("Setting plugin keyword (other will be removed)",
@@ -113,8 +114,9 @@ public class KeywordCommand : ICommand
             });
     }
 
-    private List<Result> AddKeywordCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> AddKeywordCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         var metadata = _pluginManager.Context.CurrentPluginMetadata;
         var actionKeywords = metadata.ActionKeywords;
         var newKeyword = arguments[2];
@@ -132,8 +134,9 @@ public class KeywordCommand : ICommand
             });
     }
 
-    private List<Result> RemoveKeywordCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> RemoveKeywordCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         var metadata = _pluginManager.Context.CurrentPluginMetadata;
         var actionKeywords = metadata.ActionKeywords;
 

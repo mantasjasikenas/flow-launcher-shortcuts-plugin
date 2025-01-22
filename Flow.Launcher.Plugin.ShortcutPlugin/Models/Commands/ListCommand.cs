@@ -26,7 +26,7 @@ public class ListCommand : ICommand
                .WithResponseFailure(("Failed to show all shortcuts", "Something went wrong"))
                .WithResponseSuccess(("List", "List all shortcuts"))
                .WithMultipleValuesForSingleArgument()
-               .WithHandler((_, arguments) => _shortcutsService.GetShortcutsList(arguments.Skip(1).ToList()))
+               .WithHandler((_, parsedQuery) => _shortcutsService.GetShortcutsList(parsedQuery.Arguments))
                .Build();
     }
 }

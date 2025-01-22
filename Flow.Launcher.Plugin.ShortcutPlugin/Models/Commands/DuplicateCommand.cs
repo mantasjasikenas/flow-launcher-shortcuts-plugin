@@ -41,8 +41,9 @@ public class DuplicateCommand : ICommand
                .Build();
     }
 
-    private List<Result> DuplicateCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> DuplicateCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         return _shortcutsService.DuplicateShortcut(arguments[1], arguments[2]);
     }
 }

@@ -22,7 +22,7 @@ public class ReportCommand : ICommand
                .Build();
     }
 
-    private static List<Result> ReportCommandHandler(ActionContext context, List<string> arguments)
+    private static List<Result> ReportCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return ResultExtensions.SingleResult(
             "Report an issue",

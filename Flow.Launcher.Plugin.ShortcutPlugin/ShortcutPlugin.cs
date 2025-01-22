@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using Flow.Launcher.Plugin.ShortcutPlugin.DI;
-using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
@@ -23,7 +22,7 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
         private set;
     }
 
-    private ICommandsService _commandsService;
+    private IQueryInterpreter _queryInterpreter;
 
     private SettingsUserControl _settingWindow;
     private SettingsViewModel _settingsViewModel;
@@ -31,7 +30,6 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
 
     private IPluginManager _pluginManager;
     private IAsyncReloadable _asyncReloadable;
-
 
     public async Task InitAsync(PluginInitContext context)
     {
@@ -41,7 +39,7 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
                           .BuildServiceProvider();
 
 
-        _commandsService = ServiceProvider.GetService<ICommandsService>();
+        _queryInterpreter = ServiceProvider.GetService<IQueryInterpreter>();
         _pluginManager = ServiceProvider.GetService<IPluginManager>();
 
         _contextMenu = ServiceProvider.GetService<ContextMenu>();
@@ -61,10 +59,7 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
     {
         _pluginManager.SetLastQuery(query);
 
-        var args = CommandLineExtensions.SplitArguments(query.Search);
-        var results = _commandsService.ResolveCommand(args, query);
-
-        return Task.FromResult(results);
+        return Task.FromResult(_queryInterpreter.Interpret(query));
     }
 
     public async Task ReloadDataAsync()

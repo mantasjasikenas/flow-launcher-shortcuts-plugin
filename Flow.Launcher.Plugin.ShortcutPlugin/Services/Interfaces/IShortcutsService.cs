@@ -8,12 +8,12 @@ public interface IShortcutsService
 {
     List<Result> RemoveShortcut(string key);
     List<Result> RemoveGroup(string key);
-    List<Result> OpenShortcuts(IList<Shortcut> shortcuts, IEnumerable<string> arguments, bool expandGroups);
-    IEnumerable<Result> OpenShortcut(Shortcut shortcut, IEnumerable<string> arguments, bool expandGroups);
+    List<Result> OpenShortcuts(IList<Shortcut> shortcuts, IReadOnlyDictionary<string, string> arguments, bool expandGroups);
+    IEnumerable<Result> OpenShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> arguments, bool expandGroups);
     List<Result> DuplicateShortcut(string existingKey, string newKey);
     List<Result> ImportShortcuts();
     List<Result> ExportShortcuts();
-    List<Result> GetShortcutsList(List<string> arguments, ShortcutType? shortcutType = null);
+    List<Result> GetShortcutsList(IReadOnlyDictionary<string, string> arguments, ShortcutType? shortcutType = null);
     List<Result> GetGroupsList();
     Task ReloadAsync();
 }

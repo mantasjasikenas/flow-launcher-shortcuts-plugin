@@ -30,7 +30,7 @@ public class VersionCommand : ICommand
                .Build();
     }
 
-    private List<Result> VersionCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> VersionCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         var version = _pluginManager.Context.CurrentPluginMetadata.Version;
 

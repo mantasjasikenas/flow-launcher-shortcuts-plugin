@@ -29,7 +29,7 @@ public class SettingsCommand : ICommand
                .Build();
     }
 
-    private List<Result> SettingsCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> SettingsCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return ResultExtensions.SingleResult("Open Flow Launcher settings", "",
             _pluginManager.API.OpenSettingDialog);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
@@ -118,7 +119,9 @@ public class VariablesService : IVariablesService
         var variable = _variablesRepository.GetVariable(name);
 
         if (variable is null)
+        {
             return ResultExtensions.EmptyResult($"Variable {name} not found.");
+        }
 
         return ResultExtensions.SingleResult(
             $"Update variable {name}",
@@ -206,16 +209,55 @@ public class VariablesService : IVariablesService
         );
     }
 
-    private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)
+    private static string ExpandArguments(string originalValue, IReadOnlyDictionary<string, string> args)
     {
+        var replacedAll = true;
+        var value = originalValue;
+
         foreach (var (key, arg) in args)
         {
             var trimmedKey = key.TrimStart('-');
             var replaceValue = string.Format(Constants.VariableFormat, trimmedKey);
 
+            var before = value;
             value = value.Replace(replaceValue, arg);
+
+            if (before == value)
+            {
+                replacedAll = false;
+            }
+        }
+
+        if (replacedAll)
+        {
+            return value;
+        }
+
+        // find all variables in the string
+        var matchedArgumentTemplates = RegexPattern.ArgumentTemplatePattern()
+                                                   .Matches(originalValue)
+                                                   .Select(m => m.Groups[1].Value)
+                                                   .ToList();
+
+        for (var i = 0; i < matchedArgumentTemplates.Count; i++)
+        {
+            var argName = matchedArgumentTemplates[i];
+
+            if (!args.TryGetValue(GetPositionalArgumentName(i), out var argValue))
+            {
+                continue;
+            }
+
+            // Get the value of the argument based on the index
+            var replaceValue = string.Format(Constants.VariableFormat, argName);
+            value = value.Replace(replaceValue, argValue);
         }
 
         return value;
+    }
+
+    private static string GetPositionalArgumentName(int index)
+    {
+        return $"{index + 1}";
     }
 }

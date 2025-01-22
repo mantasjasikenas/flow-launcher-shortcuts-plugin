@@ -32,16 +32,16 @@ public class ConfigCommand : ICommand
                .Build();
     }
 
-    private List<Result> ConfigCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> ConfigCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         var shortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
         var variablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
 
-        return new List<Result>
-        {
+        return
+        [
             CreateConfigResult("Open shortcuts config", shortcutsPath),
             CreateConfigResult("Open variables config", variablesPath)
-        };
+        ];
     }
 
     private Result CreateConfigResult(string title, string path)

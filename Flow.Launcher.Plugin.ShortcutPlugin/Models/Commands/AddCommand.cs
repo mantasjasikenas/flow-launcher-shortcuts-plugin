@@ -44,8 +44,10 @@ public class AddCommand : ICommand
         };
     }
 
-    private List<Result> CreateUrlShortcutHandler(ActionContext context, List<string> arguments)
+    private List<Result> CreateUrlShortcutHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
+
         return ResultExtensions.SingleResult("Create url shortcut", $"Url: {arguments[3]}",
             () =>
             {
@@ -60,8 +62,10 @@ public class AddCommand : ICommand
             });
     }
 
-    private List<Result> CreateFileShortcutHandler(ActionContext context, List<string> arguments)
+    private List<Result> CreateFileShortcutHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
+
         return ResultExtensions.SingleResult("Create file shortcut", $"File path: {arguments[3]}", () =>
         {
             var key = arguments[2];
@@ -75,8 +79,10 @@ public class AddCommand : ICommand
         });
     }
 
-    private List<Result> CreateDirectoryShortcutHandler(ActionContext context, List<string> arguments)
+    private List<Result> CreateDirectoryShortcutHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
+
         return ResultExtensions.SingleResult("Create directory shortcut", $"Directory path: {arguments[3]}",
             () =>
             {
@@ -91,8 +97,10 @@ public class AddCommand : ICommand
             });
     }
 
-    private List<Result> CreateShellShortcutHandler(ActionContext context, List<string> arguments)
+    private List<Result> CreateShellShortcutHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
+
         if (arguments.Count < 6)
         {
             return ResultExtensions.SingleResult("Invalid shell shortcut arguments",
@@ -136,7 +144,7 @@ public class AddCommand : ICommand
     }
 
     private static IQueryExecutor CreateShortcutType(string type,
-        Func<ActionContext, List<string>, List<Result>> createShortcutHandler)
+        Func<ActionContext, ParsedQuery, List<Result>> createShortcutHandler)
     {
         var createShortcutHandlerArgument = new ArgumentBuilder()
                                             .WithResponseSuccess(("Add", "Your new shortcut will be added to the list"))
@@ -212,8 +220,10 @@ public class AddCommand : ICommand
                .Build();
     }
 
-    private List<Result> CreateSnippetShortcutHandler(ActionContext context, List<string> arguments)
+    private List<Result> CreateSnippetShortcutHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
+
         if (arguments.Count < 4)
         {
             return ResultExtensions.SingleResult("Invalid snippet shortcut arguments",

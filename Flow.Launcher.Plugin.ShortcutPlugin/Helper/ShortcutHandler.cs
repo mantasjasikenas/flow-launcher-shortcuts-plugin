@@ -29,17 +29,12 @@ public class ShortcutHandler : IShortcutHandler
         _shortcutsRepository = shortcutsRepository;
     }
 
-    public void ExecuteShortcut(Shortcut shortcut, List<string>? arguments)
+    public void ExecuteShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> arguments)
     {
-        var parsedArguments =
-            arguments != null && arguments.Any()
-                ? CommandLineExtensions.ParseArguments(shortcut.ToString(), arguments)
-                : new Dictionary<string, string>();
-
-        Task.Run(() => ExecuteShortcut(shortcut, parsedArguments));
+        Task.Run(() => InternalExecuteShortcut(shortcut, arguments));
     }
 
-    private void ExecuteShortcut(
+    private void InternalExecuteShortcut(
         Shortcut shortcut,
         IReadOnlyDictionary<string, string> parsedArguments
     )
@@ -150,7 +145,8 @@ public class ShortcutHandler : IShortcutHandler
     {
         var value = _variablesService.ExpandVariables(shortcut.Value, parsedArguments);
 
-        var thread = new Thread(() => {
+        var thread = new Thread(() =>
+        {
             Clipboard.SetText(value);
         });
 
@@ -189,7 +185,7 @@ public class ShortcutHandler : IShortcutHandler
                 return;
             }
 
-            ExecuteShortcut(shortcut, parsedArguments);
+            InternalExecuteShortcut(shortcut, parsedArguments);
         });
     }
 
@@ -227,25 +223,4 @@ public class ShortcutHandler : IShortcutHandler
     {
         return shortcut is GroupShortcut groupShortcutValue && groupShortcutValue.Keys?.Contains(groupKey) == true;
     }
-
-    // ReSharper disable once UnusedMember.Local
-    /*private List<Result> ExecutePluginShortcut(IPluginManager pluginManager, PluginShortcut shortcut)
-    {
-        return ResultExtensions.SingleResult(
-            "Executing plugin shortcut",
-            shortcut.RawQuery,
-            Action
-        );
-
-        void Action()
-        {
-            var plugins = pluginManager.API.GetAllPlugins();
-            var plugin = plugins.First(x => x.Metadata.Name.Equals(shortcut.PluginName));
-
-            var query = QueryBuilder.Build(shortcut.RawQuery);
-
-            var results = plugin.Plugin.QueryAsync(query, CancellationToken.None).Result;
-            results.First().Action.Invoke(null);
-        }
-    }*/
 }

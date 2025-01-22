@@ -11,7 +11,7 @@ public static class Constants
     public const string PluginDataPath = "Settings\\Plugins\\Flow.Launcher.Plugin.ShortcutPlugin";
 
     public const string VariableFormat = "${{{0}}}";
-
+    
     public const string BackupTimestampFormat = "yyyyMMddHHmmssfff";
 
     public const string BackupsFolder = "Backups";

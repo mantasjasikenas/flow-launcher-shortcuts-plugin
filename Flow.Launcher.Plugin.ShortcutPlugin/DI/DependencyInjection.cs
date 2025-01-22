@@ -27,11 +27,12 @@ public static class DependencyInjection
         services.AddSingleton<IBackupRepository, BackupRepository>();
         services.AddSingleton<ICommandsRepository, CommandsRepository>();
         services.AddSingleton<IVariablesService, VariablesService>();
-        services.AddSingleton<ICommandsService, CommandsService>();
         services.AddSingleton<IBackupService, BackupService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
         services.AddSingleton<IIconProvider, IconProvider>();
+        services.AddSingleton<IQueryParser, QueryParser>();
+        services.AddSingleton<IQueryInterpreter, QueryInterpreter>();
         services.AddSingleton<SettingsViewModel, SettingsViewModel>();
         services.AddSingleton(provider => new IPCManagerServer(
             message =>

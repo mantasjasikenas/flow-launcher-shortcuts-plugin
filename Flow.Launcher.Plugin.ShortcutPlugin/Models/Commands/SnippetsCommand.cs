@@ -1,4 +1,3 @@
-using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -27,8 +26,8 @@ public class SnippetsCommand : ICommand
                .WithResponseFailure(("Failed to show all snippets", "Something went wrong"))
                .WithResponseSuccess(("snippets", "List all snippets"))
                .WithMultipleValuesForSingleArgument()
-               .WithHandler((_, arguments) =>
-                   _shortcutsService.GetShortcutsList(arguments.Skip(1).ToList(), ShortcutType.Snippet))
+               .WithHandler((_, parsedQuery) =>
+                   _shortcutsService.GetShortcutsList(parsedQuery.Arguments, ShortcutType.Snippet))
                .Build();
     }
 }

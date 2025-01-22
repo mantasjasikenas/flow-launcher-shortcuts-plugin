@@ -5,5 +5,5 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
 public interface IShortcutHandler
 {
-    void ExecuteShortcut(Shortcut shortcut, List<string> arguments);
+    void ExecuteShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> arguments);
 }
