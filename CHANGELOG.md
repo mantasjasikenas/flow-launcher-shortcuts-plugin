@@ -40,6 +40,7 @@ All notable changes to this project will be documented in this file.
   Before, you had to provide the arguments in the following way: `q yt -value watch -list later`. Now you can provide
   the arguments in the following way: `q yt -1 watch -2 later`. The numbers represent the argument position in the
   shortcut. Numbering starts from 1.
+- Fixed group shortcuts invocation bug when the group shortcut name contained spaces.
 
 ## [1.2.1] - 2024-09-24
 
