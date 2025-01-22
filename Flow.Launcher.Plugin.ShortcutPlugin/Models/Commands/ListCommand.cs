@@ -1,5 +1,5 @@
 using System.Linq;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
@@ -26,7 +26,7 @@ public class ListCommand : ICommand
                .WithResponseFailure(("Failed to show all shortcuts", "Something went wrong"))
                .WithResponseSuccess(("List", "List all shortcuts"))
                .WithMultipleValuesForSingleArgument()
-               .WithHandler((_, arguments) => _shortcutsService.GetShortcuts(arguments.Skip(1).ToList()))
+               .WithHandler((_, parsedQuery) => _shortcutsService.GetShortcutsList(parsedQuery.Arguments))
                .Build();
     }
 }

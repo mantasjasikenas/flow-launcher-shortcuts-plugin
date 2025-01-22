@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Editor app
+
+## [1.2.2] - 2025-01-22
+
+- Support for shell type `Pwsh`.
+- If action is not specified for query result, pressing `Enter` will not close the launcher.
+- Snippet shortcut type. Executing a snippet shortcut will copy the snippet value to the clipboard. Better would be if
+  executing a snippet shortcut will paste the snippet value to the active window but didn't find a way to do that so
+  far. Example:
+
+  ```json
+  {
+    "Type": "Snippet",
+    "Value": "Hello\rworld",
+    "Key": "hi"
+  }
+  ```
+- Autocompleting on Shell shortcut type changes the query to shell plugin keyword followed by the shell shortcut
+  arguments.
+- Changed the default behavior of list commands (`q list`, `q snippets`, `q group list`). Now invoking item from the
+  list will replace the query with the selected item.
+- Removed default argument assignment when shortcut had only one argument. Now the user has to provide the argument name
+  when invoking the shortcut. This change was made due conflicts with other functionality.
+- Added positional arguments support. For example, you have URL shortcut with the following arguments:
+
+  ```json
+  {
+    "Type": "Url",
+    "Url": "https://www.youtube.com/watch?v=${value}&list=${list}",
+    "Key": "yt"
+  }
+  ```
+
+  Before, you had to provide the arguments in the following way: `q yt -value watch -list later`. Now you can provide
+  the arguments in the following way: `q yt -1 watch -2 later`. The numbers represent the argument position in the
+  shortcut. Numbering starts from 1.
+- Fixed group shortcuts invocation bug when the group shortcut name contained spaces.
+
 ## [1.2.1] - 2024-09-24
 
 - Do not autocomplete the result when Enter is pressed if the argument is not a literal type.

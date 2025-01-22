@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
@@ -22,7 +25,7 @@ public class VariablesService : IVariablesService
         _pluginManager = pluginManager;
     }
 
-    public List<Result> GetVariables()
+    public List<Result> GetVariablesList()
     {
         var variables = _variablesRepository.GetVariables();
 
@@ -31,28 +34,29 @@ public class VariablesService : IVariablesService
             return ResultExtensions.EmptyResult("No variables found.");
         }
 
-        var header = new Result
-        {
-            Title = "Variables",
-            SubTitle = "List of all variables",
-            IcoPath = Icons.Logo
-        };
+        var header =
+            ResultExtensions.Result(
+                title: "Variables",
+                subtitle: "List of all variables",
+                iconPath: Icons.Logo,
+                score: 100000
+            );
 
-        var results =
-            variables
-                .Select(variable => new Result
-                {
-                    Title = $"{variable.Name}",
-                    SubTitle = $"{variable.Value}",
-                    IcoPath = Icons.Logo,
-                    Action = _ =>
-                    {
-                        _pluginManager.API.CopyToClipboard($"Variable: {variable.Name} value: {variable.Value}");
-                        return true;
-                    },
-                    AutoCompleteText = $"Variable: {variable.Name} value: {variable.Value}"
-                })
-                .ToList();
+        var results = variables
+                      .Select(variable =>
+                          ResultExtensions.Result(
+                              title: $"{variable.Name}",
+                              subtitle: $"{variable.Value}",
+                              iconPath: Icons.Logo,
+                              action: () =>
+                              {
+                                  _pluginManager.API.CopyToClipboard($"{variable.Name}:{variable.Value}");
+                              },
+                              hideAfterAction: false,
+                              autoCompleteText: $"{variable.Name}:{variable.Value}"
+                          )
+                      )
+                      .ToList();
 
         results.Insert(0, header);
 
@@ -64,7 +68,9 @@ public class VariablesService : IVariablesService
         var variable = _variablesRepository.GetVariable(name);
 
         if (variable == null)
+        {
             return ResultExtensions.EmptyResult($"Variable '{name}' not found.");
+        }
 
         return ResultExtensions.SingleResult(
             $"Variable '{variable.Name}'",
@@ -77,7 +83,10 @@ public class VariablesService : IVariablesService
         return ResultExtensions.SingleResult(
             $"Add variable '{name}'",
             $"Value: '{value}'",
-            () => { _variablesRepository.AddVariable(name, value); }
+            () =>
+            {
+                _variablesRepository.AddVariable(name, value);
+            }
         );
     }
 
@@ -96,7 +105,10 @@ public class VariablesService : IVariablesService
                             ResultExtensions.Result(
                                 $"Remove variable {variable.Name}",
                                 $"Value: {variable.Value}",
-                                () => { _variablesRepository.RemoveVariable(name); }
+                                () =>
+                                {
+                                    _variablesRepository.RemoveVariable(variable.Name);
+                                }
                             )
                         )
                         .ToList();
@@ -107,18 +119,23 @@ public class VariablesService : IVariablesService
         var variable = _variablesRepository.GetVariable(name);
 
         if (variable is null)
+        {
             return ResultExtensions.EmptyResult($"Variable {name} not found.");
+        }
 
         return ResultExtensions.SingleResult(
             $"Update variable {name}",
             $"Old value: {variable.Value} | New value: {value}",
-            () => { _variablesRepository.UpdateVariable(name, value); }
+            () =>
+            {
+                _variablesRepository.UpdateVariable(name, value);
+            }
         );
     }
 
-    public void Reload()
+    public async Task ReloadAsync()
     {
-        _variablesRepository.Reload();
+        await _variablesRepository.ReloadVariablesAsync();
     }
 
     public string ExpandVariables(string value)
@@ -192,16 +209,55 @@ public class VariablesService : IVariablesService
         );
     }
 
-    private static string ExpandArguments(string value, IReadOnlyDictionary<string, string> args)
+    private static string ExpandArguments(string originalValue, IReadOnlyDictionary<string, string> args)
     {
+        var replacedAll = true;
+        var value = originalValue;
+
         foreach (var (key, arg) in args)
         {
             var trimmedKey = key.TrimStart('-');
             var replaceValue = string.Format(Constants.VariableFormat, trimmedKey);
 
+            var before = value;
             value = value.Replace(replaceValue, arg);
+
+            if (before == value)
+            {
+                replacedAll = false;
+            }
+        }
+
+        if (replacedAll)
+        {
+            return value;
+        }
+
+        // find all variables in the string
+        var matchedArgumentTemplates = RegexPattern.ArgumentTemplatePattern()
+                                                   .Matches(originalValue)
+                                                   .Select(m => m.Groups[1].Value)
+                                                   .ToList();
+
+        for (var i = 0; i < matchedArgumentTemplates.Count; i++)
+        {
+            var argName = matchedArgumentTemplates[i];
+
+            if (!args.TryGetValue(GetPositionalArgumentName(i), out var argValue))
+            {
+                continue;
+            }
+
+            // Get the value of the argument based on the index
+            var replaceValue = string.Format(Constants.VariableFormat, argName);
+            value = value.Replace(replaceValue, argValue);
         }
 
         return value;
+    }
+
+    private static string GetPositionalArgumentName(int index)
+    {
+        return $"{index + 1}";
     }
 }

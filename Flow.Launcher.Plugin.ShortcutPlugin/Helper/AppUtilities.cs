@@ -50,7 +50,7 @@ public static class AppUtilities
                 name = name[..(name.LastIndexOf(".exe", StringComparison.Ordinal) + 4)];
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             name = "";
         }

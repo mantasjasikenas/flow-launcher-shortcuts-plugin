@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
@@ -30,12 +30,12 @@ public class HelpCommand : ICommand
                .Build();
     }
 
-    private List<Result> HelpCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> HelpCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         var readmeResult = ResultExtensions.Result(
             "Open the plugin's documentation",
             Constants.ReadmeUrl,
-            () => { ShortcutUtilities.OpenUrl(Constants.ReadmeUrl); },
+            () => { Helper.ShortcutUtilities.OpenUrl(Constants.ReadmeUrl); },
             iconPath: Icons.Info,
             autoCompleteText: Constants.ReadmeUrl
         );
@@ -43,7 +43,7 @@ public class HelpCommand : ICommand
         var reportIssueResult = ResultExtensions.Result(
             "Report an issue on GitHub",
             Constants.GithubIssues,
-            () => { ShortcutUtilities.OpenUrl(Constants.GithubIssues); },
+            () => { Helper.ShortcutUtilities.OpenUrl(Constants.GithubIssues); },
             iconPath: Icons.Github,
             autoCompleteText: Constants.GithubIssues
         );

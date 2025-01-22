@@ -18,7 +18,7 @@ public static class DependencyInjection
     )
     {
         services.AddSingleton(context);
-        services.AddSingleton<IReloadable, Reloadable>();
+        services.AddSingleton<IAsyncReloadable, Reloadable>();
         services.AddSingleton<IPluginManager, PluginManager>();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IShortcutsRepository, ShortcutsRepository>();
@@ -27,12 +27,20 @@ public static class DependencyInjection
         services.AddSingleton<IBackupRepository, BackupRepository>();
         services.AddSingleton<ICommandsRepository, CommandsRepository>();
         services.AddSingleton<IVariablesService, VariablesService>();
-        services.AddSingleton<ICommandsService, CommandsService>();
         services.AddSingleton<IBackupService, BackupService>();
         services.AddSingleton<ISettingProvider, ShortcutPlugin>();
         services.AddSingleton<IShortcutHandler, ShortcutHandler>();
         services.AddSingleton<IIconProvider, IconProvider>();
+        services.AddSingleton<IQueryParser, QueryParser>();
+        services.AddSingleton<IQueryInterpreter, QueryInterpreter>();
         services.AddSingleton<SettingsViewModel, SettingsViewModel>();
+        services.AddSingleton(provider => new IPCManagerServer(
+            message =>
+            {
+                context.API.ShowMsg(message);
+            },
+            provider.GetService<IReloadable>()
+        ));
         services.AddScoped<ContextMenu>();
 
         return services;
@@ -43,7 +51,11 @@ public static class DependencyInjection
         services.AddSingleton<ICommand, AddCommand>();
         services.AddSingleton<ICommand, ListCommand>();
         services.AddSingleton<ICommand, ReloadCommand>();
+        services.AddSingleton<ICommand, SnippetsCommand>();
         services.AddSingleton<ICommand, SettingsCommand>();
+#if INCLUDE_EDITOR
+        services.AddSingleton<ICommand, EditorCommand>();
+#endif
         services.AddSingleton<ICommand, ConfigCommand>();
         services.AddSingleton<ICommand, ImportCommand>();
         services.AddSingleton<ICommand, ExportCommand>();

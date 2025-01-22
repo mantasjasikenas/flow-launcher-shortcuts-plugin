@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
@@ -26,7 +27,7 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Save()
+    private async Task Save()
     {
         var isModified = false;
 
@@ -63,19 +64,19 @@ public partial class SettingsViewModel : ObservableObject
 
         if (isModified)
         {
-            _pluginManager.ReloadPluginData();
+            await _pluginManager.ReloadDataAsync();
         }
     }
 
     [RelayCommand]
-    private void Reset()
+    private async Task Reset()
     {
         _settingsService.Reset();
 
         ShortcutsPath = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
         VariablesPath = _settingsService.GetSettingOrDefault(x => x.VariablesPath);
 
-        _pluginManager.ReloadPluginData();
+        await _pluginManager.ReloadDataAsync();
     }
 
     [RelayCommand]

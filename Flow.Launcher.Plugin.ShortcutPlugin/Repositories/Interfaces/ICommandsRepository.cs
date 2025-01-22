@@ -1,8 +1,14 @@
 ﻿using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 
 public interface ICommandsRepository
 {
-    List<Result> ResolveCommand(List<string> arguments, Query query);
+    bool TryGetCommand(string key, out Command command);
+    
+    List<Result> ShowAvailableCommands();
+
+    IEnumerable<Result> GetPossibleCommands(string query);
 }

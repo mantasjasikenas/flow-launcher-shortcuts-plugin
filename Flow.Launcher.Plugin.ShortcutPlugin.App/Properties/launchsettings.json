@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "ShortcutPluginApp (Unpackaged)": {
+        "commandName": "Project"
+      },
+      "ShortcutPluginApp (Packaged)": {
+        "commandName": "MsixPackage"
+      }
+    }
+}

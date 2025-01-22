@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using CliWrap;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
-public static class ShortcutUtilities
+public static partial class ShortcutUtilities
 {
     public static void OpenPowershell(string arguments, bool silent)
     {
@@ -16,6 +17,24 @@ public static class ShortcutUtilities
         var processStartInfo = new ProcessStartInfo
         {
             FileName = "powershell.exe",
+            Arguments = $"-NoExit -Command \"{arguments}\"",
+            UseShellExecute = true,
+            CreateNoWindow = true
+        };
+        Process.Start(processStartInfo);
+    }
+
+    public static void OpenPwsh(string arguments, bool silent)
+    {
+        if (silent)
+        {
+            Cli.Wrap("pwsh.exe").WithArguments(arguments).ExecuteAsync();
+            return;
+        }
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "pwsh.exe",
             Arguments = $"-NoExit -Command \"{arguments}\"",
             UseShellExecute = true,
             CreateNoWindow = true

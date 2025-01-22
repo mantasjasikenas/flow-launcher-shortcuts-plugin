@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
@@ -66,18 +66,20 @@ public class VariablesCommand : ICommand
             .Build();
     }
 
-    private List<Result> ListVariablesCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> ListVariablesCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
-        return _variablesService.GetVariables();
+        return _variablesService.GetVariablesList();
     }
 
-    private List<Result> RemoveVariableCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> RemoveVariableCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         return _variablesService.RemoveVariable(arguments[2]);
     }
 
-    private List<Result> AddVariableCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> AddVariableCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         return _variablesService.AddVariable(arguments[2], arguments[3]);
     }
 }

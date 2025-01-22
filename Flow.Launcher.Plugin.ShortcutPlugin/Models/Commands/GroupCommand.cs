@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
@@ -103,18 +103,20 @@ public class GroupCommand : ICommand
                .Build();
     }
 
-    private List<Result> ListGroupsCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> ListGroupsCommandHandler(ActionContext context,ParsedQuery parsedQuery)
     {
-        return _shortcutsService.GetGroups();
+        return _shortcutsService.GetGroupsList();
     }
 
-    private List<Result> RemoveGroupCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> RemoveGroupCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         return _shortcutsService.RemoveGroup(arguments[2]);
     }
 
-    private List<Result> AddGroupCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> AddGroupCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         var launchGroup = !bool.TryParse(arguments[3], out var groupLaunch) || groupLaunch;
         var keys = arguments.Skip(4).ToList();
         var key = arguments[2];

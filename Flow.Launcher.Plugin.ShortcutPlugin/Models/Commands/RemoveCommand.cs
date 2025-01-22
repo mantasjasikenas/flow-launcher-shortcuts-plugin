@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
@@ -34,8 +34,9 @@ public class RemoveCommand : ICommand
                .Build();
     }
 
-    private List<Result> RemoveCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> RemoveCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
+        var arguments = parsedQuery.CommandArguments;
         return _shortcutsService.RemoveShortcut(arguments[1]);
     }
 }

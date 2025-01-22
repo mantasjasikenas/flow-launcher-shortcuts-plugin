@@ -1,0 +1,138 @@
+﻿<Page x:Class="Flow.Launcher.Plugin.ShortcutPlugin.App.Views.ShortcutsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+      xmlns:models="using:Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts"
+      xmlns:views="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Views"
+      xmlns:behaviors="using:Flow.Launcher.Plugin.ShortcutPlugin.App.Behaviors"
+      xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
+      x:Name="thePage"
+      mc:Ignorable="d">
+    <Page.Resources>
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+
+        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ListViewItemBackground">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="ListViewItemBackgroundPressed">Transparent</SolidColorBrush>
+
+        <Style TargetType="ListViewItem"
+               BasedOn="{StaticResource DefaultListViewItemStyle}">
+            <Setter Property="Margin"
+                    Value="0,0,0,8" />
+            <Setter Property="Padding"
+                    Value="0,0,0,0" />
+        </Style>
+    </Page.Resources>
+
+    <Grid x:Name="ContentArea">
+        <ProgressRing Visibility="{x:Bind ViewModel.LoadShortcutsCommand.IsRunning, Mode=OneWay}"
+                      IsActive="True" />
+
+        <ListView x:Name="ShortcutsListView"
+                  SelectionMode="None"
+                  ShowsScrollingPlaceholders="True"
+                  ItemsSource="{x:Bind ViewModel.FilteredShortcuts}"
+                  ItemClick="ShortcutsListView_ItemClick"
+                  IsItemClickEnabled="True">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:Shortcut">
+                    <ItemContainer Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                   BorderBrush="{ThemeResource SurfaceStrokeColorFlyoutBrush}"
+                                   CornerRadius="8">
+
+                        <Grid VerticalAlignment="Center"
+                              Padding="16,8,16,8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="{x:Bind Key}"
+                                       Style="{StaticResource ListTitleStyle}" />
+                            <TextBlock Grid.Row="1"
+                                       Text="{x:Bind GetDerivedType()}"
+                                       Style="{StaticResource ListSubTitleStyle}" />
+
+                            <Button Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent">
+                                <FontIcon Grid.RowSpan="2"
+                                          Grid.Column="1"
+                                          FontSize="16"
+                                          Glyph="&#xE712;" />
+
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Edit"
+                                                        Icon="Edit"
+                                                        Click="MenuFlyoutItem_Click" />
+                                        <MenuFlyoutItem Text="Duplicate"
+                                                        Icon="Copy"
+                                                        Click="MenuFlyoutItem_Click" />
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="Delete"
+                                                        Icon="Delete"
+                                                        Click="MenuFlyoutItem_Click" />
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+
+                        </Grid>
+                    </ItemContainer>
+
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+            <ListView.Header>
+                <StackPanel Orientation="Vertical"
+                            Margin="0,8,8,16"
+                            Spacing="16">
+
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="16">
+                        <AutoSuggestBox x:Name="SearchBox"
+                                        Width="350"
+                                        PlaceholderText="Search shortcuts"
+                                        HorizontalAlignment="Left"
+                                        TextChanged="AutoSuggestBox_TextChanged"
+                                        QueryIcon="Find"
+                                        IsEnabled="{x:Bind ViewModel.LoadShortcutsCommand.IsRunning, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}" />
+                        <Button Height="32"
+                                Command="{x:Bind ViewModel.LoadShortcutsCommand}">
+                            <FontIcon FontSize="14"
+                                      Glyph="&#xe72c;" />
+                        </Button>
+
+                        <DropDownButton Content="New">
+                            <DropDownButton.Flyout>
+                                <MenuFlyout Placement="Bottom"
+                                            x:Name="NewShortcutFlyout" />
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="{x:Bind ViewModel.FoundShortcutsTitle, Mode=OneWay}" />
+                        <TextBlock Grid.Column="1"
+                                   TextAlignment="Right"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Text="{x:Bind ViewModel.LastUpdated, Mode=OneWay}" />
+                    </Grid>
+
+                </StackPanel>
+            </ListView.Header>
+        </ListView>
+    </Grid>
+</Page>

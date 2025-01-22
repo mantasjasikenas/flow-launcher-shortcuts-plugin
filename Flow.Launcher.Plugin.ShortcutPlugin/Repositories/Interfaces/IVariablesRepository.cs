@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 
@@ -12,8 +13,8 @@ public interface IVariablesRepository : IAsyncInitializable
     public Variable GetVariable(string name);
     public List<Variable> GetVariables();
     public IEnumerable<Variable> GetPossibleVariables(string name);
-    public void Reload();
     public string ExpandVariables(string value);
-    public void ImportVariables(string path);
-    public void ExportVariables(string path);
+    public Task ReloadVariablesAsync();
+    public Task ImportVariables(string path);
+    public Task ExportVariables(string path);
 }

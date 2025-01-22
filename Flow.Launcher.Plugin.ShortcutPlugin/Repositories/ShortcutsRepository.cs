@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using FuzzySharp;
+using CommonShortcutUtilities = Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper.ShortcutUtilities;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
@@ -41,10 +40,11 @@ public class ShortcutsRepository : IShortcutsRepository
         return _shortcuts.TryGetValue(key, out shortcuts);
     }
 
-    public IList<Shortcut> GetShortcuts()
+    public IList<Shortcut> GetShortcuts(ShortcutType? shortcutType = null)
     {
         return _shortcuts.Values
                          .SelectMany(x => x)
+                         .Where(x => shortcutType == null || x.GetShortcutType() == shortcutType)
                          .Distinct()
                          .ToList();
     }
@@ -138,25 +138,24 @@ public class ShortcutsRepository : IShortcutsRepository
 
     public void DuplicateShortcut(Shortcut shortcut, string duplicateKey)
     {
-        var duplicateShortcut = (Shortcut) shortcut.Clone();
+        var duplicateShortcut = (Shortcut)shortcut.Clone();
 
         duplicateShortcut.Key = duplicateKey;
 
         AddShortcut(duplicateShortcut);
     }
 
-    public void ReloadShortcuts()
+    public async Task ReloadShortcutsAsync()
     {
         var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
-
-        _shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
+        _shortcuts = await ReadShortcuts(path);
     }
 
-    public void ImportShortcuts(string path)
+    public async Task ImportShortcuts(string path)
     {
         try
         {
-            var shortcuts = Task.Run(() => ReadShortcuts(path)).GetAwaiter().GetResult();
+            var shortcuts = await ReadShortcuts(path);
 
             if (shortcuts.Count == 0)
             {
@@ -166,7 +165,7 @@ public class ShortcutsRepository : IShortcutsRepository
             _shortcuts = shortcuts;
 
             SaveShortcuts();
-            ReloadShortcuts();
+            await ReloadShortcutsAsync();
 
             _pluginManager.API.ShowMsg("Shortcuts imported successfully");
         }
@@ -177,12 +176,12 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    public void ExportShortcuts(string path)
+    public Task ExportShortcuts(string path)
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath)))
         {
             _pluginManager.API.ShowMsg("No shortcuts to export");
-            return;
+            return Task.CompletedTask;
         }
 
         try
@@ -194,25 +193,15 @@ public class ShortcutsRepository : IShortcutsRepository
             _pluginManager.API.ShowMsg("Error while exporting shortcuts");
             _pluginManager.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts(string path)
     {
-        if (!File.Exists(path))
-        {
-            return new Dictionary<string, List<Shortcut>>();
-        }
-
         try
         {
-            await using var openStream = File.OpenRead(path);
-            var shortcuts = await JsonSerializer.DeserializeAsync<List<Shortcut>>(openStream);
-
-            return shortcuts
-                   .SelectMany(s => (s.Alias ?? Enumerable.Empty<string>()).Append(s.Key),
-                       (s, k) => new {Shortcut = s, Key = k})
-                   .GroupBy(x => x.Key)
-                   .ToDictionary(x => x.Key, x => x.Select(y => y.Shortcut).ToList());
+            return await CommonShortcutUtilities.ReadShortcuts(path);
         }
         catch (Exception e)
         {
@@ -225,26 +214,8 @@ public class ShortcutsRepository : IShortcutsRepository
 
     private void SaveShortcuts()
     {
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-
-        var flattenShortcuts = _shortcuts.Values
-                                         .SelectMany(x => x)
-                                         .Distinct()
-                                         .ToList();
-
-        var json = JsonSerializer.Serialize(flattenShortcuts, options);
         var path = _settingsService.GetSettingOrDefault(x => x.ShortcutsPath);
-        var directory = Path.GetDirectoryName(path);
 
-        if (directory != null && !Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        File.WriteAllText(path, json);
+        CommonShortcutUtilities.SaveShortcuts(_shortcuts, path);
     }
 }

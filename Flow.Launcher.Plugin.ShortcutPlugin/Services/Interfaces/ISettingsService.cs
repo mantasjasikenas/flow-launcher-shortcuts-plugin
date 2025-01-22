@@ -1,5 +1,5 @@
 ﻿using System;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 

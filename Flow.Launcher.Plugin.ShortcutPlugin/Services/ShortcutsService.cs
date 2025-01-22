@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
-using Flow.Launcher.Plugin.ShortcutPlugin.Models.Shortcuts;
 using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using Microsoft.Win32;
@@ -35,9 +37,10 @@ public class ShortcutsService : IShortcutsService
         _iconProvider = iconProvider;
     }
 
-    public List<Result> GetShortcuts(List<string> arguments)
+    public List<Result> GetShortcutsList(IReadOnlyDictionary<string, string> arguments,
+        ShortcutType? shortcutType = null)
     {
-        var shortcuts = _shortcutsRepository.GetShortcuts();
+        var shortcuts = _shortcutsRepository.GetShortcuts(shortcutType);
 
         if (shortcuts.Count == 0)
         {
@@ -51,20 +54,22 @@ public class ShortcutsService : IShortcutsService
                           title: shortcut.GetTitle(),
                           subtitle: shortcut.GetSubTitle(),
                           iconPath: _iconProvider.GetIcon(shortcut),
-                          action: shortcut is GroupShortcut
-                              ? () => { _pluginManager.ChangeQueryWithAppendedKeyword(shortcut.Key); }
-                              : null,
-                          hideAfterAction: shortcut is GroupShortcut ? false : null,
-                          autoCompleteText: shortcut is GroupShortcut
-                              ? _pluginManager.AppendActionKeyword(shortcut.Key)
-                              : null
+                          action: () =>
+                          {
+                              _pluginManager.ChangeQueryWithAppendedKeyword(shortcut.Key);
+                          },
+                          hideAfterAction: false,
+                          autoCompleteText: _pluginManager.AppendActionKeyword(shortcut.Key)
                       ))
                       .ToList();
 
+        var title = shortcutType is null ? "Shortcuts" : $"{shortcutType} shortcuts";
+
         var headerResult = ResultExtensions.Result(
-            "Shortcuts list",
-            "Found " + shortcuts.Count + (results.Count > 1 ? " shortcuts" : " shortcut"),
-            score: 100000
+            title: title,
+            subtitle: "Found " + shortcuts.Count + (results.Count > 1 ? " shortcuts" : " shortcut"),
+            score: 100000,
+            hideAfterAction: false
         );
 
         results.Insert(0, headerResult);
@@ -76,7 +81,7 @@ public class ShortcutsService : IShortcutsService
     /// Method used to get all groups in `q group list` command
     /// </summary>
     /// <returns></returns>
-    public List<Result> GetGroups()
+    public List<Result> GetGroupsList()
     {
         var groups = _shortcutsRepository.GetGroups();
 
@@ -85,14 +90,27 @@ public class ShortcutsService : IShortcutsService
             return ResultExtensions.EmptyResult();
         }
 
-        return groups
-               .Select(group => BuildShortcutResult(
-                   shortcut: group,
-                   arguments: [],
-                   action: () => { _pluginManager.ChangeQueryWithAppendedKeyword(group.Key); },
-                   hideAfterAction: false
-               ))
-               .ToList();
+        var headerResult = ResultExtensions.Result(
+            "Groups",
+            "List of all variables",
+            score: 100000
+        );
+
+        var results = groups
+                      .Select(group => BuildShortcutResult(
+                          shortcut: group,
+                          arguments: new Dictionary<string, string>(),
+                          action: () =>
+                          {
+                              _pluginManager.ChangeQueryWithAppendedKeyword(group.Key);
+                          },
+                          hideAfterAction: false
+                      ))
+                      .ToList();
+
+        results.Insert(0, headerResult);
+
+        return results;
     }
 
     public List<Result> RemoveShortcut(string key)
@@ -121,13 +139,16 @@ public class ShortcutsService : IShortcutsService
                                 $"Remove shortcut {shortcut.GetTitle()}",
                                 shortcut.ToString(),
                                 titleHighlightData: [16, shortcut.GetTitle().Length],
-                                action: () => { _shortcutsRepository.RemoveShortcut(shortcut); }
+                                action: () =>
+                                {
+                                    _shortcutsRepository.RemoveShortcut(shortcut);
+                                }
                             );
                         })
                         .ToList();
     }
 
-    public List<Result> OpenShortcuts(IList<Shortcut> shortcuts, IEnumerable<string> arguments,
+    public List<Result> OpenShortcuts(IList<Shortcut> shortcuts, IReadOnlyDictionary<string, string> arguments,
         bool expandGroups)
     {
         if (shortcuts is null)
@@ -140,31 +161,34 @@ public class ShortcutsService : IShortcutsService
     }
 
 
-    public IEnumerable<Result> OpenShortcut(Shortcut shortcut, IEnumerable<string> arguments, bool expandGroups)
+    public IEnumerable<Result> OpenShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> arguments,
+        bool expandGroups)
     {
         if (shortcut is null)
         {
             return ResultExtensions.EmptyResult();
         }
 
-        var args = arguments.ToList();
         var results = new List<Result>();
 
         if (shortcut is GroupShortcut groupShortcut)
         {
-            results.AddRange(GetGroupShortcutResults(groupShortcut, expandGroups, args));
+            results.AddRange(GetGroupShortcutResults(groupShortcut, expandGroups, arguments));
             return results;
         }
 
-        var temp = $"Open {shortcut.GetDerivedType().ToLower()} ";
-        var defaultKey = $"{temp}{shortcut.GetTitle()}";
-        var highlightIndexes = Enumerable.Range(temp.Length, shortcut.GetTitle().Length).ToList();
+        var verb = shortcut is SnippetShortcut ? "Copy" : "Open";
+
+        var prefix = $"{verb} {shortcut.GetDerivedType().ToLower()} ";
+        var title = $"{prefix}{shortcut.GetTitle()}";
+
+        var highlightIndexes = Enumerable.Range(prefix.Length, shortcut.GetTitle().Length).ToList();
 
         results.Add(
             BuildShortcutResult(
                 shortcut,
-                args,
-                defaultKey,
+                arguments,
+                title,
                 _iconProvider.GetIcon(shortcut),
                 titleHighlightData: highlightIndexes
             )
@@ -186,7 +210,10 @@ public class ShortcutsService : IShortcutsService
                                     ResultExtensions.Result(
                                         $"Duplicate {shortcut.GetDerivedType()} shortcut '{shortcut.GetTitle()}' to '{newKey}'",
                                         shortcut.ToString(),
-                                        () => { _shortcutsRepository.DuplicateShortcut(shortcut, newKey); }))
+                                        () =>
+                                        {
+                                            _shortcutsRepository.DuplicateShortcut(shortcut, newKey);
+                                        }))
                                 .ToList();
     }
 
@@ -250,59 +277,17 @@ public class ShortcutsService : IShortcutsService
         );
     }
 
-    public void Reload()
+    public async Task ReloadAsync()
     {
-        _shortcutsRepository.ReloadShortcuts();
-    }
-
-    private static bool TryGetArguments(
-        string value,
-        IReadOnlyList<string> arguments,
-        out Dictionary<string, string> parsedArguments
-    )
-    {
-        parsedArguments = CommandLineExtensions.ParseArguments(value, arguments);
-
-        if (parsedArguments.Count == 0)
-        {
-            return false;
-        }
-
-        foreach (var (key, _) in parsedArguments)
-        {
-            if (!value.Contains(key.Trim('-')))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private string ExpandShortcutArguments(Shortcut shortcut, IReadOnlyList<string> arguments)
-    {
-        if (
-            !arguments.Any()
-            || !TryGetArguments(
-                shortcut.ToString(),
-                arguments,
-                out var parsedArguments
-            )
-        )
-        {
-            return shortcut.ToString();
-        }
-
-        return _variablesService.ExpandVariables(shortcut.ToString(), parsedArguments);
+        await _shortcutsRepository.ReloadShortcutsAsync();
     }
 
     private IEnumerable<Result> GetGroupShortcutResults(
         GroupShortcut groupShortcut,
         bool expandGroups,
-        List<string> arguments
+        IReadOnlyDictionary<string, string> arguments
     )
     {
-        var joinedArguments = string.Join(" ", arguments);
         var results = new List<Result>();
 
         // expand group when is not fully typed
@@ -314,9 +299,12 @@ public class ShortcutsService : IShortcutsService
             shortcut: groupShortcut,
             arguments: arguments,
             title: title,
-            subtitle: $"{groupShortcut} {joinedArguments}",
+            subtitle: $"{groupShortcut}",
             titleHighlightData: highlightIndexes,
-            action: () => { _pluginManager.ChangeQueryWithAppendedKeyword(groupShortcut.Key); },
+            action: () =>
+            {
+                _pluginManager.ChangeQueryWithAppendedKeyword(groupShortcut.Key);
+            },
             hideAfterAction: false,
             autoCompleteText: _pluginManager.AppendActionKeyword(groupShortcut.Key)
         ));
@@ -335,7 +323,7 @@ public class ShortcutsService : IShortcutsService
                 shortcut: groupShortcut,
                 arguments: arguments,
                 title: title,
-                subtitle: $"{groupShortcut} {joinedArguments}",
+                subtitle: $"{groupShortcut}",
                 titleHighlightData: highlightIndexes,
                 score: 100
             )
@@ -368,12 +356,11 @@ public class ShortcutsService : IShortcutsService
 
                                  if (shortcuts is null)
                                  {
-                                     return new Result
-                                     {
-                                         Title = "Missing shortcut.",
-                                         SubTitle = $"Shortcut '{key}' not found.",
-                                         IcoPath = Icons.PriorityHigh
-                                     }.ToList();
+                                     return ResultExtensions.SingleResult(
+                                         title: title,
+                                         subtitle: $"Shortcut '{key}' not found.",
+                                         iconPath: Icons.PriorityHigh
+                                     );
                                  }
 
                                  return shortcuts.Select(shortcut =>
@@ -395,10 +382,10 @@ public class ShortcutsService : IShortcutsService
 
     private Result BuildShortcutResult(
         Shortcut shortcut,
-        List<string> arguments,
+        IReadOnlyDictionary<string, string> arguments,
         string title = null,
         string iconPath = null,
-        IList<int> titleHighlightData = default,
+        IList<int> titleHighlightData = null,
         string subtitle = null,
         string autoCompleteText = null,
         int score = 0,
@@ -406,30 +393,33 @@ public class ShortcutsService : IShortcutsService
         bool? hideAfterAction = null
     )
     {
-        var expandedArguments = ExpandShortcutArguments(shortcut, arguments);
-        var expandedAll = _variablesService.ExpandVariables(expandedArguments);
+        var expandedArguments = _variablesService.ExpandVariables(shortcut.ToString(), arguments);
+        var expandedArgumentsAndVariables = _variablesService.ExpandVariables(expandedArguments);
 
         var executeShortcut = shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut;
 
-        var result = ResultExtensions.Result(
-            title: (string.IsNullOrEmpty(title) ? shortcut.GetTitle() : title) + " ",
-            subtitle: subtitle ?? expandedArguments,
-            action: action ?? (() =>
-            {
-                if (executeShortcut)
-                {
-                    _shortcutHandler.ExecuteShortcut(shortcut, arguments);
-                }
-            }),
+        return ResultExtensions.Result(
+            title: $"{(string.IsNullOrEmpty(title) ? shortcut.GetTitle() : title)} ",
+            subtitle: subtitle ?? expandedArguments.ReplaceLineEndings(" \u21a9 "),
+            action: action ?? (executeShortcut
+                ? () => _shortcutHandler.ExecuteShortcut(shortcut, arguments)
+                : null),
             hideAfterAction: hideAfterAction ?? executeShortcut,
             contextData: shortcut,
             iconPath: iconPath ?? _iconProvider.GetIcon(shortcut),
             titleHighlightData: titleHighlightData,
-            autoCompleteText: autoCompleteText ?? expandedAll,
-            previewFilePath: expandedAll,
+            autoCompleteText: autoCompleteText ?? GetAutoCompletionText(shortcut, expandedArgumentsAndVariables),
+            previewFilePath: expandedArgumentsAndVariables,
             score: score
         );
+    }
 
-        return result;
+    private string GetAutoCompletionText(Shortcut shortcut, string autoCompleteText)
+    {
+        var shellPluginActionKeyword = _pluginManager.FindPluginActionKeyword(Constants.ShellPluginName);
+
+        return shortcut is ShellShortcut shellShortcut && !string.IsNullOrEmpty(shellPluginActionKeyword)
+            ? $"{shellPluginActionKeyword} {shellShortcut.Arguments}"
+            : autoCompleteText;
     }
 }

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
+using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
@@ -69,27 +69,27 @@ public class BackupCommand : ICommand
                .Build();
     }
 
-    private List<Result> ClearBackupCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> ClearBackupCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return _backupService.ClearBackups();
     }
 
-    private List<Result> DeleteBackupCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> DeleteBackupCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return _backupService.DeleteBackup();
     }
 
-    private List<Result> ListBackupCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> ListBackupCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return _backupService.GetBackups();
     }
 
-    private List<Result> BackupCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> BackupCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return _backupService.Backup();
     }
 
-    private List<Result> RestoreCommandHandler(ActionContext context, List<string> arguments)
+    private List<Result> RestoreCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return _backupService.Restore();
     }

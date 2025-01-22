@@ -2,17 +2,22 @@ param (
     [string]$userProfileDir = $env:USERPROFILE,
     [bool]$copyToDesktop = $false,
     [string]$pluginName = "Shortcuts",
-    [string]$configuration = "Release"
+    [string]$configuration = "Release",
+    [bool]$includeDesktopApp = $false
 )
 
 # Load functions
 . "$PSScriptRoot\utils.ps1"
 
+# Define projects
+$shortcutPlugin = "Flow.Launcher.Plugin.ShortcutPlugin"
+$shortcutApp = "Flow.Launcher.Plugin.ShortcutPlugin.App"
+
 # Define variables
 $parentDirectory = Split-Path -Path $PSScriptRoot -Parent
 $pluginsDirectory = Join-Path -Path $userProfileDir -ChildPath "AppData\Roaming\FlowLauncher\Plugins"
-$pluginJson = Join-Path -Path $parentDirectory -ChildPath "Flow.Launcher.Plugin.ShortcutPlugin\plugin.json"
-$publishDest = Join-Path -Path $parentDirectory -ChildPath "Flow.Launcher.Plugin.ShortcutPlugin\bin\Release\win-x64\publish"
+$pluginJson = Join-Path -Path $parentDirectory -ChildPath "$shortcutPlugin\plugin.json"
+$publishDest = Join-Path -Path $parentDirectory -ChildPath "$shortcutPlugin\bin\Release\win-x64\publish"
 $version = Get-PropertyFromJson -jsonFilePath $pluginJson -propertyName "Version"
 $pluginDest = Join-Path -Path $pluginsDirectory -ChildPath "$pluginName-$version"
 $desktopDest = Join-Path -Path $userProfileDir -ChildPath "Desktop\$pluginName-$version"
@@ -24,9 +29,23 @@ Print-Normal "Script started..."
 
 
 # Stop Flow Launcher
-Print-Normal "Stopping Flow Launcher..."
-Stop-Process -Name "Flow.Launcher" -Force
-Wait-Process -Name "Flow.Launcher"
+$process = Get-Process -Name "Flow.Launcher" -ErrorAction SilentlyContinue
+if ($process)
+{
+    Print-Normal "Stopping Flow Launcher..."
+    Stop-Process -Name "Flow.Launcher" -Force
+    Wait-Process -Name "Flow.Launcher"
+}
+
+# Stop Shortcuts
+$process = Get-Process -Name "Shortcuts" -ErrorAction SilentlyContinue
+if ($process)
+{
+    Print-Normal "Stopping Shortcuts app..."
+    Stop-Process -Name "Shortcuts" -Force
+    Wait-Process -Name "Shortcuts"
+}
+
 
 Start-Sleep -Milliseconds 500
 
@@ -42,15 +61,14 @@ foreach ($directory in $directoriesToRemove)
 
 
 # Publish plugin
-if ($configuration -eq "Debug")
+Print-Normal "Building and publishing plugin in $configuration mode..."
+$includeEditorParam = if ($includeDesktopApp) { "true" } else { "false" }
+dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -p:INCLUDE_EDITOR=$includeEditorParam -o $publishDest
+
+if ($includeDesktopApp)
 {
-    Print-Normal "Building and publishing plugin in Debug mode..."
-    $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Debug -r win-x64 --no-self-contained -o $publishDest
-}
-else
-{
-    Print-Normal "Building and publishing plugin in Release mode..."
-    $publish = dotnet publish "Flow.Launcher.Plugin.ShortcutPlugin" -c Release -r win-x64 --no-self-contained -o $publishDest
+    Print-Normal "Building desktop app..."
+    dotnet publish $shortcutApp -c $configuration -r win-x64 -o $publishDest\App /p:Platform=x64
 }
 
 $publish_result = $LASTEXITCODE

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
-using Flow.Launcher.Plugin.ShortcutPlugin.models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
@@ -22,12 +22,12 @@ public class ReportCommand : ICommand
                .Build();
     }
 
-    private static List<Result> ReportCommandHandler(ActionContext context, List<string> arguments)
+    private static List<Result> ReportCommandHandler(ActionContext context, ParsedQuery parsedQuery)
     {
         return ResultExtensions.SingleResult(
             "Report an issue",
             "",
-            () => { ShortcutUtilities.OpenUrl(Constants.GithubIssues); }
+            () => { Helper.ShortcutUtilities.OpenUrl(Constants.GithubIssues); }
         );
     }
 }
