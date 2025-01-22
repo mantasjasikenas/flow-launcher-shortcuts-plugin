@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - Editor app
 
-## [1.2.2] - 2025-xx-xx
+## [1.2.2] - 2025-01-22
 
 - Support for shell type `Pwsh`.
 - If action is not specified for query result, pressing `Enter` will not close the launcher.
