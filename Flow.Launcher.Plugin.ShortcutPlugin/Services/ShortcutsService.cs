@@ -294,6 +294,10 @@ public class ShortcutsService : IShortcutsService
         var highlightIndexes = Enumerable.Range(title.Length, groupShortcut.GetTitle().Length).ToList();
         title += groupShortcut.GetTitle();
 
+        var sanitizedKey = groupShortcut.Key.Contains(' ')
+            ? $"\"{groupShortcut.Key}\""
+            : groupShortcut.Key;
+        
         results.Add(BuildShortcutResult(
             shortcut: groupShortcut,
             arguments: arguments,
@@ -302,10 +306,10 @@ public class ShortcutsService : IShortcutsService
             titleHighlightData: highlightIndexes,
             action: () =>
             {
-                _pluginManager.ChangeQueryWithAppendedKeyword(groupShortcut.Key);
+                _pluginManager.ChangeQueryWithAppendedKeyword(sanitizedKey);
             },
             hideAfterAction: false,
-            autoCompleteText: _pluginManager.AppendActionKeyword(groupShortcut.Key)
+            autoCompleteText: _pluginManager.AppendActionKeyword(sanitizedKey)
         ));
 
         if (!expandGroups)

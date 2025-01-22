@@ -44,6 +44,7 @@ public class CommandsRepository : ICommandsRepository
             return ShowAvailableCommands();
         }
 
+        // FIXME only takes first argument as key
         var key = arguments[0];
         var argsWithoutKey = arguments.Skip(1).ToList();
 
@@ -74,6 +75,7 @@ public class CommandsRepository : ICommandsRepository
                 );
         }
 
+        // If command found
         var level = 0;
         var (executorOld, executorNew) = GetExecutors(null, command, arguments, ref level);
         var executor = executorNew ?? executorOld;
