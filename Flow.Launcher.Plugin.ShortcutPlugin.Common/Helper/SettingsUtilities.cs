@@ -42,8 +42,8 @@ public static class SettingsUtilities
 
         return new Settings
         {
-            ShortcutsPath = Path.Combine(pluginDataPath, Constants.ShortcutsFileName),
-            VariablesPath = Path.Combine(pluginDataPath, Constants.VariablesFileName)
+            ShortcutsPath = Path.Combine(pluginDataPath, CommonContants.ShortcutsFileName),
+            VariablesPath = Path.Combine(pluginDataPath, CommonContants.VariablesFileName)
         };
     }
 }

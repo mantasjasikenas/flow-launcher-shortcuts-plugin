@@ -2,7 +2,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 public class Backup
 {
-    public DateTime DateTime { get; set; }
+    public DateTime DateTime { get; init; }
 
-    public string Path { get; set; }
+    public string Path { get; init; }
 }

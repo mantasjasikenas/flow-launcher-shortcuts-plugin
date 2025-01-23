@@ -126,7 +126,7 @@ public class ShortcutsService : IShortcutsService
                                                   .ToList());
     }
 
-    private List<Result> RemoveShortcut(List<Shortcut> shortcuts)
+    private List<Result> RemoveShortcut(List<Shortcut>? shortcuts)
     {
         if (shortcuts is null || shortcuts.Count == 0)
         {
@@ -148,7 +148,7 @@ public class ShortcutsService : IShortcutsService
                         .ToList();
     }
 
-    public List<Result> OpenShortcuts(IList<Shortcut> shortcuts, IReadOnlyDictionary<string, string> arguments,
+    public List<Result> OpenShortcuts(IList<Shortcut>? shortcuts, IReadOnlyDictionary<string, string> arguments,
         bool expandGroups)
     {
         if (shortcuts is null)
@@ -164,11 +164,6 @@ public class ShortcutsService : IShortcutsService
     public IEnumerable<Result> OpenShortcut(Shortcut shortcut, IReadOnlyDictionary<string, string> arguments,
         bool expandGroups)
     {
-        if (shortcut is null)
-        {
-            return ResultExtensions.EmptyResult();
-        }
-
         var results = new List<Result>();
 
         if (shortcut is GroupShortcut groupShortcut)
@@ -383,17 +378,17 @@ public class ShortcutsService : IShortcutsService
     private Result BuildShortcutResult(
         Shortcut shortcut,
         IReadOnlyDictionary<string, string> arguments,
-        string title = null,
-        string iconPath = null,
-        IList<int> titleHighlightData = null,
-        string subtitle = null,
-        string autoCompleteText = null,
+        string? title = null,
+        string? iconPath = null,
+        IList<int>? titleHighlightData = null,
+        string? subtitle = null,
+        string? autoCompleteText = null,
         int score = 0,
-        Action action = null,
+        Action? action = null,
         bool? hideAfterAction = null
     )
     {
-        var expandedArguments = _variablesService.ExpandVariables(shortcut.ToString(), arguments);
+        var expandedArguments = _variablesService.ExpandVariables(shortcut.ToString() ?? string.Empty, arguments);
         var expandedArgumentsAndVariables = _variablesService.ExpandVariables(expandedArguments);
 
         var executeShortcut = shortcut is GroupShortcut {GroupLaunch: true} or not GroupShortcut;

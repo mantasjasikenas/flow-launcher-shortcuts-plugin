@@ -13,7 +13,7 @@ public static class AppUtilities
             return appName;
         }
 
-        if (appName != null && !appName.EndsWith(".exe"))
+        if (!string.IsNullOrWhiteSpace(appName) && !appName.EndsWith(".exe"))
         {
             appName += ".exe";
         }
@@ -31,10 +31,12 @@ public static class AppUtilities
         return "";
     }
 
-    public static string GetSystemDefaultApp(string extension)
+    
+    // ReSharper disable once UnusedMember.Global
+    public static string? GetSystemDefaultApp(string extension)
     {
-        string name;
-        RegistryKey regKey = null;
+        string? name;
+        RegistryKey? regKey = null;
 
         try
         {
@@ -62,15 +64,15 @@ public static class AppUtilities
         return name;
     }
 
-    public static string GetSystemDefaultBrowser()
+    public static string? GetSystemDefaultBrowser()
     {
         using var key = Registry.CurrentUser.OpenSubKey(
             @"SOFTWARE\Microsoft\Windows\Shell\Associations\URLAssociations\http\UserChoice");
 
-        var s = (string) key?.GetValue("ProgId");
+        var s = (string?) key?.GetValue("ProgId");
 
         using var command = Registry.ClassesRoot.OpenSubKey($"{s}\\shell\\open\\command");
 
-        return (string) command?.GetValue(null);
+        return (string?) command?.GetValue(null);
     }
 }

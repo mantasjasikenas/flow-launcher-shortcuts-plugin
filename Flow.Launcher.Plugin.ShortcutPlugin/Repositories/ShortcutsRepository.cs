@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ public class ShortcutsRepository : IShortcutsRepository
     private readonly ISettingsService _settingsService;
     private readonly IPluginManager _pluginManager;
 
-    private Dictionary<string, List<Shortcut>> _shortcuts;
+    private Dictionary<string, List<Shortcut>> _shortcuts = [];
 
     public ShortcutsRepository(ISettingsService settingsService, IPluginManager pluginManager)
     {
@@ -30,12 +31,12 @@ public class ShortcutsRepository : IShortcutsRepository
         _shortcuts = await ReadShortcuts(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath));
     }
 
-    public IList<Shortcut> GetShortcuts(string key)
+    public IList<Shortcut>? GetShortcuts(string key)
     {
         return _shortcuts.GetValueOrDefault(key);
     }
 
-    public bool TryGetShortcuts(string key, out List<Shortcut> shortcuts)
+    public bool TryGetShortcuts(string key, [MaybeNullWhen(false)] out List<Shortcut> shortcuts)
     {
         return _shortcuts.TryGetValue(key, out shortcuts);
     }
@@ -176,12 +177,12 @@ public class ShortcutsRepository : IShortcutsRepository
         }
     }
 
-    public Task ExportShortcuts(string path)
+    public void ExportShortcuts(string path)
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.ShortcutsPath)))
         {
             _pluginManager.API.ShowMsg("No shortcuts to export");
-            return Task.CompletedTask;
+            return;
         }
 
         try
@@ -193,8 +194,6 @@ public class ShortcutsRepository : IShortcutsRepository
             _pluginManager.API.ShowMsg("Error while exporting shortcuts");
             _pluginManager.API.LogException(nameof(ShortcutsRepository), "Error exporting shortcuts", ex);
         }
-
-        return Task.CompletedTask;
     }
 
     private async Task<Dictionary<string, List<Shortcut>>> ReadShortcuts(string path)

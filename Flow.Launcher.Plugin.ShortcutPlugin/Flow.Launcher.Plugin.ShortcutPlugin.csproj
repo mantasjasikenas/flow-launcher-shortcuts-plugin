@@ -14,6 +14,7 @@
         <UseWpf>true</UseWpf>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <PropertyGroup>

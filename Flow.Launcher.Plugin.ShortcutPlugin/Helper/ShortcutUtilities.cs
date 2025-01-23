@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 using CliWrap;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
-public static partial class ShortcutUtilities
+public static class ShortcutUtilities
 {
     public static void OpenPowershell(string arguments, bool silent)
     {
@@ -63,7 +62,7 @@ public static partial class ShortcutUtilities
         Process.Start(processStartInfo);
     }
 
-    public static void OpenFile(string path, string app = null)
+    public static void OpenFile(string path, string? app = null)
     {
         ProcessStartInfo processStartInfo;
 
@@ -88,7 +87,7 @@ public static partial class ShortcutUtilities
         Cli.Wrap("explorer.exe").WithArguments(path).ExecuteAsync();
     }
 
-    public static void OpenUrl(string url, string app = null)
+    public static void OpenUrl(string url, string? app = null)
     {
         ProcessStartInfo processStartInfo;
 

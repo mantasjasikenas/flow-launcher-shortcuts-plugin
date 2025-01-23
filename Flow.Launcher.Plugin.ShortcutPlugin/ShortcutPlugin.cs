@@ -20,16 +20,16 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
     {
         get;
         private set;
-    }
+    } = null!;
 
-    private IQueryInterpreter _queryInterpreter;
+    private IQueryInterpreter _queryInterpreter = null!;
 
-    private SettingsUserControl _settingWindow;
-    private SettingsViewModel _settingsViewModel;
-    private ContextMenu _contextMenu;
+    private SettingsUserControl _settingWindow = null!;
+    private SettingsViewModel _settingsViewModel = null!;
+    private ContextMenu _contextMenu = null!;
 
-    private IPluginManager _pluginManager;
-    private IAsyncReloadable _asyncReloadable;
+    private IPluginManager _pluginManager = null!;
+    private IAsyncReloadable _asyncReloadable = null!;
 
     public async Task InitAsync(PluginInitContext context)
     {
@@ -39,18 +39,18 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
                           .BuildServiceProvider();
 
 
-        _queryInterpreter = ServiceProvider.GetService<IQueryInterpreter>();
-        _pluginManager = ServiceProvider.GetService<IPluginManager>();
+        _queryInterpreter = ServiceProvider.GetService<IQueryInterpreter>()!;
+        _pluginManager = ServiceProvider.GetService<IPluginManager>()!;
 
-        _contextMenu = ServiceProvider.GetService<ContextMenu>();
-        _settingsViewModel = ServiceProvider.GetService<SettingsViewModel>();
+        _contextMenu = ServiceProvider.GetService<ContextMenu>()!;
+        _settingsViewModel = ServiceProvider.GetService<SettingsViewModel>()!;
 
         await InitializeAsync();
 
-        _asyncReloadable = ServiceProvider.GetService<IAsyncReloadable>();
+        _asyncReloadable = ServiceProvider.GetService<IAsyncReloadable>()!;
         _pluginManager.SetReloadable(_asyncReloadable);
 
-        var ipcManagerServer = ServiceProvider.GetService<IPCManagerServer>();
+        var ipcManagerServer = ServiceProvider.GetService<IPCManagerServer>()!;
         _ = Task.Run(() => ipcManagerServer.StartListeningAsync(CancellationToken.None));
     }
 
@@ -81,9 +81,9 @@ public class ShortcutPlugin : IAsyncPlugin, ISettingProvider, IAsyncReloadable, 
 
     public async Task InitializeAsync()
     {
-        var shortcutsRepository = ServiceProvider.GetService<IShortcutsRepository>();
-        var variablesRepository = ServiceProvider.GetService<IVariablesRepository>();
-        var iconProvider = ServiceProvider.GetService<IIconProvider>();
+        var shortcutsRepository = ServiceProvider.GetService<IShortcutsRepository>()!;
+        var variablesRepository = ServiceProvider.GetService<IVariablesRepository>()!;
+        var iconProvider = ServiceProvider.GetService<IIconProvider>()!;
 
         Task[] tasks =
         [

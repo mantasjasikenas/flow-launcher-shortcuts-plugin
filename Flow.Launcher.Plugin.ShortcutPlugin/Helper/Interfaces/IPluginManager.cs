@@ -15,6 +15,7 @@ public interface IPluginManager
     /// <summary>
     /// The public API of the plugin
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     IPublicAPI API
     {
         get;
@@ -31,7 +32,8 @@ public interface IPluginManager
     /// <summary>
     /// The last query that was sent to the plugin
     /// </summary>
-    Query LastQuery
+    // ReSharper disable once UnusedMemberInSuper.Global
+    Query? LastQuery
     {
         get;
     }
@@ -51,6 +53,7 @@ public interface IPluginManager
     /// <summary>
     /// Clear the last query
     /// </summary>
+    // ReSharper disable once UnusedMemberInSuper.Global
     void ClearLastQuery();
 
     /// <summary>
@@ -62,6 +65,7 @@ public interface IPluginManager
     /// Get the action keyword from the last query or the first action keyword from the plugin metadata
     /// </summary>
     /// <returns></returns>
+    // ReSharper disable once UnusedMemberInSuper.Global
     string GetActionKeyword();
 
     /// <summary>

@@ -60,7 +60,7 @@ public class GroupCommand : ICommand
                .Build();
     }
 
-    private Argument CreateAddGroupNameArgument(IQueryExecutor addGroupKeysArgument)
+    private static Argument CreateAddGroupNameArgument(IQueryExecutor addGroupKeysArgument)
     {
         return new ArgumentBuilder()
                .WithResponseInfo(("Enter group name", "How should your group be named?"))
@@ -68,7 +68,7 @@ public class GroupCommand : ICommand
                .Build();
     }
 
-    private Argument CreateAddGroupGroupLaunchArgument(IQueryExecutor addGroupKeysArgument)
+    private static Argument CreateAddGroupGroupLaunchArgument(IQueryExecutor addGroupKeysArgument)
     {
         return new ArgumentBuilder()
                .WithResponseInfo(("Enable group launch", "Should the group be launched as a group? (true/false)"))

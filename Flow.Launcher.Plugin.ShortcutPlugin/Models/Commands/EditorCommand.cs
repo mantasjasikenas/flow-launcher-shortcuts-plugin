@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using CliWrap;
-using System.Windows.Shapes;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Models.Commands;
 
+// ReSharper disable once UnusedType.Global
 public class EditorCommand : ICommand
 {
     private readonly IPluginManager _pluginManager;
@@ -38,7 +37,7 @@ public class EditorCommand : ICommand
     {
         var pluginDirectory = _pluginManager.Metadata.PluginDirectory;
 
-        var editorPath = System.IO.Path.Combine(pluginDirectory, "App/Shortcuts.exe");
+        var editorPath = Path.Combine(pluginDirectory, "App/Shortcuts.exe");
 
         if (!File.Exists(editorPath))
         {
@@ -50,9 +49,9 @@ public class EditorCommand : ICommand
             if (File.Exists(editorPath))
             {
                 Cli
-                .Wrap(editorPath)
-                .WithWorkingDirectory(pluginDirectory)
-                .ExecuteAsync();
+                    .Wrap(editorPath)
+                    .WithWorkingDirectory(pluginDirectory)
+                    .ExecuteAsync();
             }
         });
     }

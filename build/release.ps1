@@ -22,11 +22,12 @@ $version = Get-PropertyFromJson -jsonFilePath $pluginJson -propertyName "Version
 $pluginDest = Join-Path -Path $pluginsDirectory -ChildPath "$pluginName-$version"
 $desktopDest = Join-Path -Path $userProfileDir -ChildPath "Desktop\$pluginName-$version"
 
+Write-Host -NoNewline "Release Shortcuts plugin" -ForegroundColor Magenta
+Write-Host -NoNewline " [v$version | $configuration" -ForegroundColor Cyan
+Write-Host -NoNewline ($includeDesktopApp ? " | Editor ]" : " ]") -ForegroundColor Cyan
 
-Write-Host "Plugin $pluginName-$version publish" -ForegroundColor Magenta
 Write-Host
 Print-Normal "Script started..."
-
 
 # Stop Flow Launcher
 $process = Get-Process -Name "Flow.Launcher" -ErrorAction SilentlyContinue
@@ -62,7 +63,14 @@ foreach ($directory in $directoriesToRemove)
 
 # Publish plugin
 Print-Normal "Building and publishing plugin in $configuration mode..."
-$includeEditorParam = if ($includeDesktopApp) { "true" } else { "false" }
+$includeEditorParam = if ($includeDesktopApp)
+{
+    "true"
+}
+else
+{
+    "false"
+}
 dotnet publish $shortcutPlugin -c $configuration -r win-x64 --no-self-contained -p:INCLUDE_EDITOR=$includeEditorParam -o $publishDest
 
 if ($includeDesktopApp)

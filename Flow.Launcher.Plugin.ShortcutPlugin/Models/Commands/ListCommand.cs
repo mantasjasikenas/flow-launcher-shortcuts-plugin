@@ -1,4 +1,3 @@
-using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 

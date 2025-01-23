@@ -17,23 +17,23 @@ public static class ResultExtensions
         return SingleResult(Resources.Shortcuts_Query_No_results_found);
     }
 
-    public static List<Result> EmptyResult(string title, string subtitle = "")
+    public static List<Result> EmptyResult(string title, string? subtitle = "")
     {
         return SingleResult(title, subtitle);
     }
 
     public static List<Result> SingleResult(
         string title,
-        string subtitle = "",
-        Action action = null,
-        Func<Task> asyncAction = null,
+        string? subtitle = "",
+        Action? action = null,
+        Func<Task>? asyncAction = null,
         bool hideAfterAction = true,
-        string iconPath = null,
-        object contextData = null,
-        string autoCompleteText = null,
-        IList<int> titleHighlightData = null,
+        string? iconPath = null,
+        object? contextData = null,
+        string? autoCompleteText = null,
+        IList<int>? titleHighlightData = null,
         int score = 0,
-        string previewFilePath = null
+        string? previewFilePath = null
     )
     {
         return
@@ -56,16 +56,16 @@ public static class ResultExtensions
 
     public static Result Result(
         string title,
-        string subtitle = "",
-        Action action = null,
-        Func<Task> asyncAction = null,
+        string? subtitle = "",
+        Action? action = null,
+        Func<Task>? asyncAction = null,
         bool hideAfterAction = true,
-        string iconPath = null,
-        object contextData = null,
-        string autoCompleteText = null,
-        IList<int> titleHighlightData = null,
+        string? iconPath = null,
+        object? contextData = null,
+        string? autoCompleteText = null,
+        IList<int>? titleHighlightData = null,
         int score = 0,
-        string previewFilePath = null
+        string? previewFilePath = null
     )
     {
         return new Result

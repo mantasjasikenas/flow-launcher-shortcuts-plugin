@@ -10,16 +10,16 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 using Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 using FuzzySharp;
 using CommonVariableUtilities = Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper.VariableUtilities;
+using Exception = System.Exception;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories;
 
 public class VariablesRepository : IVariablesRepository
 {
     private readonly ISettingsService _settingsService;
-
     private readonly IPluginManager _pluginManager;
 
-    private Dictionary<string, Variable> _variables;
+    private Dictionary<string, Variable> _variables = [];
 
 
     public VariablesRepository(ISettingsService settingsService, IPluginManager pluginManager)
@@ -51,7 +51,7 @@ public class VariablesRepository : IVariablesRepository
                .ToList();
     }
 
-    public Variable GetVariable(string name)
+    public Variable? GetVariable(string name)
     {
         return _variables.GetValueOrDefault(name);
     }
@@ -113,12 +113,12 @@ public class VariablesRepository : IVariablesRepository
         }
     }
 
-    public Task ExportVariables(string path)
+    public void ExportVariables(string path)
     {
         if (!File.Exists(_settingsService.GetSettingOrDefault(x => x.VariablesPath)))
         {
             _pluginManager.API.ShowMsg("No variables to export");
-            return Task.CompletedTask;
+            return;
         }
 
         try
@@ -130,8 +130,6 @@ public class VariablesRepository : IVariablesRepository
             _pluginManager.API.ShowMsg("Error while exporting variables");
             _pluginManager.API.LogException(nameof(VariablesRepository), "Error exporting variables", ex);
         }
-
-        return Task.CompletedTask;
     }
 
     private static async Task<Dictionary<string, Variable>> ReadVariables(string path)

@@ -11,7 +11,7 @@ public class SettingsService : ISettingsService
 {
     private readonly IPluginManager _pluginManager;
 
-    private Settings _settings;
+    private Settings _settings = null!;
 
     private readonly Settings _defaultSettings;
 
@@ -21,7 +21,6 @@ public class SettingsService : ISettingsService
         _defaultSettings = GetDefaultSettings();
 
         LoadSettings();
-
         MigrateSettings();
     }
 

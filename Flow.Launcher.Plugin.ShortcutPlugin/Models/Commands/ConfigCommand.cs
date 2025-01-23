@@ -44,7 +44,7 @@ public class ConfigCommand : ICommand
         ];
     }
 
-    private Result CreateConfigResult(string title, string path)
+    private static Result CreateConfigResult(string title, string path)
     {
         return ResultExtensions.Result(title, path, () =>
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
 using Flow.Launcher.Plugin.ShortcutPlugin.Helper.Interfaces;
@@ -71,7 +72,7 @@ public class CommandsRepository : ICommandsRepository
                .ToList();
     }
 
-    public bool TryGetCommand(string key, out Command command)
+    public bool TryGetCommand(string key, [MaybeNullWhen(false)] out Command command)
     {
         return _commands.TryGetValue(key, out command);
     }

@@ -39,7 +39,7 @@ public static class DependencyInjection
             {
                 context.API.ShowMsg(message);
             },
-            provider.GetService<IReloadable>()
+            provider.GetService<IReloadable>()!
         ));
         services.AddScoped<ContextMenu>();
 

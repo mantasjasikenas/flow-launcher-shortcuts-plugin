@@ -128,27 +128,25 @@ internal class ContextMenu : IContextMenu
             iconPath: Icons.File
         ));
 
-        contextMenu.Add(ResultExtensions.Result(
-            "Open containing folder",
-            Path.GetDirectoryName(filePath),
-            action: () =>
-            {
-                var path = Path.GetDirectoryName(filePath);
+        var containingFolder = Path.GetDirectoryName(filePath);
 
-                if (path == null)
+        if (!string.IsNullOrWhiteSpace(containingFolder))
+        {
+            contextMenu.Add(ResultExtensions.Result(
+                "Open containing folder",
+                containingFolder,
+                action: () =>
                 {
-                    return;
-                }
-
-                var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = path,
-                    UseShellExecute = true
-                };
-                Process.Start(processStartInfo);
-            },
-            iconPath: Icons.FolderOpen
-        ));
+                    var processStartInfo = new ProcessStartInfo
+                    {
+                        FileName = containingFolder,
+                        UseShellExecute = true
+                    };
+                    Process.Start(processStartInfo);
+                },
+                iconPath: Icons.FolderOpen
+            ));
+        }
 
         contextMenu.Add(ResultExtensions.Result(
             "Copy path",

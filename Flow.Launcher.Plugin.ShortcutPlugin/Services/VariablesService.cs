@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Helper;
 using Flow.Launcher.Plugin.ShortcutPlugin.Extensions;
@@ -67,7 +66,7 @@ public class VariablesService : IVariablesService
     {
         var variable = _variablesRepository.GetVariable(name);
 
-        if (variable == null)
+        if (variable is null)
         {
             return ResultExtensions.EmptyResult($"Variable '{name}' not found.");
         }

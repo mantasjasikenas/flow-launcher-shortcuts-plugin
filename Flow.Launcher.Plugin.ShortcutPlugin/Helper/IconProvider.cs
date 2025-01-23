@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,10 +17,11 @@ public class IconProvider : IIconProvider
     private readonly IShortcutsRepository _shortcutsRepository;
     private readonly IVariablesService _variablesService;
 
+    // ReSharper disable once CollectionNeverUpdated.Local
     private static readonly Dictionary<string, string> Arguments = new();
 
     private List<string> _cachedIconsDirectory = [];
-    private string _cachedPath;
+    private string? _cachedPath;
 
     public IconProvider(IShortcutsRepository shortcutsRepository, IVariablesService variablesService)
     {
@@ -72,7 +74,7 @@ public class IconProvider : IIconProvider
         };
     }
 
-    private string GetShellShortcutIcon(ShellShortcut shellShortcut)
+    private static string GetShellShortcutIcon(ShellShortcut shellShortcut)
     {
         return shellShortcut.ShellType switch
         {
@@ -83,7 +85,7 @@ public class IconProvider : IIconProvider
         };
     }
 
-    private string GetUrlShortcutIcon(UrlShortcut urlShortcut)
+    private static string GetUrlShortcutIcon(UrlShortcut urlShortcut)
     {
         if (!(urlShortcut.Url.Contains("www.") || urlShortcut.Url.Contains("http") ||
               urlShortcut.Url.Contains("https")))
@@ -91,9 +93,10 @@ public class IconProvider : IIconProvider
             return AppUtilities.GetApplicationPath(urlShortcut.Url.Split(':')[0]);
         }
 
-        if (string.IsNullOrEmpty(urlShortcut.App))
+        var systemDefaultBrowser = AppUtilities.GetSystemDefaultBrowser();
+        if (string.IsNullOrEmpty(urlShortcut.App) && !string.IsNullOrEmpty(systemDefaultBrowser))
         {
-            return AppUtilities.GetSystemDefaultBrowser();
+            return systemDefaultBrowser;
         }
 
         if (Path.Exists(urlShortcut.App))
@@ -120,7 +123,7 @@ public class IconProvider : IIconProvider
             : AppUtilities.GetApplicationPath(fileShortcut.App);
     }
 
-    private bool TryGetIconFromIcons(out string icon, string key)
+    private bool TryGetIconFromIcons([MaybeNullWhen(false)] out string icon, string key)
     {
         if (!TryGetIconsDirectoryPath(out var path))
         {
@@ -155,7 +158,7 @@ public class IconProvider : IIconProvider
         _cachedIconsDirectory = Directory.GetFiles(iconsPath).ToList();
     }
 
-    private bool TryGetIconsDirectoryPath(out string path)
+    private bool TryGetIconsDirectoryPath([MaybeNullWhen(false)] out string path)
     {
         path = null;
 

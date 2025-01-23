@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Services.Interfaces;
 
+// ReSharper disable UnusedMember.Global
 public interface IVariablesService
 {
     List<Result> GetVariablesList();

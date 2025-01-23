@@ -16,13 +16,13 @@ public class PluginManager : IPluginManager, IAsyncReloadable
 
     public PluginMetadata Metadata => Context.CurrentPluginMetadata;
 
-    public Query LastQuery
+    public Query? LastQuery
     {
         get;
         private set;
     }
 
-    private IAsyncReloadable _asyncReloadable;
+    private IAsyncReloadable? _asyncReloadable;
     private IList<PluginPair> _plugins;
 
 
@@ -51,7 +51,11 @@ public class PluginManager : IPluginManager, IAsyncReloadable
     public async Task ReloadDataAsync()
     {
         ReloadData();
-        await _asyncReloadable.ReloadDataAsync();
+        
+        if (_asyncReloadable != null)
+        {
+            await _asyncReloadable.ReloadDataAsync();
+        }
     }
 
     private void ReloadData()

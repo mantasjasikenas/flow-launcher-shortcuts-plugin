@@ -9,6 +9,7 @@ using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
+// ReSharper disable once InconsistentNaming
 public class IPCManagerServer
 {
     private readonly Action<string> _logMessage;
@@ -29,11 +30,14 @@ public class IPCManagerServer
             try
             {
                 await pipeServer.WaitForConnectionAsync(cancellationToken);
-
                 using var reader = new StreamReader(pipeServer, Encoding.UTF8);
-
                 var message = await reader.ReadLineAsync(cancellationToken);
 
+                if (message == null)
+                {
+                    continue;
+                }
+                
                 HandleMessage(message);
             }
             catch (Exception ex)

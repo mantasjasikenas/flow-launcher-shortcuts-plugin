@@ -1,0 +1,3 @@
+[*.cs]
+
+resharper_convert_to_primary_constructor_highlighting=none

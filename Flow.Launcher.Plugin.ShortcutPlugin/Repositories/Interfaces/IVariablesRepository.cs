@@ -10,11 +10,11 @@ public interface IVariablesRepository : IAsyncInitializable
     public void AddVariable(string name, string value);
     public void RemoveVariable(string name);
     public void UpdateVariable(string name, string value);
-    public Variable GetVariable(string name);
+    public Variable? GetVariable(string name);
     public List<Variable> GetVariables();
     public IEnumerable<Variable> GetPossibleVariables(string name);
     public string ExpandVariables(string value);
     public Task ReloadVariablesAsync();
     public Task ImportVariables(string path);
-    public Task ExportVariables(string path);
+    public void ExportVariables(string path);
 }

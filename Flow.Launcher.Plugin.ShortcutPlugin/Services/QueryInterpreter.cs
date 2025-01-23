@@ -87,7 +87,7 @@ public class QueryInterpreter : IQueryInterpreter
         var executor = executorNew ?? executorOld;
 
         // More arguments than needed and ...
-        if (level < commandArguments.Count - 1 && !executor.AllowsMultipleValuesForSingleArgument)
+        if (level < commandArguments.Count - 1 && executor is {AllowsMultipleValuesForSingleArgument: false})
         {
             return ResultExtensions.SingleResult(
                 "Invalid command arguments",
@@ -96,13 +96,13 @@ public class QueryInterpreter : IQueryInterpreter
         }
 
         // If command is valid and has a handler
-        if (executor.Handler is not null)
+        if (executor?.Handler is not null)
         {
             return Map(executor, executor.ResponseSuccess, parsedQuery);
         }
 
         // If command has more arguments
-        if (executor.Arguments.Any())
+        if (executor?.Arguments != null && executor.Arguments.Any())
         {
             // Can't check because Flow Launcher trims the query
             /*if (!query.RawQuery.EndsWith(" "))
@@ -132,23 +132,32 @@ public class QueryInterpreter : IQueryInterpreter
                    .ToList();
         }
 
-        return Map(executor, executor.ResponseFailure, parsedQuery);
+        return Map(executor, executor?.ResponseFailure, parsedQuery);
     }
 
     private static List<Result> Map(
-        IQueryExecutor executor,
+        IQueryExecutor? executor,
         (string, string)? response,
         ParsedQuery parsedQuery
     )
     {
-        return executor.Handler is null
-            ? ResultExtensions.SingleResult(response?.Item1, response?.Item2)
-            : executor.Handler.Invoke(null, parsedQuery);
+        if (executor?.Handler is not null)
+        {
+            return executor.Handler.Invoke(new ActionContext(), parsedQuery);
+        }
+
+        if (response is null)
+        {
+            return ResultExtensions.SingleResult("Something went wrong", "Please try again");
+        }
+
+        var (title, subtitle) = response.Value;
+        return ResultExtensions.SingleResult(title, subtitle);
     }
 
-    private static (IQueryExecutor, IQueryExecutor) GetExecutors(
-        IQueryExecutor executorOld,
-        IQueryExecutor executorNew,
+    private static (IQueryExecutor?, IQueryExecutor?) GetExecutors(
+        IQueryExecutor? executorOld,
+        IQueryExecutor? executorNew,
         IReadOnlyList<string> arguments,
         ref int level
     )
@@ -172,7 +181,7 @@ public class QueryInterpreter : IQueryInterpreter
         }
     }
 
-    private static IQueryExecutor GetExecutorFromArguments(
+    private static IQueryExecutor? GetExecutorFromArguments(
         IReadOnlyCollection<IQueryExecutor> executors,
         IReadOnlyList<string> arguments,
         int level

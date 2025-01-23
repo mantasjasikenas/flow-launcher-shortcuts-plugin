@@ -10,7 +10,7 @@ namespace Flow.Launcher.Plugin.ShortcutPlugin.Services;
 public class BackupService : IBackupService
 {
     private readonly IBackupRepository _backupRepository;
-
+    
     public BackupService(IBackupRepository backupRepository)
     {
         _backupRepository = backupRepository;

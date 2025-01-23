@@ -12,7 +12,7 @@ public class ReportCommand : ICommand
         return CreateReportCommand();
     }
 
-    private Command CreateReportCommand()
+    private static Command CreateReportCommand()
     {
         return new CommandBuilder()
                .WithKey("report")

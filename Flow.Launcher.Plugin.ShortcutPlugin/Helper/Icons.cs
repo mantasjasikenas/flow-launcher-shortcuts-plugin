@@ -1,5 +1,6 @@
 ﻿namespace Flow.Launcher.Plugin.ShortcutPlugin.Helper;
 
+// ReSharper disable UnusedMember.Global
 public static class Icons
 {
     public const string Logo = "Images\\icon.png";

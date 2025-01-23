@@ -1,7 +1,5 @@
-#nullable enable
 using System.Collections.Generic;
 using Flow.Launcher.Plugin.ShortcutPlugin.Common.Models;
-using Flow.Launcher.Plugin.ShortcutPlugin.Models;
 
 namespace Flow.Launcher.Plugin.ShortcutPlugin.Repositories.Interfaces;
 

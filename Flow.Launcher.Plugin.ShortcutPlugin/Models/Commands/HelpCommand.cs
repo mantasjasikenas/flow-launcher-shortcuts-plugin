@@ -56,6 +56,6 @@ public class HelpCommand : ICommand
             autoCompleteText: Constants.DiscordUsername
         );
 
-        return new List<Result> {readmeResult, reportIssueResult, discordResult};
+        return [readmeResult, reportIssueResult, discordResult];
     }
 }
