@@ -23,7 +23,7 @@ public class ParsedQuery
     }
 
     /// <summary>
-    /// Query search split by space with proper escaping 
+    /// Query search split by space with proper escaping. Does not include query keyword 
     /// </summary>
     public required List<string> CommandArguments
     {

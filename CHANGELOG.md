@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 
 - Removed default title autocompletion for commands. Invoking autocompletion will replace the query with the same query
   text.
+- Added `q list shortcut_type` command. This command will list all shortcuts of the specified type. Example:
+  `q list url`. Supported types: `url`, `file`, `directory`, `shell`, `snippet`. Also includes fuzzy search.
 
 ## [1.2.2] - 2025-01-22
 
