@@ -33,4 +33,6 @@ public static class Constants
     public const string ShellPluginName = "Shell";
 
     public const string ShortcutsPluginPipeName = "ShortcutsPluginPipeName";
+
+    public const string SnippetShortcutLineEnding = " \u21a9 ";
 }

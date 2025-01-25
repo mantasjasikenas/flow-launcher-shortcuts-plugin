@@ -8,7 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.3] - 2025-xx-xx
 
-- ...
+- Removed default title autocompletion for commands. Invoking autocompletion will replace the query with the same query
+  text.
 
 ## [1.2.2] - 2025-01-22
 

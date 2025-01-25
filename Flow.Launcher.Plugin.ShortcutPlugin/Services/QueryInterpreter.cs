@@ -31,7 +31,19 @@ public class QueryInterpreter : IQueryInterpreter
     public List<Result> Interpret(Query query)
     {
         var parsedQuery = _queryParser.Parse(query);
-        return Interpret(parsedQuery);
+        return Interpret(parsedQuery)
+               .Select(result => UpdateAutoCompleteText(result, parsedQuery))
+               .ToList();
+    }
+
+    private static Result UpdateAutoCompleteText(Result result, ParsedQuery parsedQuery)
+    {
+        if (string.IsNullOrWhiteSpace(result.AutoCompleteText))
+        {
+            result.AutoCompleteText = parsedQuery.Query.RawQuery;
+        }
+
+        return result;
     }
 
     private List<Result> Interpret(ParsedQuery parsedQuery)
@@ -62,7 +74,8 @@ public class QueryInterpreter : IQueryInterpreter
             ? possibleResults
             : ResultExtensions.SingleResult(
                 "Invalid input",
-                "Please provide valid command or shortcut"
+                "Please provide valid command or shortcut",
+                autoCompleteText: parsedQuery.Query.RawQuery
             );
     }
 
@@ -91,7 +104,8 @@ public class QueryInterpreter : IQueryInterpreter
         {
             return ResultExtensions.SingleResult(
                 "Invalid command arguments",
-                "Please provide valid command arguments"
+                "Please provide valid command arguments",
+                autoCompleteText: parsedQuery.Query.RawQuery
             );
         }
 
@@ -148,11 +162,12 @@ public class QueryInterpreter : IQueryInterpreter
 
         if (response is null)
         {
-            return ResultExtensions.SingleResult("Something went wrong", "Please try again");
+            return ResultExtensions.SingleResult("Something went wrong", "Please try again",
+                autoCompleteText: parsedQuery.Query.RawQuery);
         }
 
         var (title, subtitle) = response.Value;
-        return ResultExtensions.SingleResult(title, subtitle);
+        return ResultExtensions.SingleResult(title, subtitle, autoCompleteText: parsedQuery.Query.RawQuery);
     }
 
     private static (IQueryExecutor?, IQueryExecutor?) GetExecutors(

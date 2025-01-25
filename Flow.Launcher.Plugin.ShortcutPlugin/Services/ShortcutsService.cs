@@ -104,7 +104,8 @@ public class ShortcutsService : IShortcutsService
                           {
                               _pluginManager.ChangeQueryWithAppendedKeyword(group.Key);
                           },
-                          hideAfterAction: false
+                          hideAfterAction: false,
+                          autoCompleteText: _pluginManager.AppendActionKeyword(group.Key)
                       ))
                       .ToList();
 
@@ -395,7 +396,7 @@ public class ShortcutsService : IShortcutsService
 
         return ResultExtensions.Result(
             title: $"{(string.IsNullOrEmpty(title) ? shortcut.GetTitle() : title)} ",
-            subtitle: subtitle ?? expandedArguments.ReplaceLineEndings(" \u21a9 "),
+            subtitle: subtitle ?? expandedArguments.ReplaceLineEndings(Constants.SnippetShortcutLineEnding),
             action: action ?? (executeShortcut
                 ? () => _shortcutHandler.ExecuteShortcut(shortcut, arguments)
                 : null),
@@ -411,10 +412,13 @@ public class ShortcutsService : IShortcutsService
 
     private string GetAutoCompletionText(Shortcut shortcut, string autoCompleteText)
     {
-        var shellPluginActionKeyword = _pluginManager.FindPluginActionKeyword(Constants.ShellPluginName);
+        var shellKeyword = _pluginManager.FindPluginActionKeyword(Constants.ShellPluginName);
 
-        return shortcut is ShellShortcut shellShortcut && !string.IsNullOrEmpty(shellPluginActionKeyword)
-            ? $"{shellPluginActionKeyword} {shellShortcut.Arguments}"
-            : autoCompleteText;
+        if (shortcut is ShellShortcut shellShortcut && !string.IsNullOrEmpty(shellKeyword))
+        {
+            return $"{shellKeyword} {shellShortcut.Arguments}";
+        }
+
+        return shortcut is GroupShortcut ? string.Empty : autoCompleteText;
     }
 }

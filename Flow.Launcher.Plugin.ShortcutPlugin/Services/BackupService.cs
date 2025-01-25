@@ -65,7 +65,8 @@ public class BackupService : IBackupService
                           return ResultExtensions.Result(
                               backup.DateTime.ToString("yyyy-MM-dd HH:mm:ss"),
                               backup.Path,
-                              () => { ShortcutUtilities.OpenDirectory(backup.Path); }
+                              () => { ShortcutUtilities.OpenDirectory(backup.Path); },
+                              autoCompleteText: backup.Path
                           );
                       })
                       .OrderByDescending(x => x.Title)

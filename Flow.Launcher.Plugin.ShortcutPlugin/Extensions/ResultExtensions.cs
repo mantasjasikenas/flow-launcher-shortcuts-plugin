@@ -90,7 +90,7 @@ public static class ResultExtensions
                     await asyncAction();
                     return hideAfterAction;
                 },
-            AutoCompleteText = autoCompleteText ?? title,
+            AutoCompleteText = autoCompleteText ?? string.Empty,
             Preview = new Result.PreviewInfo
             {
                 FilePath = previewFilePath

@@ -51,8 +51,8 @@ public class VariablesService : IVariablesService
                               {
                                   _pluginManager.API.CopyToClipboard($"{variable.Name}:{variable.Value}");
                               },
-                              hideAfterAction: false,
-                              autoCompleteText: $"{variable.Name}:{variable.Value}"
+                              hideAfterAction: false
+                              // autoCompleteText: $"{variable.Name}:{variable.Value}"
                           )
                       )
                       .ToList();

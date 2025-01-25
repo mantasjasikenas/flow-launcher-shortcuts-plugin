@@ -23,7 +23,7 @@ $pluginDest = Join-Path -Path $pluginsDirectory -ChildPath "$pluginName-$version
 $desktopDest = Join-Path -Path $userProfileDir -ChildPath "Desktop\$pluginName-$version"
 
 Write-Host -NoNewline "Release Shortcuts plugin" -ForegroundColor Magenta
-Write-Host -NoNewline " [v$version | $configuration" -ForegroundColor Cyan
+Write-Host -NoNewline " [ v$version | $configuration" -ForegroundColor Cyan
 Write-Host -NoNewline ($includeDesktopApp ? " | Editor ]" : " ]") -ForegroundColor Cyan
 
 Write-Host
